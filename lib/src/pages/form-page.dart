@@ -1,3 +1,5 @@
+import 'package:customers/src/bloc/form.bloc.dart';
+import 'package:customers/src/bloc/provider.dart';
 import 'package:customers/src/pages/signature.dart';
 import 'package:flutter/material.dart';
 
@@ -20,6 +22,7 @@ class _FormPageState extends State<FormPage> {
 
   @override
   Widget build(BuildContext context) {
+    final formBloc = Provider.of(context);
     return Scaffold(
       appBar: AppBar(
         title: Text('Control de verificación COVID-19'),
@@ -68,8 +71,7 @@ class _FormPageState extends State<FormPage> {
                   FloatingActionButton(
                       backgroundColor: Theme.of(context).primaryColor,
                       child: Icon(Icons.arrow_forward),
-                      onPressed: () => Navigator.pushNamed(
-                          context, SignaturePage.routeName)),
+                      onPressed: () => onSubmitForm(formBloc)),
                 ],
               )
             ],
@@ -374,5 +376,17 @@ class _FormPageState extends State<FormPage> {
         )
       ],
     );
+  }
+
+  onSubmitForm(FormBloc formBloc) {
+    formBloc.changeYourSymptoms(_yourSymptoms);
+    formBloc.changeYourSymptomsDesc(_yourSymptomsDesc);
+    formBloc.changeYourHomeSymptoms(_yourHomeSymptoms);
+    formBloc.changeHaveBeenIsolated(_haveBeenIsolated);
+    formBloc.changeHaveBeenIsolatedDesc(_haveBeenIsolatedDesc);
+    formBloc.changeHaveBeenVisited(_haveBeenVisited);
+    formBloc.changeHaveBeenVisitedDesc(_haveBeenVisitedDesc);
+    formBloc.changeHaveBeenWithPeople(_haveBeenWithPeople);
+    Navigator.pushNamed(context, SignaturePage.routeName);
   }
 }

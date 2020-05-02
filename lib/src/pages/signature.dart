@@ -1,3 +1,6 @@
+import 'package:customers/src/bloc/form.bloc.dart';
+import 'package:customers/src/bloc/provider.dart';
+import 'package:customers/src/pages/signature-pad.dart';
 import 'package:flutter/material.dart';
 
 class SignaturePage extends StatefulWidget {
@@ -15,7 +18,15 @@ class _SignaturePageState extends State<SignaturePage> {
   bool _employeeAcceptVacationSymptoms = false;
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final formBlock = Provider.of(context);
+    formBlock.haveBeenVisitedDescStream.listen((data) => print('your visited des: $data'));
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final formBloc = Provider.of(context);
     return Scaffold(
       appBar: AppBar(
         title: Text('Clase de visitante'),
@@ -30,7 +41,16 @@ class _SignaturePageState extends State<SignaturePage> {
                 height: 30,
               ),
               Visibility(visible: !_isEmployee, child: _createVisitor()),
-              Visibility(visible: _isEmployee, child: _createEmployee()),              
+              Visibility(visible: _isEmployee, child: _createEmployee()),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: <Widget>[
+                  FloatingActionButton(
+                      backgroundColor: Theme.of(context).primaryColor,
+                      child: Icon(Icons.arrow_forward),
+                      onPressed: () => onFormSubmit(formBloc)),
+                ],
+              )            
             ],
           ),
         ),
@@ -143,4 +163,12 @@ class _SignaturePageState extends State<SignaturePage> {
     );
   }
 
+  onFormSubmit(FormBloc formBlock) {
+    formBlock.changeIsEmployee(_isEmployee);
+    formBlock.changeVisitorAccept(_visitorAccept);
+    formBlock.changeEmployeeAcceptYourSymptoms(_employeeAcceptYourSymptoms);
+    formBlock.changeEmployeeAcceptHomeSymptoms(_employeeAcceptHomeSymptoms);
+    formBlock.changeEmployeeAcceptVacationSymptoms(_employeeAcceptVacationSymptoms);
+    Navigator.pushNamed(context, Signature.routeName);
+  }
 }

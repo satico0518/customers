@@ -31,7 +31,7 @@ class _QRCodePageState extends State<QRCodePage> {
                   color: Colors.grey[50],
                   // child: Image.memory(image)
                   child: QrImage(
-                    foregroundColor: Colors.purple[900],
+                    foregroundColor: Theme.of(context).secondaryHeaderColor,
                     data: args.toString(),
                     version: QrVersions.auto,
                     size: MediaQuery.of(context).size.width * .9,

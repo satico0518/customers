@@ -1,5 +1,3 @@
-import 'package:customers/src/bloc/form.bloc.dart';
-import 'package:customers/src/bloc/provider.dart';
 import 'package:customers/src/pages/signature.dart';
 import 'package:flutter/material.dart';
 
@@ -11,18 +9,17 @@ class FormPage extends StatefulWidget {
 }
 
 class _FormPageState extends State<FormPage> {
-  bool _yourSymptoms = false;
-  bool _yourHomeSymptoms = false;
-  bool _haveBeenIsolated = true;
-  bool _haveBeenVisited = false;
-  bool _haveBeenWithPeople = false;
-  String _yourSymptomsDesc = '';
-  String _haveBeenIsolatedDesc = '';
-  String _haveBeenVisitedDesc = '';
+  int _yourSymptoms = 1;
+  int _yourHomeSymptoms = 0;
+  int _haveBeenIsolated = 1;
+  int _haveBeenVisited = 0;
+  int _haveBeenWithPeople = 0;
+  String _yourSymptomsDesc = 'fiebre y tos';
+  String _haveBeenIsolatedDesc = 'no quice';
+  String _haveBeenVisitedDesc = 'muchass';
 
   @override
   Widget build(BuildContext context) {
-    final formBloc = Provider.of(context);
     return Scaffold(
       appBar: AppBar(
         title: Text('Control de verificación COVID-19'),
@@ -71,7 +68,7 @@ class _FormPageState extends State<FormPage> {
                   FloatingActionButton(
                       backgroundColor: Theme.of(context).primaryColor,
                       child: Icon(Icons.arrow_forward),
-                      onPressed: () => onSubmitForm(formBloc)),
+                      onPressed: () => onSubmitForm()),
                 ],
               )
             ],
@@ -97,7 +94,7 @@ class _FormPageState extends State<FormPage> {
           children: <Widget>[
             Radio(
               activeColor: Theme.of(context).primaryColor,
-              value: true,
+              value: 1,
               groupValue: _yourSymptoms,
               onChanged: (value) => setState(() => _yourSymptoms = value),
             ),
@@ -107,7 +104,7 @@ class _FormPageState extends State<FormPage> {
             ),
             Radio(
               activeColor: Theme.of(context).primaryColor,
-              value: false,
+              value: 0,
               groupValue: _yourSymptoms,
               onChanged: (value) => setState(() => _yourSymptoms = value),
             ),
@@ -123,7 +120,7 @@ class _FormPageState extends State<FormPage> {
           height: 20,
         ),
         Visibility(
-            visible: _yourSymptoms,
+            visible: _yourSymptoms == 1 ? true : false,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
@@ -166,7 +163,7 @@ class _FormPageState extends State<FormPage> {
               children: <Widget>[
                 Radio(
                   activeColor: Theme.of(context).primaryColor,
-                  value: true,
+                  value: 1,
                   groupValue: _yourHomeSymptoms,
                   onChanged: (value) =>
                       setState(() => _yourHomeSymptoms = value),
@@ -177,7 +174,7 @@ class _FormPageState extends State<FormPage> {
                 ),
                 Radio(
                   activeColor: Theme.of(context).primaryColor,
-                  value: false,
+                  value: 0,
                   groupValue: _yourHomeSymptoms,
                   onChanged: (value) =>
                       setState(() => _yourHomeSymptoms = value),
@@ -212,7 +209,7 @@ class _FormPageState extends State<FormPage> {
           children: <Widget>[
             Radio(
               activeColor: Theme.of(context).primaryColor,
-              value: true,
+              value: 1,
               groupValue: _haveBeenIsolated,
               onChanged: (value) => setState(() => _haveBeenIsolated = value),
             ),
@@ -222,7 +219,7 @@ class _FormPageState extends State<FormPage> {
             ),
             Radio(
               activeColor: Theme.of(context).primaryColor,
-              value: false,
+              value: 0,
               groupValue: _haveBeenIsolated,
               onChanged: (value) => setState(() => _haveBeenIsolated = value),
             ),
@@ -238,7 +235,7 @@ class _FormPageState extends State<FormPage> {
           height: 20,
         ),
         Visibility(
-            visible: !_haveBeenIsolated,
+            visible: _haveBeenIsolated == 0 ? true : false,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
@@ -279,7 +276,7 @@ class _FormPageState extends State<FormPage> {
           children: <Widget>[
             Radio(
               activeColor: Theme.of(context).primaryColor,
-              value: true,
+              value: 1,
               groupValue: _haveBeenVisited,
               onChanged: (value) => setState(() => _haveBeenVisited = value),
             ),
@@ -289,7 +286,7 @@ class _FormPageState extends State<FormPage> {
             ),
             Radio(
               activeColor: Theme.of(context).primaryColor,
-              value: false,
+              value: 0,
               groupValue: _haveBeenVisited,
               onChanged: (value) => setState(() => _haveBeenVisited = value),
             ),
@@ -305,7 +302,7 @@ class _FormPageState extends State<FormPage> {
           height: 20,
         ),
         Visibility(
-            visible: _haveBeenVisited,
+            visible: _haveBeenVisited == 1 ? true : false,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
@@ -348,7 +345,7 @@ class _FormPageState extends State<FormPage> {
               children: <Widget>[
                 Radio(
                   activeColor: Theme.of(context).primaryColor,
-                  value: true,
+                  value: 1,
                   groupValue: _haveBeenWithPeople,
                   onChanged: (value) =>
                       setState(() => _haveBeenWithPeople = value),
@@ -359,7 +356,7 @@ class _FormPageState extends State<FormPage> {
                 ),
                 Radio(
                   activeColor: Theme.of(context).primaryColor,
-                  value: false,
+                  value: 0,
                   groupValue: _haveBeenWithPeople,
                   onChanged: (value) =>
                       setState(() => _haveBeenWithPeople = value),
@@ -378,15 +375,25 @@ class _FormPageState extends State<FormPage> {
     );
   }
 
-  onSubmitForm(FormBloc formBloc) {
-    formBloc.changeYourSymptoms(_yourSymptoms);
-    formBloc.changeYourSymptomsDesc(_yourSymptomsDesc);
-    formBloc.changeYourHomeSymptoms(_yourHomeSymptoms);
-    formBloc.changeHaveBeenIsolated(_haveBeenIsolated);
-    formBloc.changeHaveBeenIsolatedDesc(_haveBeenIsolatedDesc);
-    formBloc.changeHaveBeenVisited(_haveBeenVisited);
-    formBloc.changeHaveBeenVisitedDesc(_haveBeenVisitedDesc);
-    formBloc.changeHaveBeenWithPeople(_haveBeenWithPeople);
-    Navigator.pushNamed(context, SignaturePage.routeName);
+  onSubmitForm() {
+    final form = {
+      'yourSymptoms': _yourSymptoms,
+      'yourHomeSymptoms': _yourHomeSymptoms,
+      'haveBeenIsolated': _haveBeenIsolated,
+      'haveBeenVisited': _haveBeenVisited,
+      'haveBeenWithPeople': _haveBeenWithPeople,
+      'yourSymptomsDesc': _yourSymptomsDesc,
+      'haveBeenIsolatedDesc': _haveBeenIsolatedDesc,
+      'haveBeenVisitedDesc': _haveBeenVisitedDesc
+    };
+    // formBloc.changeYourSymptoms(_yourSymptoms);
+    // formBloc.changeYourSymptomsDesc(_yourSymptomsDesc);
+    // formBloc.changeYourHomeSymptoms(_yourHomeSymptoms);
+    // formBloc.changeHaveBeenIsolated(_haveBeenIsolated);
+    // formBloc.changeHaveBeenIsolatedDesc(_haveBeenIsolatedDesc);
+    // formBloc.changeHaveBeenVisited(_haveBeenVisited);
+    // formBloc.changeHaveBeenVisitedDesc(_haveBeenVisitedDesc);
+    // formBloc.changeHaveBeenWithPeople(_haveBeenWithPeople);
+    Navigator.pushNamed(context, SignaturePage.routeName, arguments: form);
   }
 }

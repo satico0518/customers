@@ -1,5 +1,6 @@
 import 'package:customers/src/bloc/provider.dart';
 import 'package:customers/src/pages/form-page.dart';
+import 'package:customers/src/pages/qr-page.dart';
 import 'package:customers/src/pages/signature-pad.dart';
 import 'package:customers/src/pages/signature.dart';
 import 'package:flutter/material.dart';
@@ -20,8 +21,8 @@ class MyApp extends StatelessWidget {
           routes: {
             FormPage.routeName: (BuildContext context) => FormPage(),
             SignaturePage.routeName: (BuildContext context) => SignaturePage(),
-            Signature.routeName: (BuildContext context) =>
-                Signature(controller: new SignatureController())
+            QRCodePage.routeName: (BuildContext context) => QRCodePage(),
+            Signature.routeName: (BuildContext context) => Signature(controller: new SignatureController())
           }),
     );
   }

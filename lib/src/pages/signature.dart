@@ -1,5 +1,4 @@
-import 'package:customers/src/bloc/form.bloc.dart';
-import 'package:customers/src/bloc/provider.dart';
+import 'package:customers/src/pages/qr-page.dart';
 import 'package:customers/src/pages/signature-pad.dart';
 import 'package:flutter/material.dart';
 
@@ -11,22 +10,15 @@ class SignaturePage extends StatefulWidget {
 }
 
 class _SignaturePageState extends State<SignaturePage> {
-  bool _isEmployee = false;
-  bool _visitorAccept = false;
-  bool _employeeAcceptYourSymptoms = false;
-  bool _employeeAcceptHomeSymptoms = false;
-  bool _employeeAcceptVacationSymptoms = false;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final formBlock = Provider.of(context);
-    formBlock.haveBeenVisitedDescStream.listen((data) => print('your visited des: $data'));
-  }
+  int _isEmployee = 0;
+  int _visitorAccept = 0;
+  int _employeeAcceptYourSymptoms = 0;
+  int _employeeAcceptHomeSymptoms = 0;
+  int _employeeAcceptVacationSymptoms = 0;
 
   @override
   Widget build(BuildContext context) {
-    final formBloc = Provider.of(context);
+    final args = ModalRoute.of(context).settings.arguments;
     return Scaffold(
       appBar: AppBar(
         title: Text('Clase de visitante'),
@@ -40,15 +32,15 @@ class _SignaturePageState extends State<SignaturePage> {
               SizedBox(
                 height: 30,
               ),
-              Visibility(visible: !_isEmployee, child: _createVisitor()),
-              Visibility(visible: _isEmployee, child: _createEmployee()),
+              Visibility(visible: _isEmployee == 0 ? true : false, child: _createVisitor()),
+              Visibility(visible: _isEmployee == 1 ? true : false, child: _createEmployee()),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
                   FloatingActionButton(
                       backgroundColor: Theme.of(context).primaryColor,
                       child: Icon(Icons.arrow_forward),
-                      onPressed: () => onFormSubmit(formBloc)),
+                      onPressed: () => onFormSubmit(args)),
                 ],
               )            
             ],
@@ -76,7 +68,7 @@ class _SignaturePageState extends State<SignaturePage> {
               children: <Widget>[
                 Radio(
               activeColor: Theme.of(context).primaryColor,
-                  value: true,
+                  value: 1,
                   groupValue: _isEmployee,
                   onChanged: (value) => setState(() => _isEmployee = value),
                 ),
@@ -86,7 +78,7 @@ class _SignaturePageState extends State<SignaturePage> {
                 ),
                 Radio(
               activeColor: Theme.of(context).primaryColor,
-                  value: false,
+                  value: 0,
                   groupValue: _isEmployee,
                   onChanged: (value) => setState(() => _isEmployee = value),
                 ),
@@ -111,8 +103,8 @@ class _SignaturePageState extends State<SignaturePage> {
           children: <Widget>[
             CheckboxListTile(
               activeColor: Theme.of(context).primaryColor,
-                value: _visitorAccept,
-                onChanged: (value) => setState(() => _visitorAccept = value),
+                value: _visitorAccept == 1 ? true : false,
+                onChanged: (value) => setState(() => _visitorAccept = value ? 1 : 0),
                 title: Text(
                   'Declaro que la información que he suministrado en este cuestionario es verídica y que en caso de presentar alguno de los síntomas o de tener contacto con alguna persona contagiada con COVID-19, lo reportaré de manera inmediata al personal encargado.',
                   textAlign: TextAlign.justify,
@@ -130,8 +122,8 @@ class _SignaturePageState extends State<SignaturePage> {
           children: <Widget>[
             CheckboxListTile(
               activeColor: Theme.of(context).primaryColor,
-                value: _employeeAcceptYourSymptoms,
-                onChanged: (value) => setState(() => _employeeAcceptYourSymptoms = value),
+                value: _employeeAcceptYourSymptoms == 1 ? true : false,
+                onChanged: (value) => setState(() => _employeeAcceptYourSymptoms = value ? 1 : 0),
                 title: Text(
                   'Estoy de acuerdo en reportar, de manera inmediata, si presento alguno de los síntomas indicados en este documento.',
                   textAlign: TextAlign.justify,
@@ -140,8 +132,8 @@ class _SignaturePageState extends State<SignaturePage> {
             SizedBox(height: 30,),
             CheckboxListTile(
               activeColor: Theme.of(context).primaryColor,
-                value: _employeeAcceptHomeSymptoms,
-                onChanged: (value) => setState(() => _employeeAcceptHomeSymptoms = value),
+                value: _employeeAcceptHomeSymptoms == 1 ? true : false,
+                onChanged: (value) => setState(() => _employeeAcceptHomeSymptoms = value ? 1 : 0),
                 title: Text(
                   'Estoy de acuerdo en reportar, de manera inmediata, si en mi hogar hay una persona que presente los síntomas indicados en este documento.',
                   textAlign: TextAlign.justify,
@@ -150,8 +142,8 @@ class _SignaturePageState extends State<SignaturePage> {
             SizedBox(height: 30,),
             CheckboxListTile(
               activeColor: Theme.of(context).primaryColor,
-                value: _employeeAcceptVacationSymptoms,
-                onChanged: (value) => setState(() => _employeeAcceptVacationSymptoms = value),
+                value: _employeeAcceptVacationSymptoms == 1 ? true : false,
+                onChanged: (value) => setState(() => _employeeAcceptVacationSymptoms = value ? 1 : 0),
                 title: Text(
                   'Estoy de acuerdo en reportar, si durante una ausencia personal o durante mi periodo de vacaciones he presentado alguno de los síntomas.',
                   textAlign: TextAlign.justify,
@@ -163,12 +155,17 @@ class _SignaturePageState extends State<SignaturePage> {
     );
   }
 
-  onFormSubmit(FormBloc formBlock) {
-    formBlock.changeIsEmployee(_isEmployee);
-    formBlock.changeVisitorAccept(_visitorAccept);
-    formBlock.changeEmployeeAcceptYourSymptoms(_employeeAcceptYourSymptoms);
-    formBlock.changeEmployeeAcceptHomeSymptoms(_employeeAcceptHomeSymptoms);
-    formBlock.changeEmployeeAcceptVacationSymptoms(_employeeAcceptVacationSymptoms);
-    Navigator.pushNamed(context, Signature.routeName);
+  onFormSubmit(dynamic formArgs) {
+    final args = {
+      "isEmployee": _isEmployee,
+      "visitorAccept": _visitorAccept,
+      "employeeAcceptYourSymptoms": _employeeAcceptYourSymptoms,
+      "employeeAcceptHomeSymptoms": _employeeAcceptHomeSymptoms,
+      "employeeAcceptVacationSymptoms": _employeeAcceptVacationSymptoms,
+      "signature": ''
+    };
+    print('args: $formArgs');
+    args.addAll(formArgs);
+    Navigator.pushNamed(context, QRCodePage.routeName, arguments: args);
   }
 }

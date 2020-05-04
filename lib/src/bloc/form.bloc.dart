@@ -21,43 +21,43 @@ class FormBloc {
   Stream<bool> get yourSymptomsStream => _yourSymptoms.stream;
   get changeYourSymptoms => _yourSymptoms.sink.add;
   
-  get yourHomeSymptomsStream => _yourHomeSymptoms.stream;
+  Stream<bool> get yourHomeSymptomsStream => _yourHomeSymptoms.stream;
   get changeYourHomeSymptoms => _yourHomeSymptoms.sink.add;
   
-  get haveBeenIsolatedStream => _haveBeenIsolated.stream;
+  Stream<bool> get haveBeenIsolatedStream => _haveBeenIsolated.stream;
   get changeHaveBeenIsolated => _haveBeenIsolated.sink.add;
   
-  get haveBeenVisitedStream => _haveBeenVisited.stream;
+  Stream<bool> get haveBeenVisitedStream => _haveBeenVisited.stream;
   get changeHaveBeenVisited => _haveBeenVisited.sink.add;
   
-  get haveBeenWithPeopleStream => _haveBeenWithPeople.stream;
+  Stream<bool> get haveBeenWithPeopleStream => _haveBeenWithPeople.stream;
   get changeHaveBeenWithPeople => _haveBeenWithPeople.sink.add;
   
-  get yourSymptomsDescStream => _yourSymptomsDesc.stream;
+  Stream<String> get yourSymptomsDescStream => _yourSymptomsDesc.stream;
   get changeYourSymptomsDesc => _yourSymptomsDesc.sink.add;
 
-  get haveBeenIsolatedDescStream => _haveBeenIsolatedDesc.stream;
+  Stream<String> get haveBeenIsolatedDescStream => _haveBeenIsolatedDesc.stream;
   get changeHaveBeenIsolatedDesc => _haveBeenIsolatedDesc.sink.add;
 
-  get haveBeenVisitedDescStream => _haveBeenVisitedDesc.stream;
+  Stream<String> get haveBeenVisitedDescStream => _haveBeenVisitedDesc.stream;
   get changeHaveBeenVisitedDesc => _haveBeenVisitedDesc.sink.add;
 
-  get isEmployeeStream => _isEmployee.stream;
+  Stream<bool> get isEmployeeStream => _isEmployee.stream;
   get changeIsEmployee => _isEmployee.sink.add;
 
-  get visitorAcceptStream => _visitorAccept.stream;
+  Stream<bool> get visitorAcceptStream => _visitorAccept.stream;
   get changeVisitorAccept => _visitorAccept.sink.add;
 
-  get employeeAcceptYourSymptomsStream => _employeeAcceptYourSymptoms.stream;
+  Stream<bool> get employeeAcceptYourSymptomsStream => _employeeAcceptYourSymptoms.stream;
   get changeEmployeeAcceptYourSymptoms => _employeeAcceptYourSymptoms.sink.add;
 
-  get employeeAcceptHomeSymptomsStream => _employeeAcceptHomeSymptoms.stream;
+  Stream<bool> get employeeAcceptHomeSymptomsStream => _employeeAcceptHomeSymptoms.stream;
   get changeEmployeeAcceptHomeSymptoms => _employeeAcceptHomeSymptoms.sink.add;
 
-  get employeeAcceptVacationSymptomsStream => _employeeAcceptVacationSymptoms.stream;
+  Stream<bool> get employeeAcceptVacationSymptomsStream => _employeeAcceptVacationSymptoms.stream;
   get changeEmployeeAcceptVacationSymptoms => _employeeAcceptVacationSymptoms.sink.add;
 
-  get signatureStream => _signature.stream;
+  Stream<Uint8List> get signatureStream => _signature.stream;
   get changeSignature => _signature.sink.add;
 
   dispose() {

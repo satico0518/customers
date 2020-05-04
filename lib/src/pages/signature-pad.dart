@@ -1,11 +1,11 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
-import 'package:customers/src/bloc/provider.dart';
+import 'package:customers/src/pages/qr-page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:qr_flutter/qr_flutter.dart';
 
 /// Signature canvas. Controller is required, other parameters are optional. It expands by default.
 /// This behaviour can be overridden using width and/or height parameters.
@@ -97,41 +97,9 @@ class SignatureState extends State<Signature> {
                   FlatButton(
                     onPressed: () async {
                       if (widget.controller.isNotEmpty) {
-                        final formBloc = Provider.of(context);
-                        var data = await widget.controller.toPngBytes();
-                        formBloc.changeSignature(data);
-                        formBloc.signatureStream.listen((image) {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (BuildContext context) {
-                                return Scaffold(
-                                  appBar: AppBar(title: Text('Tu Código QR'),),
-                                  body: Container(
-                                    padding: EdgeInsets.all(30),
-                                    child: Column(
-                                      children: <Widget>[
-                                        Text('Presenta este codigo QR en los establecimientos que visites, de esta manera se puedra cargar toda la información de tu entrevista COVID-19!',
-                                          style: TextStyle(fontSize: 20),
-                                          textAlign: TextAlign.justify,
-                                        ),
-                                        SizedBox(height: 50,),
-                                        Container(
-                                          color: Colors.grey[50],
-                                          // child: Image.memory(image)
-                                          child: QrImage(
-                                            data: 'google.com',
-                                            version: QrVersions.auto,
-                                            size: MediaQuery.of(context).size.width * .8,
-                                          ),
-                                        ),
-                                      ],
-                                    )
-                                  ),
-                                );
-                              },
-                            ),
-                          );
-                        });
+                        /// TODO **********************************
+                        // var data = await widget.controller.toPngBytes();
+                        // Navigator.pushNamed(context, QRCode.routeName, arguments: args);
                       }
                     },
                     child: Text(

@@ -1,9 +1,8 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
-import 'package:customers/src/pages/qr-page.dart';
+import 'package:customers/src/pages/home-page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
@@ -38,6 +37,8 @@ class SignatureState extends State<Signature> {
 
   @override
   Widget build(BuildContext context) {
+    final GlobalKey<ScaffoldState> _scaffoldKey =
+        new GlobalKey<ScaffoldState>();
     var maxWidth = widget.width ?? double.infinity;
     var maxHeight = MediaQuery.of(context).size.height / 3;
     var signatureCanvas = GestureDetector(
@@ -45,79 +46,121 @@ class SignatureState extends State<Signature> {
         //NO-OP
       },
       child: Scaffold(
+        key: _scaffoldKey,
         appBar: AppBar(
           title: Text('Firma'),
         ),
         body: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: <Widget>[
-              SizedBox(height: 30),
-              Text(
-                'Por favor registre su firma',
-                style: TextStyle(fontSize: 20),
+          child: Container(
+            height: MediaQuery.of(context).size.height - 100,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment(0.8, 0.0),
+                colors: [
+                  const Color(0xffa4b9f3),
+                  const Color(0xFF000000)
+                ], // whitish to gray
+                tileMode:
+                    TileMode.mirror, // repeats the gradient over the canvas
               ),
-              SizedBox(
-                height: MediaQuery.of(context).size.height / 6,
-              ),
-              Container(
-                height: MediaQuery.of(context).size.height / 3,
-                decoration: BoxDecoration(
-                    color: Color.fromRGBO(239, 239, 239, .8),
-                    border: Border(
-                        bottom: BorderSide(color: Colors.grey, width: 5),
-                        top: BorderSide(color: Colors.grey, width: 5))),
-                child: Listener(
-                  onPointerDown: (event) =>
-                      _addPoint(event, PointType.tap, maxWidth, maxHeight),
-                  onPointerUp: (event) =>
-                      _addPoint(event, PointType.tap, maxWidth, maxHeight),
-                  onPointerMove: (event) =>
-                      _addPoint(event, PointType.move, maxWidth, maxHeight),
-                  child: RepaintBoundary(
-                    child: CustomPaint(
-                      painter: _SignaturePainter(
-                          widget.controller.points,
-                          widget.controller.penColor,
-                          widget.controller.penStrokeWidth),
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                            minWidth: maxWidth,
-                            minHeight: maxHeight,
-                            maxWidth: maxWidth,
-                            maxHeight: maxHeight),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: <Widget>[
+                SizedBox(height: 30),
+                Text(
+                  'Por favor registre su firma',
+                  style: TextStyle(fontSize: 20, color: Colors.white),
+                ),
+                SizedBox(
+                  height: MediaQuery.of(context).size.height / 6,
+                ),
+                Container(
+                  height: MediaQuery.of(context).size.height / 3,
+                  decoration: BoxDecoration(
+                      color: Color.fromRGBO(239, 239, 239, .8),
+                      border: Border(
+                          bottom: BorderSide(color: Colors.grey, width: 5),
+                          top: BorderSide(color: Colors.grey, width: 5))),
+                  child: Listener(
+                    onPointerDown: (event) =>
+                        _addPoint(event, PointType.tap, maxWidth, maxHeight),
+                    onPointerUp: (event) =>
+                        _addPoint(event, PointType.tap, maxWidth, maxHeight),
+                    onPointerMove: (event) =>
+                        _addPoint(event, PointType.move, maxWidth, maxHeight),
+                    child: RepaintBoundary(
+                      child: CustomPaint(
+                        painter: _SignaturePainter(
+                            widget.controller.points,
+                            widget.controller.penColor,
+                            widget.controller.penStrokeWidth),
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                              minWidth: maxWidth,
+                              minHeight: maxHeight,
+                              maxWidth: maxWidth,
+                              maxHeight: maxHeight),
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  FlatButton(
-                    onPressed: () async {
-                      if (widget.controller.isNotEmpty) {
-                        /// TODO **********************************
-                        // var data = await widget.controller.toPngBytes();
-                        // Navigator.pushNamed(context, QRCode.routeName, arguments: args);
-                      }
-                    },
-                    child: Text(
-                      'Confirmar',
-                      style: TextStyle(fontSize: 20),
-                    ),
-                    textColor: Theme.of(context).primaryColor,
-                  ),
-                  FlatButton(
-                      onPressed: () =>
-                          setState(() => widget.controller.clear()),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    FlatButton(
+                      onPressed: () async {
+                        if (widget.controller.isNotEmpty) {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              // return object of type Dialog
+                              return AlertDialog(
+                                title: Text("Operación exitosa!"),
+                                content: Text(
+                                    "La entrevista ha quedado registrada."),
+                                actions: <Widget>[
+                                  FlatButton(
+                                    child: Text("Ok"),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                      Navigator.of(context)
+                                          .pushNamedAndRemoveUntil(
+                                              HomePage.routeName,
+                                              (Route<dynamic> route) => false);
+                                    },
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        } else {
+                          SnackBar snackBar = new SnackBar(
+                            content: new Text('No se ha registrado una firma', textAlign: TextAlign.center, style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),),
+                            backgroundColor: Colors.orangeAccent,
+                          );
+                          _scaffoldKey.currentState.showSnackBar(snackBar);
+                        }
+                      },
                       child: Text(
-                        'Borrar',
-                        style: TextStyle(fontSize: 20),
-                      )),
-                ],
-              )
-            ],
+                        'Confirmar',
+                        style: TextStyle(fontSize: 20, color: Colors.white),
+                      ),
+                      textColor: Theme.of(context).primaryColor,
+                    ),
+                    FlatButton(
+                        onPressed: () =>
+                            setState(() => widget.controller.clear()),
+                        child: Text(
+                          'Borrar',
+                          style: TextStyle(fontSize: 20, color: Colors.white),
+                        )),
+                  ],
+                )
+              ],
+            ),
           ),
         ),
       ),

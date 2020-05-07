@@ -28,7 +28,6 @@ class HomePage extends StatelessWidget {
           onPressed: () =>
               _goToQr(context, _scaffoldKey.currentState.showSnackBar),
         ),
-        drawer: NavDrawer(),
         appBar: AppBar(
           centerTitle: true,
           title: Text('Control COVID-19'),

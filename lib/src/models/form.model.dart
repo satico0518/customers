@@ -5,14 +5,20 @@ FormModel formModelFromJson(String str) => FormModel.fromJson(json.decode(str));
 String formModelToJson(FormModel data) => json.encode(data.toJson());
 
 class FormModel {
-    int yourSymptoms;
-    int yourHomeSymptoms;
-    int haveBeenIsolated;
-    int haveBeenVisited;
-    int haveBeenWithPeople;
+    String yourSymptoms;
+    String yourHomeSymptoms;
+    String haveBeenIsolated;
+    String haveBeenVisited;
+    String haveBeenWithPeople;
     String yourSymptomsDesc;
     String haveBeenIsolatedDesc;
     String haveBeenVisitedDesc;
+    String isEmployee;
+    String visitorAccept;
+    String employeeAcceptYourSymptoms;
+    String employeeAcceptHomeSymptoms;
+    String employeeAcceptVacationSymptoms;
+    String signature;
 
     FormModel({
         this.yourSymptoms,
@@ -23,6 +29,12 @@ class FormModel {
         this.yourSymptomsDesc,
         this.haveBeenIsolatedDesc,
         this.haveBeenVisitedDesc,
+        this.isEmployee,
+        this.visitorAccept,
+        this.employeeAcceptYourSymptoms,
+        this.employeeAcceptHomeSymptoms,
+        this.employeeAcceptVacationSymptoms,
+        this.signature
     });
 
     factory FormModel.fromJson(Map<String, dynamic> json) => FormModel(
@@ -34,6 +46,12 @@ class FormModel {
         yourSymptomsDesc: json["yourSymptomsDesc"],
         haveBeenIsolatedDesc: json["haveBeenIsolatedDesc"],
         haveBeenVisitedDesc: json["haveBeenVisitedDesc"],
+        isEmployee: json["isEmployee"],
+        visitorAccept: json["visitorAccept"],
+        employeeAcceptYourSymptoms: json["employeeAcceptYourSymptoms"],
+        employeeAcceptHomeSymptoms: json["employeeAcceptHomeSymptoms"],
+        employeeAcceptVacationSymptoms: json["employeeAcceptVacationSymptoms"],
+        signature: json["signature"]
     );
 
     Map<String, dynamic> toJson() => {
@@ -45,42 +63,11 @@ class FormModel {
         "yourSymptomsDesc": yourSymptomsDesc,
         "haveBeenIsolatedDesc": haveBeenIsolatedDesc,
         "haveBeenVisitedDesc": haveBeenVisitedDesc,
-    };
-}
-
-class FormAcceptModel {
-    int isEmployee;
-    int visitorAccept;
-    int employeeAcceptYourSymptoms;
-    int employeeAcceptHomeSymptoms;
-    int employeeAcceptVacationSymptoms;
-    String signature;
-
-    FormAcceptModel({
-        this.isEmployee,
-        this.visitorAccept,
-        this.employeeAcceptYourSymptoms,
-        this.employeeAcceptHomeSymptoms,
-        this.employeeAcceptVacationSymptoms,
-        this.signature,
-    });
-
-    factory FormAcceptModel.fromJson(Map<String, dynamic> json) => FormAcceptModel(
-        isEmployee: json["isEmployee"],
-        visitorAccept: json["visitorAccept"],
-        employeeAcceptYourSymptoms: json["employeeAcceptYourSymptoms"],
-        employeeAcceptHomeSymptoms: json["employeeAcceptHomeSymptoms"],
-        employeeAcceptVacationSymptoms: json["employeeAcceptVacationSymptoms"],
-        signature: json["signature"],
-    );
-
-    Map<String, dynamic> toJson() => {
         "isEmployee": isEmployee,
         "visitorAccept": visitorAccept,
         "employeeAcceptYourSymptoms": employeeAcceptYourSymptoms,
         "employeeAcceptHomeSymptoms": employeeAcceptHomeSymptoms,
         "employeeAcceptVacationSymptoms": employeeAcceptVacationSymptoms,
-        "signature": signature,
+        "signature": signature
     };
 }
-

@@ -1,4 +1,6 @@
+import 'package:customers/src/drawer.dart';
 import 'package:customers/src/pages/signature.dart';
+import 'package:customers/src/providers/form-questions.provider.dart';
 import 'package:flutter/material.dart';
 
 class FormPage extends StatefulWidget {
@@ -21,19 +23,15 @@ class _FormPageState extends State<FormPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: NavDrawer(),
       appBar: AppBar(
-        title: Text('Control de verificación COVID-19'),
+        title: Text('Entrevista'),
       ),
       body: SingleChildScrollView(
         child: Container(
           padding: EdgeInsets.symmetric(vertical: 30, horizontal: 20),
           child: Column(
             children: <Widget>[
-              Text(
-                'Entrevista',
-                style: TextStyle(fontSize: 20),
-              ),
-              Divider(),
               Form(
                   child: Column(
                 children: <Widget>[
@@ -83,7 +81,7 @@ class _FormPageState extends State<FormPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Text(
-          '1. Presenta sintomas de gripe como fiebre, tos, falta de aire, o dificultad para respirar?',
+          getQuestion(1),
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 18.0,
@@ -152,7 +150,7 @@ class _FormPageState extends State<FormPage> {
         Column(
           children: <Widget>[
             Text(
-              '2. En su casahay alguna persona que presente estos síntomas?',
+              getQuestion(2),
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 18.0,
@@ -198,7 +196,7 @@ class _FormPageState extends State<FormPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Text(
-          '3. Ha permanecido en aislamiento preventivo?',
+          getQuestion(3),
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 18.0,
@@ -265,7 +263,7 @@ class _FormPageState extends State<FormPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Text(
-          '4. Ha realizado visitas a familiares o amigos durante los ultimos 8 dias?',
+          getQuestion(4),
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 18.0,
@@ -334,7 +332,7 @@ class _FormPageState extends State<FormPage> {
         Column(
           children: <Widget>[
             Text(
-              '5. Ha estado en contacto con mas de 10 personas en un mismo lugar, en los ultimos 8 dias? Ej: Transporte publico, parque , reunion social, etc',
+              getQuestion(5),
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 18.0,

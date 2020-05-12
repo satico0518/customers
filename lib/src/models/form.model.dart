@@ -5,20 +5,20 @@ FormModel formModelFromJson(String str) => FormModel.fromJson(json.decode(str));
 String formModelToJson(FormModel data) => json.encode(data.toJson());
 
 class FormModel {
-    String yourSymptoms;
-    String yourHomeSymptoms;
-    String haveBeenIsolated;
-    String haveBeenVisited;
-    String haveBeenWithPeople;
+    int yourSymptoms;
+    int yourHomeSymptoms;
+    int haveBeenIsolated;
+    int haveBeenVisited;
+    int haveBeenWithPeople;
     String yourSymptomsDesc;
     String haveBeenIsolatedDesc;
     String haveBeenVisitedDesc;
-    String isEmployee;
-    String visitorAccept;
-    String employeeAcceptYourSymptoms;
-    String employeeAcceptHomeSymptoms;
-    String employeeAcceptVacationSymptoms;
-    String signature;
+    int isEmployee;
+    int visitorAccept;
+    int employeeAcceptYourSymptoms;
+    int employeeAcceptHomeSymptoms;
+    int employeeAcceptVacationSymptoms;
+    String lastDate;
 
     FormModel({
         this.yourSymptoms,
@@ -34,7 +34,7 @@ class FormModel {
         this.employeeAcceptYourSymptoms,
         this.employeeAcceptHomeSymptoms,
         this.employeeAcceptVacationSymptoms,
-        this.signature
+        this.lastDate
     });
 
     factory FormModel.fromJson(Map<String, dynamic> json) => FormModel(
@@ -51,7 +51,7 @@ class FormModel {
         employeeAcceptYourSymptoms: json["employeeAcceptYourSymptoms"],
         employeeAcceptHomeSymptoms: json["employeeAcceptHomeSymptoms"],
         employeeAcceptVacationSymptoms: json["employeeAcceptVacationSymptoms"],
-        signature: json["signature"]
+        lastDate: json["lastDate"]
     );
 
     Map<String, dynamic> toJson() => {
@@ -68,6 +68,6 @@ class FormModel {
         "employeeAcceptYourSymptoms": employeeAcceptYourSymptoms,
         "employeeAcceptHomeSymptoms": employeeAcceptHomeSymptoms,
         "employeeAcceptVacationSymptoms": employeeAcceptVacationSymptoms,
-        "signature": signature
+        "lastDate": lastDate
     };
 }

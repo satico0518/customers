@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
-import 'package:customers/src/pages/home-page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
@@ -113,29 +112,7 @@ class SignatureState extends State<Signature> {
                     FlatButton(
                       onPressed: () async {
                         if (widget.controller.isNotEmpty) {
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              // return object of type Dialog
-                              return AlertDialog(
-                                title: Text("Operación exitosa!"),
-                                content: Text(
-                                    "La entrevista ha quedado registrada."),
-                                actions: <Widget>[
-                                  FlatButton(
-                                    child: Text("Ok"),
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                      Navigator.of(context)
-                                          .pushNamedAndRemoveUntil(
-                                              HomePage.routeName,
-                                              (Route<dynamic> route) => false);
-                                    },
-                                  ),
-                                ],
-                              );
-                            },
-                          );
+                          
                         } else {
                           SnackBar snackBar = new SnackBar(
                             content: new Text('No se ha registrado una firma', textAlign: TextAlign.center, style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),),

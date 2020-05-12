@@ -23,4 +23,5 @@ class Provider extends InheritedWidget {
   static UserBloc of(BuildContext context) {
     return context.dependOnInheritedWidgetOfExactType<Provider>().userBloc;
   }
+
 }

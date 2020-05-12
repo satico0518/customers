@@ -1,7 +1,9 @@
-import 'package:customers/src/drawer.dart';
+import 'package:customers/src/bloc/provider.dart';
+import 'package:customers/src/bloc/user.bloc.dart';
 import 'package:customers/src/pages/signature.dart';
 import 'package:customers/src/providers/form-questions.provider.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class FormPage extends StatefulWidget {
   static final String routeName = 'form';
@@ -11,19 +13,10 @@ class FormPage extends StatefulWidget {
 }
 
 class _FormPageState extends State<FormPage> {
-  int _yourSymptoms = 1;
-  int _yourHomeSymptoms = 0;
-  int _haveBeenIsolated = 1;
-  int _haveBeenVisited = 0;
-  int _haveBeenWithPeople = 0;
-  String _yourSymptomsDesc = 'fiebre y tos';
-  String _haveBeenIsolatedDesc = 'no quice';
-  String _haveBeenVisitedDesc = 'muchass';
-
   @override
   Widget build(BuildContext context) {
+    final bloc = Provider.of(context);
     return Scaffold(
-      drawer: NavDrawer(),
       appBar: AppBar(
         title: Text('Entrevista'),
       ),
@@ -33,40 +26,41 @@ class _FormPageState extends State<FormPage> {
           child: Column(
             children: <Widget>[
               Form(
-                  child: Column(
-                children: <Widget>[
-                  SizedBox(
-                    height: 25,
-                  ),
-                  _createYourSymptoms(),
-                  SizedBox(
-                    height: 25,
-                  ),
-                  _createYourHomeSymptoms(),
-                  SizedBox(
-                    height: 25,
-                  ),
-                  _createIsolate(),
-                  SizedBox(
-                    height: 25,
-                  ),
-                  _createVisits(),
-                  SizedBox(
-                    height: 25,
-                  ),
-                  _createWithPeople(),
-                  SizedBox(
-                    height: 25,
-                  ),
-                ],
-              )),
+                child: Column(
+                  children: <Widget>[
+                    SizedBox(
+                      height: 25,
+                    ),
+                    _createYourSymptoms(bloc),
+                    SizedBox(
+                      height: 25,
+                    ),
+                    _createYourHomeSymptoms(bloc),
+                    SizedBox(
+                      height: 25,
+                    ),
+                    _createIsolate(bloc),
+                    SizedBox(
+                      height: 25,
+                    ),
+                    _createVisits(bloc),
+                    SizedBox(
+                      height: 25,
+                    ),
+                    _createWithPeople(bloc),
+                    SizedBox(
+                      height: 25,
+                    ),
+                  ],
+                ),
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
                   FloatingActionButton(
                       backgroundColor: Theme.of(context).primaryColor,
                       child: Icon(Icons.arrow_forward),
-                      onPressed: () => onSubmitForm()),
+                      onPressed: () => onSubmitForm(bloc)),
                 ],
               )
             ],
@@ -76,81 +70,15 @@ class _FormPageState extends State<FormPage> {
     );
   }
 
-  Widget _createYourSymptoms() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Text(
-          getQuestion(1),
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 18.0,
-          ),
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: <Widget>[
-            Radio(
-              activeColor: Theme.of(context).primaryColor,
-              value: 1,
-              groupValue: _yourSymptoms,
-              onChanged: (value) => setState(() => _yourSymptoms = value),
-            ),
-            Text(
-              'Si',
-              style: TextStyle(fontSize: 16.0),
-            ),
-            Radio(
-              activeColor: Theme.of(context).primaryColor,
-              value: 0,
-              groupValue: _yourSymptoms,
-              onChanged: (value) => setState(() => _yourSymptoms = value),
-            ),
-            Text(
-              'No',
-              style: TextStyle(
-                fontSize: 16.0,
-              ),
-            )
-          ],
-        ),
-        SizedBox(
-          height: 20,
-        ),
-        Visibility(
-            visible: _yourSymptoms == 1 ? true : false,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text('Describa cual de los sintomas presentó'),
-                TextFormField(
-                  maxLines: 3,
-                  textCapitalization: TextCapitalization.sentences,
-                  validator: (value) {
-                    if (value.length < 5) {
-                      return 'minimo 5 caracteres';
-                    } else {
-                      return null;
-                    }
-                  },
-                  initialValue: _yourSymptomsDesc,
-                  onChanged: (value) =>
-                      setState(() => _yourSymptomsDesc = value),
-                )
-              ],
-            ))
-      ],
-    );
-  }
-
-  Widget _createYourHomeSymptoms() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Column(
+  Widget _createYourSymptoms(UserBloc bloc) {
+    return StreamBuilder<int>(
+      stream: bloc.yourSymptomsStream,
+      builder: (context, snapshot) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Text(
-              getQuestion(2),
+              getQuestion(1),
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 18.0,
@@ -162,9 +90,8 @@ class _FormPageState extends State<FormPage> {
                 Radio(
                   activeColor: Theme.of(context).primaryColor,
                   value: 1,
-                  groupValue: _yourHomeSymptoms,
-                  onChanged: (value) =>
-                      setState(() => _yourHomeSymptoms = value),
+                  groupValue: bloc.yourSymptoms,
+                  onChanged: bloc.changeYourSymptoms,
                 ),
                 Text(
                   'Si',
@@ -173,9 +100,11 @@ class _FormPageState extends State<FormPage> {
                 Radio(
                   activeColor: Theme.of(context).primaryColor,
                   value: 0,
-                  groupValue: _yourHomeSymptoms,
-                  onChanged: (value) =>
-                      setState(() => _yourHomeSymptoms = value),
+                  groupValue: bloc.yourSymptoms,
+                  onChanged: (value) {
+                    bloc.changeYourSymptomsDesc('');
+                    bloc.changeYourSymptoms(value);
+                  },
                 ),
                 Text(
                   'No',
@@ -185,154 +114,101 @@ class _FormPageState extends State<FormPage> {
                 )
               ],
             ),
-          ],
-        )
-      ],
-    );
-  }
-
-  Widget _createIsolate() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Text(
-          getQuestion(3),
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 18.0,
-          ),
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: <Widget>[
-            Radio(
-              activeColor: Theme.of(context).primaryColor,
-              value: 1,
-              groupValue: _haveBeenIsolated,
-              onChanged: (value) => setState(() => _haveBeenIsolated = value),
+            SizedBox(
+              height: 20,
             ),
-            Text(
-              'Si',
-              style: TextStyle(fontSize: 16.0),
-            ),
-            Radio(
-              activeColor: Theme.of(context).primaryColor,
-              value: 0,
-              groupValue: _haveBeenIsolated,
-              onChanged: (value) => setState(() => _haveBeenIsolated = value),
-            ),
-            Text(
-              'No',
-              style: TextStyle(
-                fontSize: 16.0,
+            Visibility(
+              visible: bloc.yourSymptoms == 1 ? true : false,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text('Describa cual de los sintomas presentó'),
+                  StreamBuilder<String>(
+                    stream: bloc.yourSymptomsDescStream,
+                    builder: (context, snapshot) {
+                      return TextFormField(
+                        maxLines: 3,
+                        textCapitalization: TextCapitalization.sentences,
+                        validator: (value) {
+                          if (value.length < 5) {
+                            return 'minimo 5 caracteres';
+                          } else {
+                            return null;
+                          }
+                        },
+                        initialValue: bloc.yourSymptomsDesc,
+                        onChanged: bloc.changeYourSymptomsDesc,
+                      );
+                    },
+                  )
+                ],
               ),
             )
           ],
-        ),
-        SizedBox(
-          height: 20,
-        ),
-        Visibility(
-            visible: _haveBeenIsolated == 0 ? true : false,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text('Indique el motivo'),
-                TextFormField(
-                  maxLines: 3,
-                  textCapitalization: TextCapitalization.sentences,
-                  validator: (value) {
-                    if (value.length < 5) {
-                      return 'minimo 5 caracteres';
-                    } else {
-                      return null;
-                    }
-                  },
-                  initialValue: _haveBeenIsolatedDesc,
-                  onChanged: (value) =>
-                      setState(() => _haveBeenIsolatedDesc = value),
-                )
-              ],
-            ))
-      ],
+        );
+      },
     );
   }
 
-  Widget _createVisits() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Text(
-          getQuestion(4),
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 18.0,
-          ),
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: <Widget>[
-            Radio(
-              activeColor: Theme.of(context).primaryColor,
-              value: 1,
-              groupValue: _haveBeenVisited,
-              onChanged: (value) => setState(() => _haveBeenVisited = value),
-            ),
-            Text(
-              'Si',
-              style: TextStyle(fontSize: 16.0),
-            ),
-            Radio(
-              activeColor: Theme.of(context).primaryColor,
-              value: 0,
-              groupValue: _haveBeenVisited,
-              onChanged: (value) => setState(() => _haveBeenVisited = value),
-            ),
-            Text(
-              'No',
-              style: TextStyle(
-                fontSize: 16.0,
-              ),
-            )
-          ],
-        ),
-        SizedBox(
-          height: 20,
-        ),
-        Visibility(
-            visible: _haveBeenVisited == 1 ? true : false,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text('Describa a quien y por que?'),
-                TextFormField(
-                  maxLines: 3,
-                  textCapitalization: TextCapitalization.sentences,
-                  validator: (value) {
-                    if (value.length < 5) {
-                      return 'minimo 5 caracteres';
-                    } else {
-                      return null;
-                    }
-                  },
-                  initialValue: _haveBeenVisitedDesc,
-                  onChanged: (value) =>
-                      setState(() => _haveBeenVisitedDesc = value),
-                )
-              ],
-            ))
-      ],
-    );
+  Widget _createYourHomeSymptoms(UserBloc bloc) {
+    return StreamBuilder<int>(
+        stream: bloc.yourHomeSymptomsStream,
+        builder: (context, snapshot) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Column(
+                children: <Widget>[
+                  Text(
+                    getQuestion(2),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18.0,
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: <Widget>[
+                      Radio(
+                        activeColor: Theme.of(context).primaryColor,
+                        value: 1,
+                        groupValue: bloc.yourHomeSymptoms,
+                        onChanged: bloc.changeYourHomeSymptoms,
+                      ),
+                      Text(
+                        'Si',
+                        style: TextStyle(fontSize: 16.0),
+                      ),
+                      Radio(
+                        activeColor: Theme.of(context).primaryColor,
+                        value: 0,
+                        groupValue: bloc.yourHomeSymptoms,
+                        onChanged: bloc.changeYourHomeSymptoms,
+                      ),
+                      Text(
+                        'No',
+                        style: TextStyle(
+                          fontSize: 16.0,
+                        ),
+                      )
+                    ],
+                  ),
+                ],
+              )
+            ],
+          );
+        });
   }
 
-  Widget _createWithPeople() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Column(
+  Widget _createIsolate(UserBloc bloc) {
+    return StreamBuilder<int>(
+      stream: bloc.haveBeenIsolatedStream,
+      builder: (context, snapshot) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Text(
-              getQuestion(5),
+              getQuestion(3),
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 18.0,
@@ -344,9 +220,11 @@ class _FormPageState extends State<FormPage> {
                 Radio(
                   activeColor: Theme.of(context).primaryColor,
                   value: 1,
-                  groupValue: _haveBeenWithPeople,
-                  onChanged: (value) =>
-                      setState(() => _haveBeenWithPeople = value),
+                  groupValue: bloc.haveBeenIsolated,
+                  onChanged: (value) {
+                    bloc.changeHaveBeenIsolatedDesc('');
+                    bloc.changeHaveBeenIsolated(value);
+                  },
                 ),
                 Text(
                   'Si',
@@ -355,9 +233,8 @@ class _FormPageState extends State<FormPage> {
                 Radio(
                   activeColor: Theme.of(context).primaryColor,
                   value: 0,
-                  groupValue: _haveBeenWithPeople,
-                  onChanged: (value) =>
-                      setState(() => _haveBeenWithPeople = value),
+                  groupValue: bloc.haveBeenIsolated,
+                  onChanged: bloc.changeHaveBeenIsolated,
                 ),
                 Text(
                   'No',
@@ -367,31 +244,199 @@ class _FormPageState extends State<FormPage> {
                 )
               ],
             ),
+            SizedBox(
+              height: 20,
+            ),
+            Visibility(
+              visible: bloc.haveBeenIsolated == 0 ? true : false,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text('Indique el motivo'),
+                  StreamBuilder<String>(
+                    stream: bloc.haveBeenIsolatedDescStream,
+                    builder: (context, snapshot) {
+                      return TextFormField(
+                        maxLines: 3,
+                        textCapitalization: TextCapitalization.sentences,
+                        validator: (value) {
+                          if (value.length < 5) {
+                            return 'mínimo 5 caracteres';
+                          } else {
+                            return null;
+                          }
+                        },
+                        initialValue: bloc.haveBeenIsolatedDesc,
+                        onChanged: bloc.changeHaveBeenIsolatedDesc,
+                      );
+                    },
+                  )
+                ],
+              ),
+            )
           ],
-        )
-      ],
+        );
+      },
     );
   }
 
-  onSubmitForm() {
-    final form = {
-      'yourSymptoms': _yourSymptoms,
-      'yourHomeSymptoms': _yourHomeSymptoms,
-      'haveBeenIsolated': _haveBeenIsolated,
-      'haveBeenVisited': _haveBeenVisited,
-      'haveBeenWithPeople': _haveBeenWithPeople,
-      'yourSymptomsDesc': _yourSymptomsDesc,
-      'haveBeenIsolatedDesc': _haveBeenIsolatedDesc,
-      'haveBeenVisitedDesc': _haveBeenVisitedDesc
-    };
-    // formBloc.changeYourSymptoms(_yourSymptoms);
-    // formBloc.changeYourSymptomsDesc(_yourSymptomsDesc);
-    // formBloc.changeYourHomeSymptoms(_yourHomeSymptoms);
-    // formBloc.changeHaveBeenIsolated(_haveBeenIsolated);
-    // formBloc.changeHaveBeenIsolatedDesc(_haveBeenIsolatedDesc);
-    // formBloc.changeHaveBeenVisited(_haveBeenVisited);
-    // formBloc.changeHaveBeenVisitedDesc(_haveBeenVisitedDesc);
-    // formBloc.changeHaveBeenWithPeople(_haveBeenWithPeople);
-    Navigator.pushNamed(context, SignaturePage.routeName, arguments: form);
+  Widget _createVisits(UserBloc bloc) {
+    return StreamBuilder<int>(
+      stream: bloc.haveBeenVisitedStream,
+      builder: (context, snapshot) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Text(
+              getQuestion(4),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18.0,
+              ),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: <Widget>[
+                Radio(
+                  activeColor: Theme.of(context).primaryColor,
+                  value: 1,
+                  groupValue: bloc.haveBeenVisited,
+                  onChanged: bloc.changeHaveBeenVisited,
+                ),
+                Text(
+                  'Si',
+                  style: TextStyle(fontSize: 16.0),
+                ),
+                Radio(
+                  activeColor: Theme.of(context).primaryColor,
+                  value: 0,
+                  groupValue: bloc.haveBeenVisited,
+                  onChanged: (value) {
+                    bloc.changeHaveBeenVisitedDesc('');
+                    bloc.changeHaveBeenVisited(value);
+                  },
+                ),
+                Text(
+                  'No',
+                  style: TextStyle(
+                    fontSize: 16.0,
+                  ),
+                )
+              ],
+            ),
+            SizedBox(
+              height: 20,
+            ),
+            Visibility(
+              visible: bloc.haveBeenVisited == 1 ? true : false,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text('Describa a quien y por que?'),
+                  StreamBuilder<String>(
+                    stream: bloc.haveBeenVisitedDescStream,
+                    builder: (context, snapshot) {
+                      return TextFormField(
+                          maxLines: 3,
+                          textCapitalization: TextCapitalization.sentences,
+                          validator: (value) {
+                            if (value.length < 5) {
+                              return 'minimo 5 caracteres';
+                            } else {
+                              return null;
+                            }
+                          },
+                          initialValue: bloc.haveBeenVisitedDesc,
+                          onChanged: bloc.changeHaveBeenVisitedDesc);
+                    },
+                  )
+                ],
+              ),
+            )
+          ],
+        );
+      },
+    );
   }
+
+  Widget _createWithPeople(UserBloc bloc) {
+    return StreamBuilder<int>(
+      stream: bloc.haveBeenWithPeopleStream,
+      builder: (context, snapshot) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Column(
+              children: <Widget>[
+                Text(
+                  getQuestion(5),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18.0,
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: <Widget>[
+                    Radio(
+                      activeColor: Theme.of(context).primaryColor,
+                      value: 1,
+                      groupValue: bloc.haveBeenWithPeople,
+                      onChanged: bloc.changeHaveBeenWithPeople,
+                    ),
+                    Text(
+                      'Si',
+                      style: TextStyle(fontSize: 16.0),
+                    ),
+                    Radio(
+                      activeColor: Theme.of(context).primaryColor,
+                      value: 0,
+                      groupValue: bloc.haveBeenWithPeople,
+                      onChanged: bloc.changeHaveBeenWithPeople,
+                    ),
+                    Text(
+                      'No',
+                      style: TextStyle(
+                        fontSize: 16.0,
+                      ),
+                    )
+                  ],
+                ),
+              ],
+            )
+          ],
+        );
+      },
+    );
+  }
+
+  onSubmitForm(UserBloc bloc) {
+    final errorMessage = _isValidForm(bloc);
+    if (errorMessage.isNotEmpty) {
+      Fluttertoast.showToast(
+        msg: errorMessage,
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0,
+      );
+      return;
+    }
+    Navigator.pushNamed(context, SignaturePage.routeName);
+  }
+
+  String _isValidForm(UserBloc bloc) {
+    if (bloc.yourSymptoms == 1 && bloc.yourSymptomsDesc.isEmpty) {
+      return 'Indique sus síntomas';
+    } else if (bloc.haveBeenIsolated == 0 &&
+        bloc.haveBeenIsolatedDesc.isEmpty) {
+      return 'Indique por que no ha estado aislado';
+    } else if (bloc.haveBeenVisited == 1 && bloc.haveBeenVisitedDesc.isEmpty) {
+      return 'Indique por que ha realizado visitas';
+    }
+    return '';
+  }
+
 }

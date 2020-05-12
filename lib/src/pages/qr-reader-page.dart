@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:barcode_scan/barcode_scan.dart';
 import 'package:customers/src/pages/form-resume-page.dart';
+import 'package:customers/src/pages/shop-form.page.dart';
 import 'package:flutter/material.dart';
 
 class QRReaderPage extends StatefulWidget {
@@ -15,11 +16,11 @@ class _QRReaderPageState extends State<QRReaderPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text('Lectura de Codigo QR'),
-        ),
-        body: Center(
-            child: Container(
+      appBar: AppBar(
+        title: Text('Lectura de Codigo QR'),
+      ),
+      body: Center(
+        child: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
@@ -37,10 +38,7 @@ class _QRReaderPageState extends State<QRReaderPage> {
             children: <Widget>[
               Text(
                 'Aca puedes leer el codigo QR de tu visitante para obtener la información de su entrevista COVID-19',
-                style: TextStyle(
-                  fontSize: 20,
-                  color: Colors.white
-                ),
+                style: TextStyle(fontSize: 20, color: Colors.white),
                 textAlign: TextAlign.justify,
               ),
               SizedBox(
@@ -69,7 +67,22 @@ class _QRReaderPageState extends State<QRReaderPage> {
                   ))
             ],
           ),
-        )));
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: FloatingActionButton.extended(
+        backgroundColor: Colors.white,
+        label: Text(
+          'Editar Tienda',
+          style: TextStyle(color: Theme.of(context).primaryColor),
+        ),
+        icon: Icon(
+          Icons.store_mall_directory,
+          color: Theme.of(context).secondaryHeaderColor,
+        ),
+        onPressed: () => Navigator.of(context).pushNamed(ShopForm.routeName),
+      ),
+    );
   }
 
   _getQRinfo() async {

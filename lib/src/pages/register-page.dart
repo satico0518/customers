@@ -31,14 +31,15 @@ class _RegisterPageState extends State<RegisterPage> {
       child: Scaffold(
         key: _scaffoldKey,
         appBar: AppBar(
-          title: Text('Registro'),
+          title: Text('Registro Visitante'),
           actions: <Widget>[
             Row(
               children: <Widget>[
                 Text('Actualizar Usuario'),
                 IconButton(
                   icon: Icon(Icons.save),
-                  onPressed: () => _saveUserData(_scaffoldKey.currentState.showSnackBar, bloc, true),
+                  onPressed: () => _saveUserData(
+                      _scaffoldKey.currentState.showSnackBar, bloc, true),
                 ),
               ],
             )
@@ -121,10 +122,10 @@ class _RegisterPageState extends State<RegisterPage> {
             Expanded(
               child: DropdownButtonFormField(
                 hint: Text('Seleccione tipo de documento'),
-                value: snapshot.data,
+                value: bloc.identificationType,
                 items: _getOptionsDropdownItems(),
-                validator: (String value) {
-                  if (value == '-- Tipo Documento --')
+                validator: (value) {
+                  if (value == null || value == '-- Tipo Documento --')
                     return 'Tipo de documento es obligatorio';
                   return null;
                 },
@@ -242,26 +243,27 @@ class _RegisterPageState extends State<RegisterPage> {
 
   Widget _getEmailField(UserBloc bloc) {
     return StreamBuilder<String>(
-        stream: bloc.userEmailStream,
-        builder: (context, snapshot) {
-          return TextFormField(
-            initialValue: bloc.email,
-            keyboardType: TextInputType.emailAddress,
-            textCapitalization: TextCapitalization.sentences,
-            decoration: InputDecoration(
-                hintText: 'Correo Electrónico',
-                labelText: 'Correo Electrónico',
-                helperText: 'correo@dominio.com',
-                icon: Icon(Icons.email),
-                border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10))),
-            validator: (value) {
-              if (value.isEmpty) return 'Correo Electrónico es obligatorio';
-              return null;
-            },
-            onChanged: bloc.changeUserEmail,
-          );
-        });
+      stream: bloc.userEmailStream,
+      builder: (context, snapshot) {
+        return TextFormField(
+          initialValue: bloc.email,
+          keyboardType: TextInputType.emailAddress,
+          textCapitalization: TextCapitalization.sentences,
+          decoration: InputDecoration(
+              hintText: 'Correo Electrónico',
+              labelText: 'Correo Electrónico',
+              helperText: 'correo@dominio.com',
+              icon: Icon(Icons.email),
+              border:
+                  OutlineInputBorder(borderRadius: BorderRadius.circular(10))),
+          validator: (value) {
+            if (value.isEmpty) return 'Correo Electrónico es obligatorio';
+            return null;
+          },
+          onChanged: bloc.changeUserEmail,
+        );
+      },
+    );
   }
 
   _saveUserData(showSnackBar, UserBloc bloc, bool onlySave) async {

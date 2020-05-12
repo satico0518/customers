@@ -24,20 +24,20 @@ class DBProvider {
     return await openDatabase(path, version: 1, onOpen: (db) {},
         onCreate: (Database db, int version) async {
       await db.execute('CREATE TABLE Form ('
-          'yourSymptoms INTEGER,'
-          'yourHomeSymptoms INTEGER,'
-          'haveBeenIsolated INTEGER,'
-          'haveBeenVisited INTEGER,'
-          'haveBeenWithPeople INTEGER,'
-          'yourSymptomsDesc TEXT,'
-          'haveBeenIsolatedDesc TEXT,'
-          'haveBeenVisitedDesc TEXT,'
-          'isEmployee INTEGER,'
-          'visitorAccept INTEGER,'
-          'employeeAcceptYourSymptoms INTEGER,'
-          'employeeAcceptHomeSymptoms INTEGER,'
-          'employeeAcceptVacationSymptoms INTEGER,'
-          'signature TEXT');
+          'yourSymptoms INTEGER, '
+          'yourHomeSymptoms INTEGER, '
+          'haveBeenIsolated INTEGER, '
+          'haveBeenVisited INTEGER, '
+          'haveBeenWithPeople INTEGER, '
+          'yourSymptomsDesc TEXT, '
+          'haveBeenIsolatedDesc TEXT, '
+          'haveBeenVisitedDesc TEXT, '
+          'isEmployee INTEGER, '
+          'visitorAccept INTEGER, '
+          'employeeAcceptYourSymptoms INTEGER, '
+          'employeeAcceptHomeSymptoms INTEGER, '
+          'employeeAcceptVacationSymptoms INTEGER, '
+          'lastDate TEXT)');
     });
   }
 
@@ -47,20 +47,18 @@ class DBProvider {
     return res;
   }
 
-  Future<List<FormModel>> getForm() async {
+  Future<FormModel> getForm() async {
     final db = await database;
     final form = await db.query('Form');
-    List<FormModel> scanList = form.isNotEmpty
-        ? form.map((x) => FormModel.fromJson(x)).toList()
-        : [];
-    return scanList;
+    List<FormModel> formdata =
+        form.isNotEmpty ? form.map((x) => FormModel.fromJson(x)).toList() : [];
+    return formdata.length > 0 ? formdata.first : null;
   }
 
   // UPDATE
   updateForm(FormModel form) async {
     final db = await database;
-    final res = await db
-        .update('Form', form.toJson());
+    final res = await db.update('Form', form.toJson());
     return res;
   }
 

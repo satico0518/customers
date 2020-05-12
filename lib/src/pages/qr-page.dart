@@ -16,7 +16,7 @@ class QRCodePage extends StatefulWidget {
 class _QRCodePageState extends State<QRCodePage> {
   @override
   Widget build(BuildContext context) {
-    // final args = ModalRoute.of(context).settings.arguments;
+    final bloc = Provider.of(context);
     return Scaffold(
       appBar: AppBar(
         title: Text('Tu Código QR'),
@@ -33,7 +33,7 @@ class _QRCodePageState extends State<QRCodePage> {
           child: Column(
             children: <Widget>[
               Text(
-                'Presenta este codigo QR en los establecimientos que visites, de esta manera se puedra cargar toda la información de tu entrevista COVID-19!',
+                'Presenta este código QR en los establecimientos que visites, de esta manera se podrá cargar toda la información de tu entrevista COVID-19!',
                 style: TextStyle(fontSize: 20),
                 textAlign: TextAlign.justify,
               ),
@@ -77,6 +77,12 @@ class _QRCodePageState extends State<QRCodePage> {
                   },
                 ),
               ),
+              StreamBuilder<String>(
+                stream: bloc.lastDateStream,
+                builder: (context, snapshot) {
+                  return Text('Última fecha de actualización: ${bloc.lastDate}.');
+                }
+              )
             ],
           )),
     );

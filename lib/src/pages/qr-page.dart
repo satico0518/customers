@@ -94,7 +94,7 @@ class _QRCodePageState extends State<QRCodePage> {
     final Map<String, dynamic> userMap = {
       "identificationType": bloc.identificationType,
       "identification": bloc.identification,
-      "name": bloc.name,
+      "name": bloc.userName,
       "lastName": bloc.lastName,
       "contact": bloc.contact,
       "email": bloc.email

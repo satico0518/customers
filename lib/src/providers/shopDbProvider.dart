@@ -24,9 +24,11 @@ class ShopDBProvider {
     return await openDatabase(path, version: 1, onOpen: (db) {},
         onCreate: (Database db, int version) async {
       await db.execute('CREATE TABLE Shop ('
-          ' id INTEGER PRIMARY KEY,'
+          ' id TEXT PRIMARY KEY,'
+          ' firebaseId TEXT,'
           ' nit TEXT,'
           ' name TEXT,'
+          ' branchName TEXT,'
           ' contactName TEXT,'
           ' phone TEXT,'
           ' email TEXT)');

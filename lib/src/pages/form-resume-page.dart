@@ -1,8 +1,12 @@
 import 'dart:convert';
 import 'dart:ui';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:customers/src/models/form.model.dart';
+import 'package:customers/src/models/user.model.dart';
 import 'package:customers/src/pages/home-page.dart';
 import 'package:customers/src/providers/form-questions.provider.dart';
+import 'package:customers/src/providers/shopDbProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -66,8 +70,7 @@ class _FormResumePageState extends State<FormResumePage> {
                   formDataMap['haveBeenWithPeople'],
                   1,
                 ),
-                _getFormField(
-                    getQuestion(6), formDataMap['visitorAccept'], 0),
+                _getFormField(getQuestion(6), formDataMap['visitorAccept'], 0),
                 Visibility(
                   visible: formDataMap['isEmployee'] == 1 ? true : false,
                   child: Column(
@@ -93,42 +96,7 @@ class _FormResumePageState extends State<FormResumePage> {
                       style: TextStyle(fontSize: 20),
                     ),
                     color: Theme.of(context).primaryColor,
-                    onPressed: () {
-                      if (_temperature.isEmpty) {
-                        Fluttertoast.showToast(
-                          msg: "Debe registrar la temperatura del visitante!",
-                          toastLength: Toast.LENGTH_SHORT,
-                          gravity: ToastGravity.CENTER,
-                          timeInSecForIosWeb: 1,
-                          backgroundColor: Colors.red,
-                          textColor: Colors.white,
-                          fontSize: 16.0,
-                        );
-                        return;
-                      }
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          // return object of type Dialog
-                          return AlertDialog(
-                            title: Text("Operación exitosa!"),
-                            content:
-                                Text("La entrevista ha quedado registrada."),
-                            actions: <Widget>[
-                              FlatButton(
-                                child: Text("Ok"),
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                  Navigator.of(context).pushNamedAndRemoveUntil(
-                                      HomePage.routeName,
-                                      (Route<dynamic> route) => false);
-                                },
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                    },
+                    onPressed: () => _saveDataToFirebase(formDataMap),
                   ),
                 ),
                 SizedBox(
@@ -185,7 +153,7 @@ class _FormResumePageState extends State<FormResumePage> {
             style: textStyle,
           ),
           Text(
-            'Telefono: ${user['contact']}',
+            'Teléfono: ${user['contact']}',
             style: textStyle,
           ),
           Text(
@@ -300,5 +268,102 @@ class _FormResumePageState extends State<FormResumePage> {
       list.add(tempItem);
     });
     return list;
+  }
+
+  _saveDataToFirebase(formDataMap) async {
+    if (_temperature.isEmpty) {
+      Fluttertoast.showToast(
+        msg: "Debe registrar la temperatura del visitante!",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0,
+      );
+      return;
+    }
+
+    try {
+      final FormModel form = FormModel(
+          yourSymptoms: formDataMap['yourSymptoms'],
+          yourSymptomsDesc: formDataMap['yourSymptomsDesc'],
+          yourHomeSymptoms: formDataMap['yourHomeSymptoms'],
+          haveBeenIsolated: formDataMap['haveBeenIsolated'],
+          haveBeenIsolatedDesc: formDataMap['haveBeenIsolatedDesc'],
+          haveBeenVisited: formDataMap['haveBeenVisited'],
+          haveBeenVisitedDesc: formDataMap['haveBeenVisitedDesc'],
+          haveBeenWithPeople: formDataMap['haveBeenWithPeople'],
+          isEmployee: formDataMap['isEmployee'],
+          visitorAccept: formDataMap['visitorAccept'],
+          employeeAcceptYourSymptoms: formDataMap['employeeAcceptYourSymptoms'],
+          employeeAcceptHomeSymptoms: formDataMap['employeeAcceptHomeSymptoms'],
+          employeeAcceptVacationSymptoms:
+              formDataMap['employeeAcceptVacationSymptoms'],
+          lastDate: formDataMap['lastDate']);
+      // INSERT SHOP
+      final shopJson = await ShopDBProvider.db.getShop();
+      if (shopJson.firebaseId == null) {
+        final shopRef =
+            await Firestore.instance.collection('Shops').add(shopJson.toJson());
+        shopJson.firebaseId = shopRef.documentID;
+        ShopDBProvider.db.updateShop(shopJson);
+      }
+
+      // INSERT FORM
+      final formJson = form.toJson();
+      formJson["temperature"] = _temperature;
+      formJson["shopId"] = shopJson.id;
+      final user = UserModel(
+        identificationType: formDataMap['identificationType'],
+        identification: formDataMap['identification'],
+        name: formDataMap['name'],
+        lastName: formDataMap['lastName'],
+        contact: formDataMap['contact'],
+        email: formDataMap['email']
+      );
+      formJson.addAll(user.toJson());
+      await Firestore.instance.collection('Forms').add(formJson);
+
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Operación exitosa!"),
+            content: Text("La entrevista ha quedado registrada."),
+            actions: <Widget>[
+              FlatButton(
+                child: Text("Ok"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  Navigator.of(context).pushNamedAndRemoveUntil(
+                      HomePage.routeName, (Route<dynamic> route) => false);
+                },
+              ),
+            ],
+          );
+        },
+      );
+      Fluttertoast.showToast(
+        msg: "Entrevista registrada!",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.greenAccent,
+        textColor: Colors.white,
+        fontSize: 16.0,
+      ).then((value) => Navigator.of(context).pushNamedAndRemoveUntil(
+          HomePage.routeName, (Route<dynamic> route) => false));
+    } catch (e) {
+      Fluttertoast.showToast(
+        msg: "Error: ${e.toString()}",
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIosWeb: 3,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0,
+      );
+    }
   }
 }

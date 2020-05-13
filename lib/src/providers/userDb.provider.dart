@@ -24,7 +24,6 @@ class UserDBProvider {
     return await openDatabase(path, version: 1, onOpen: (db) {},
         onCreate: (Database db, int version) async {
       await db.execute('CREATE TABLE User ('
-          ' id INTEGER PRIMARY KEY,'
           ' identificationType TEXT,'
           ' identification TEXT,'
           ' name TEXT,'

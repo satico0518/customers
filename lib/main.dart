@@ -1,4 +1,6 @@
 import 'package:customers/src/bloc/provider.dart';
+import 'package:customers/src/pages/form-detail-page.dart';
+import 'package:customers/src/pages/form-list-page.dart';
 import 'package:customers/src/pages/form-page.dart';
 import 'package:customers/src/pages/form-resume-page.dart';
 import 'package:customers/src/pages/home-page.dart';
@@ -26,6 +28,8 @@ class MyApp extends StatelessWidget {
           HomePage.routeName: (BuildContext context) => HomePage(),
           RegisterPage.routeName: (BuildContext context) => RegisterPage(),
           FormPage.routeName: (BuildContext context) => FormPage(),
+          FormList.routeName: (BuildContext context) => FormList(),
+          FormDetail.routeName: (BuildContext context) => FormDetail(),
           ShopForm.routeName: (BuildContext context) => ShopForm(),
           FormResumePage.routeName: (BuildContext context) => FormResumePage(),
           SignaturePage.routeName: (BuildContext context) => SignaturePage(),

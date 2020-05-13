@@ -215,7 +215,7 @@ class _SignaturePageState extends State<SignaturePage> {
     final form = new FormModel(
         yourSymptoms: bloc.yourSymptoms,
         yourHomeSymptoms: bloc.yourHomeSymptoms,
-        haveBeenIsolated: bloc.haveBeenVisited,
+        haveBeenIsolated: bloc.haveBeenIsolated,
         haveBeenVisited: bloc.haveBeenVisited,
         haveBeenWithPeople: bloc.haveBeenWithPeople,
         yourSymptomsDesc: bloc.yourSymptomsDesc,
@@ -228,8 +228,7 @@ class _SignaturePageState extends State<SignaturePage> {
         employeeAcceptVacationSymptoms: bloc.employeeAcceptVacationSymptoms,
         lastDate: bloc.lastDate);
     final user = new UserModel(
-        id: 1,
-        name: bloc.name,
+        name: bloc.userName,
         lastName: bloc.lastName,
         identificationType: bloc.identificationType,
         identification: bloc.identification,

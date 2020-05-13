@@ -150,7 +150,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
   Widget _getIdentificationField(UserBloc bloc) {
     return StreamBuilder<String>(
-        stream: bloc.userIdStream,
+        stream: bloc.userIdentificationStream,
         builder: (context, snapshot) {
           return TextFormField(
             initialValue: bloc.identification,
@@ -167,7 +167,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 return 'Numero de Identificación es obligatorio';
               return null;
             },
-            onChanged: bloc.changeUserId,
+            onChanged: bloc.changeUserIdentification,
           );
         });
   }
@@ -177,7 +177,7 @@ class _RegisterPageState extends State<RegisterPage> {
         stream: bloc.userNameStream,
         builder: (context, snapshot) {
           return TextFormField(
-            initialValue: bloc.name,
+            initialValue: bloc.userName,
             textCapitalization: TextCapitalization.sentences,
             decoration: InputDecoration(
                 hintText: 'Nombre',
@@ -270,10 +270,9 @@ class _RegisterPageState extends State<RegisterPage> {
     if (_formKey.currentState.validate()) {
       _formKey.currentState.save();
       final user = new UserModel(
-          id: 1,
           identificationType: bloc.identificationType.trim(),
           identification: bloc.identification.trim(),
-          name: bloc.name.trim(),
+          name: bloc.userName.trim(),
           lastName: bloc.lastName.trim(),
           contact: bloc.contact.trim(),
           email: bloc.email.trim());

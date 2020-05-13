@@ -4,6 +4,7 @@ import 'package:customers/src/models/shop.model.dart';
 import 'package:customers/src/pages/qr-reader-page.dart';
 import 'package:customers/src/providers/shopDbProvider.dart';
 import 'package:flutter/material.dart';
+import 'package:uuid/uuid.dart';
 
 class ShopForm extends StatefulWidget {
   static final String routeName = 'shopform';
@@ -43,19 +44,19 @@ class _ShopFormState extends State<ShopForm> {
               key: _formKey,
               child: Column(
                 children: <Widget>[
-                  SizedBox(
-                    height: 20,
-                  ),
                   Text('Ingrese los datos de su Tienda', style: TextStyle(fontSize: 18),),
                   SizedBox(
                     height: 20,
                   ),
-
                   _getNitField(bloc),
                   SizedBox(
                     height: 20,
                   ),
                   _getShopNameField(bloc),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  _getShopBranchNameField(bloc),
                   SizedBox(
                     height: 20,
                   ),
@@ -110,7 +111,7 @@ class _ShopFormState extends State<ShopForm> {
       stream: bloc.shopNitStream,
       builder: (context, snapshot) {
         return TextFormField(
-          initialValue: bloc.nit,
+          initialValue: bloc.shopNit,
           textCapitalization: TextCapitalization.sentences,
           decoration: InputDecoration(
             hintText: 'NIT',
@@ -136,7 +137,7 @@ class _ShopFormState extends State<ShopForm> {
       stream: bloc.shopNameStream,
       builder: (context, snapshot) {
         return TextFormField(
-          initialValue: bloc.shopname,
+          initialValue: bloc.shopName,
           textCapitalization: TextCapitalization.sentences,
           decoration: InputDecoration(
             hintText: 'Tienda',
@@ -152,6 +153,33 @@ class _ShopFormState extends State<ShopForm> {
             return null;
           },
           onChanged: bloc.changeShopName,
+        );
+      },
+    );
+  }
+
+  Widget _getShopBranchNameField(UserBloc bloc) {
+    return StreamBuilder<String>(
+      stream: bloc.shopBranchNameStream,
+      builder: (context, snapshot) {
+        return TextFormField(
+
+          initialValue: bloc.shopBranchName,
+          textCapitalization: TextCapitalization.sentences,
+          decoration: InputDecoration(
+            hintText: 'Sucursal',
+            labelText: 'Sucursal',
+            helperText: 'Ingrese el nombre de la sucursal',
+            icon: Icon(Icons.shopping_basket),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+          validator: (value) {
+            if (value.isEmpty) return 'Sucursal es obligatorio';
+            return null;
+          },
+          onChanged: bloc.changeShopBranchName,
         );
       },
     );
@@ -214,7 +242,7 @@ class _ShopFormState extends State<ShopForm> {
       stream: bloc.shopEmailStream,
       builder: (context, snapshot) {
         return TextFormField(
-          initialValue: bloc.shopemail,
+          initialValue: bloc.shopEmail,
           keyboardType: TextInputType.emailAddress,
           textCapitalization: TextCapitalization.sentences,
           decoration: InputDecoration(
@@ -237,12 +265,14 @@ class _ShopFormState extends State<ShopForm> {
   _saveShopData(showSnackBar, UserBloc bloc) async {
     if (_formKey.currentState.validate()) {
       _formKey.currentState.save();
+      bloc.changeShopId(Uuid().v4());
       final shop = new ShopModel(
-          id: 1,
-          nit: bloc.nit.trim(),
-          name: bloc.shopname.trim(),
+          id: bloc.shopId,
+          nit: bloc.shopNit.trim(),
+          name: bloc.shopName.trim(),
+          branchName: bloc.shopBranchName.trim(),
           contactName: bloc.contactName.trim(),
-          email: bloc.shopemail.trim(),
+          email: bloc.shopEmail.trim(),
           phone: bloc.phone.trim());
       await ShopDBProvider.db.deleteShop();
       await ShopDBProvider.db.addShop(shop);

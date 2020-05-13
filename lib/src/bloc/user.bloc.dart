@@ -6,14 +6,16 @@ import 'package:rxdart/rxdart.dart';
 
 class UserBloc {
   final _userIdTypeController = BehaviorSubject<String>();
-  final _userIdController = BehaviorSubject<String>();
+  final _userIdentificationController = BehaviorSubject<String>();
   final _userNameController = BehaviorSubject<String>();
   final _userLastNameController = BehaviorSubject<String>();
   final _userContactController = BehaviorSubject<String>();
   final _userEmailController = BehaviorSubject<String>();
 
   final _shopNitController = BehaviorSubject<String>();
+  final _shopIdController = BehaviorSubject<String>();
   final _shopNameController = BehaviorSubject<String>();
+  final _shopBranchNameController = BehaviorSubject<String>();
   final _shopContactNameController = BehaviorSubject<String>();
   final _shopEmailController = BehaviorSubject<String>();
   final _shopPhoneController = BehaviorSubject<String>();
@@ -35,14 +37,14 @@ class UserBloc {
 
 
   Stream<String> get userIdTypeStream => _userIdTypeController.stream;
-  Stream<String> get userIdStream => _userIdController.stream;
+  Stream<String> get userIdentificationStream => _userIdentificationController.stream;
   Stream<String> get userNameStream => _userNameController.stream;
   Stream<String> get userLastNameStream => _userLastNameController.stream;
   Stream<String> get userContactStream => _userContactController.stream;
   Stream<String> get userEmailStream => _userEmailController.stream;
   Stream<bool> get formValidStream => Rx.combineLatest6(
       userIdTypeStream,
-      userIdStream,
+      userIdentificationStream,
       userNameStream,
       userLastNameStream,
       userContactStream,
@@ -51,8 +53,10 @@ class UserBloc {
               usercontactStream, userEmailStream) =>
           true);
 
+  Stream<String> get shopIdStream => _shopIdController.stream;
   Stream<String> get shopNitStream => _shopNitController.stream;
   Stream<String> get shopNameStream => _shopNameController.stream;
+  Stream<String> get shopBranchNameStream => _shopBranchNameController.stream;
   Stream<String> get shopContactNameStream => _shopContactNameController.stream;
   Stream<String> get shopEmailStream => _shopEmailController.stream;
   Stream<String> get shopPhoneStream => _shopPhoneController.stream;
@@ -82,14 +86,16 @@ class UserBloc {
   Stream<String> get lastDateStream => _lastDateController.stream;
 
   Function(String) get changeUserIdType => _userIdTypeController.sink.add;
-  Function(String) get changeUserId => _userIdController.sink.add;
+  Function(String) get changeUserIdentification => _userIdentificationController.sink.add;
   Function(String) get changeUserName => _userNameController.sink.add;
   Function(String) get changeUserLastName => _userLastNameController.sink.add;
   Function(String) get changeUserContact => _userContactController.sink.add;
   Function(String) get changeUserEmail => _userEmailController.sink.add;
 
   Function(String) get changeShopNit => _shopNitController.sink.add;
+  Function(String) get changeShopId => _shopIdController.sink.add;
   Function(String) get changeShopName => _shopNameController.sink.add;
+  Function(String) get changeShopBranchName => _shopBranchNameController.sink.add;
   Function(String) get changeShopContactName => _shopContactNameController.sink.add;
   Function(String) get changeShopEmail => _shopEmailController.sink.add;
   Function(String) get changeShopPhone => _shopPhoneController.sink.add;
@@ -110,16 +116,18 @@ class UserBloc {
   Function(String) get changeLastDate => _lastDateController.sink.add;
 
   String get identificationType => _userIdTypeController.value;
-  String get identification => _userIdController.value;
-  String get name => _userNameController.value;
+  String get identification => _userIdentificationController.value;
+  String get userName => _userNameController.value;
   String get lastName => _userLastNameController.value;
   String get contact => _userContactController.value;
   String get email => _userEmailController.value;
 
-  String get nit => _shopNitController.value;
-  String get shopname => _shopNameController.value;
+  String get shopId => _shopIdController.value;
+  String get shopNit => _shopNitController.value;
+  String get shopName => _shopNameController.value;
+  String get shopBranchName => _shopBranchNameController.value;
   String get contactName => _shopContactNameController.value;
-  String get shopemail => _shopEmailController.value;
+  String get shopEmail => _shopEmailController.value;
   String get phone => _shopPhoneController.value;
 
   int get yourSymptoms => _yourSymptomsController.value ?? 0;
@@ -141,7 +149,7 @@ class UserBloc {
     UserDBProvider.db.getUser().then((value) {
       if (value != null) {
         changeUserIdType(value.identificationType);
-        changeUserId(value.identification);
+        changeUserIdentification(value.identification);
         changeUserName(value.name);
         changeUserLastName(value.lastName);
         changeUserContact(value.contact);
@@ -150,8 +158,10 @@ class UserBloc {
     });
     ShopDBProvider.db.getShop().then((value) {
       if (value != null) {
+        changeShopId(value.id);
         changeShopNit(value.nit);
         changeShopName(value.name);
+        changeShopBranchName(value.branchName);
         changeShopContactName(value.contactName);
         changeShopEmail(value.email);
         changeShopPhone(value.phone);
@@ -179,13 +189,15 @@ class UserBloc {
 
   dispose() {
     _userIdTypeController?.close();
-    _userIdController?.close();
+    _userIdentificationController?.close();
     _userNameController?.close();
     _userLastNameController?.close();
     _userContactController?.close();
     _userEmailController?.close();
+    _shopIdController?.close();
     _shopNitController?.close();
     _shopNameController?.close();
+    _shopBranchNameController?.close();
     _shopContactNameController?.close();
     _shopEmailController?.close();
     _shopPhoneController?.close();

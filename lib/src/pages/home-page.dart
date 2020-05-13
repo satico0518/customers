@@ -15,7 +15,6 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
     final bloc = Provider.of(context);
-
     return SafeArea(
       child: Scaffold(
         key: _scaffoldKey,
@@ -83,7 +82,7 @@ class HomePage extends StatelessWidget {
                   children: <Widget>[
                     GestureDetector(
                       onTap: () {
-                        if (bloc.nit != null) {
+                        if (bloc.shopNit != null) {
                           Navigator.pushNamed(context, QRReaderPage.routeName);
                         } else {
                           Navigator.pushNamed(context, ShopForm.routeName);

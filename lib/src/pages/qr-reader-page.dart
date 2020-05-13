@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:barcode_scan/barcode_scan.dart';
+import 'package:customers/src/pages/form-list-page.dart';
 import 'package:customers/src/pages/form-resume-page.dart';
 import 'package:customers/src/pages/shop-form.page.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +14,7 @@ class QRReaderPage extends StatefulWidget {
 }
 
 class _QRReaderPageState extends State<QRReaderPage> {
+  int _cIndex = 0;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -69,18 +71,24 @@ class _QRReaderPageState extends State<QRReaderPage> {
           ),
         ),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: Colors.white,
-        label: Text(
-          'Editar Tienda',
-          style: TextStyle(color: Theme.of(context).primaryColor),
-        ),
-        icon: Icon(
-          Icons.store_mall_directory,
-          color: Theme.of(context).secondaryHeaderColor,
-        ),
-        onPressed: () => Navigator.of(context).pushNamed(ShopForm.routeName),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _cIndex,
+        onTap: goTo,
+        items: [
+          BottomNavigationBarItem(
+              title: Text('Editar Tienda'),
+              icon: Icon(
+                Icons.edit,
+                color: Theme.of(context).secondaryHeaderColor,
+              )),
+          BottomNavigationBarItem(
+            title: Text('Ver Entrevistas'),
+            icon: Icon(
+              Icons.list,
+              color: Theme.of(context).secondaryHeaderColor,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -99,6 +107,14 @@ class _QRReaderPageState extends State<QRReaderPage> {
   }
 
   goToEnterviewInfo(String qrInfo) {
-    Navigator.pushNamed(context, FormResumePage.routeName, arguments: qrInfo);
+    if (qrInfo != 'FormatException: Invalid envelope') {
+      Navigator.pushNamed(context, FormResumePage.routeName, arguments: qrInfo);
+    }
+  }
+
+  void goTo(int value) {
+    value == 0 ?
+      Navigator.of(context).pushNamed(ShopForm.routeName) :
+      Navigator.of(context).pushNamed(FormList.routeName);
   }
 }

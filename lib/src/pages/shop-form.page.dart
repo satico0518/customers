@@ -44,7 +44,10 @@ class _ShopFormState extends State<ShopForm> {
               key: _formKey,
               child: Column(
                 children: <Widget>[
-                  Text('Ingrese los datos de su Tienda', style: TextStyle(fontSize: 18),),
+                  Text(
+                    'Ingrese los datos de su Tienda',
+                    style: TextStyle(fontSize: 18),
+                  ),
                   SizedBox(
                     height: 20,
                   ),
@@ -60,6 +63,14 @@ class _ShopFormState extends State<ShopForm> {
                   SizedBox(
                     height: 20,
                   ),
+                  _getShopCityField(bloc),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  _getShopAddressField(bloc),
+                  SizedBox(
+                    height: 20,
+                  ),
                   _getShopContactNameField(bloc),
                   SizedBox(
                     height: 20,
@@ -71,7 +82,7 @@ class _ShopFormState extends State<ShopForm> {
                   _getShopEmailField(bloc),
                   SizedBox(
                     height: 20,
-                  ),                  
+                  ),
                   ButtonTheme(
                     minWidth: double.infinity,
                     buttonColor: Theme.of(context).secondaryHeaderColor,
@@ -97,7 +108,7 @@ class _ShopFormState extends State<ShopForm> {
                           borderRadius: BorderRadius.all(Radius.circular(10))),
                     ),
                   )
-                  ],
+                ],
               ),
             ),
           ),
@@ -140,19 +151,71 @@ class _ShopFormState extends State<ShopForm> {
           initialValue: bloc.shopName,
           textCapitalization: TextCapitalization.sentences,
           decoration: InputDecoration(
-            hintText: 'Tienda',
-            labelText: 'Tienda',
-            helperText: 'Ingrese el nombre de la tienda',
+            hintText: 'Razón Social',
+            labelText: 'Razón Social',
+            helperText: 'Ingrese la Razón Social',
             icon: Icon(Icons.store_mall_directory),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
             ),
           ),
           validator: (value) {
-            if (value.isEmpty) return 'Tienda es obligatorio';
+            if (value.isEmpty) return 'Razón Social es obligatorio';
             return null;
           },
           onChanged: bloc.changeShopName,
+        );
+      },
+    );
+  }
+
+  Widget _getShopCityField(UserBloc bloc) {
+    return StreamBuilder<String>(
+      stream: bloc.shopCityStream,
+      builder: (context, snapshot) {
+        return TextFormField(
+          initialValue: bloc.shopCity,
+          textCapitalization: TextCapitalization.sentences,
+          decoration: InputDecoration(
+            hintText: 'Ciudad',
+            labelText: 'Ciudad',
+            helperText: 'Ingrese la Ciudad',
+            icon: Icon(Icons.location_city),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+          validator: (value) {
+            if (value.isEmpty) return 'Ciudad es obligatorio';
+            return null;
+          },
+          onChanged: bloc.changeShopCity,
+        );
+      },
+    );
+  }
+
+  Widget _getShopAddressField(UserBloc bloc) {
+    return StreamBuilder<String>(
+      stream: bloc.shopAddressStream,
+      builder: (context, snapshot) {
+        return TextFormField(
+          initialValue: bloc.shopAddress,
+          textCapitalization: TextCapitalization.sentences,
+          decoration: InputDecoration(
+            hintText: 'Dirección',
+            labelText: 'Dirección',
+            helperText: 'Ingrese la Dirección',
+            icon: Icon(Icons.directions),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+          validator: (value) {
+            if (value.isEmpty) return 'Dirección es obligatorio';
+            return null;
+          },
+          onChanged: bloc.changeShopAddress,
         );
       },
     );
@@ -163,7 +226,6 @@ class _ShopFormState extends State<ShopForm> {
       stream: bloc.shopBranchNameStream,
       builder: (context, snapshot) {
         return TextFormField(
-
           initialValue: bloc.shopBranchName,
           textCapitalization: TextCapitalization.sentences,
           decoration: InputDecoration(
@@ -236,7 +298,7 @@ class _ShopFormState extends State<ShopForm> {
       },
     );
   }
-  
+
   Widget _getShopEmailField(UserBloc bloc) {
     return StreamBuilder<String>(
       stream: bloc.shopEmailStream,
@@ -265,15 +327,21 @@ class _ShopFormState extends State<ShopForm> {
   _saveShopData(showSnackBar, UserBloc bloc) async {
     if (_formKey.currentState.validate()) {
       _formKey.currentState.save();
-      bloc.changeShopId(Uuid().v4());
+      if (bloc.shopId == null || bloc.shopId.isEmpty) {
+        bloc.changeShopId(Uuid().v4());
+      }
+
       final shop = new ShopModel(
-          id: bloc.shopId,
-          nit: bloc.shopNit.trim(),
-          name: bloc.shopName.trim(),
-          branchName: bloc.shopBranchName.trim(),
-          contactName: bloc.contactName.trim(),
-          email: bloc.shopEmail.trim(),
-          phone: bloc.phone.trim());
+        id: bloc.shopId,
+        nit: bloc.shopNit.trim(),
+        name: bloc.shopName.trim(),
+        address: bloc.shopAddress.trim(),
+        city: bloc.shopCity.trim(),
+        branchName: bloc.shopBranchName.trim(),
+        contactName: bloc.contactName.trim(),
+        email: bloc.shopEmail.trim(),
+        phone: bloc.phone.trim(),
+      );
       await ShopDBProvider.db.deleteShop();
       await ShopDBProvider.db.addShop(shop);
       Navigator.pushNamed(context, QRReaderPage.routeName);

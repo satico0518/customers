@@ -9,6 +9,8 @@ class ShopModel {
     String firebaseId;
     String nit;
     String name;
+    String address;
+    String city;
     String branchName;
     String contactName;
     String phone;
@@ -19,6 +21,8 @@ class ShopModel {
         this.firebaseId,
         this.nit,
         this.name,
+        this.address,
+        this.city,
         this.branchName,
         this.contactName,
         this.phone,
@@ -30,6 +34,8 @@ class ShopModel {
         firebaseId: json["firebaseId"],
         nit: json["nit"],
         name: json["name"],
+        address: json["address"],
+        city: json["city"],
         branchName: json["branchName"],
         contactName: json["contactName"],
         phone: json["phone"],
@@ -41,6 +47,8 @@ class ShopModel {
         "firebaseId": firebaseId,
         "nit": nit,
         "name": name,
+        "address": address,
+        "city": city,
         "branchName": branchName,
         "contactName": contactName,
         "phone": phone,

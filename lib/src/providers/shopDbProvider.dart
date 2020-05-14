@@ -28,6 +28,8 @@ class ShopDBProvider {
           ' firebaseId TEXT,'
           ' nit TEXT,'
           ' name TEXT,'
+          ' address TEXT,'
+          ' city TEXT,'
           ' branchName TEXT,'
           ' contactName TEXT,'
           ' phone TEXT,'
@@ -53,8 +55,7 @@ class ShopDBProvider {
   // UPDATE
   updateShop(ShopModel form) async {
     final db = await database;
-    final res = await db
-        .update('Shop', form.toJson());
+    final res = await db.update('Shop', form.toJson());
     return res;
   }
 

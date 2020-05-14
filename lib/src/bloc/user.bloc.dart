@@ -16,6 +16,8 @@ class UserBloc {
   final _shopIdController = BehaviorSubject<String>();
   final _shopNameController = BehaviorSubject<String>();
   final _shopBranchNameController = BehaviorSubject<String>();
+  final _shopAddressController = BehaviorSubject<String>();
+  final _shopCityController = BehaviorSubject<String>();
   final _shopContactNameController = BehaviorSubject<String>();
   final _shopEmailController = BehaviorSubject<String>();
   final _shopPhoneController = BehaviorSubject<String>();
@@ -56,6 +58,8 @@ class UserBloc {
   Stream<String> get shopIdStream => _shopIdController.stream;
   Stream<String> get shopNitStream => _shopNitController.stream;
   Stream<String> get shopNameStream => _shopNameController.stream;
+  Stream<String> get shopAddressStream => _shopAddressController.stream;
+  Stream<String> get shopCityStream => _shopCityController.stream;
   Stream<String> get shopBranchNameStream => _shopBranchNameController.stream;
   Stream<String> get shopContactNameStream => _shopContactNameController.stream;
   Stream<String> get shopEmailStream => _shopEmailController.stream;
@@ -95,6 +99,8 @@ class UserBloc {
   Function(String) get changeShopNit => _shopNitController.sink.add;
   Function(String) get changeShopId => _shopIdController.sink.add;
   Function(String) get changeShopName => _shopNameController.sink.add;
+  Function(String) get changeShopAddress => _shopAddressController.sink.add;
+  Function(String) get changeShopCity => _shopCityController.sink.add;
   Function(String) get changeShopBranchName => _shopBranchNameController.sink.add;
   Function(String) get changeShopContactName => _shopContactNameController.sink.add;
   Function(String) get changeShopEmail => _shopEmailController.sink.add;
@@ -125,6 +131,8 @@ class UserBloc {
   String get shopId => _shopIdController.value;
   String get shopNit => _shopNitController.value;
   String get shopName => _shopNameController.value;
+  String get shopAddress => _shopAddressController.value;
+  String get shopCity => _shopCityController.value;
   String get shopBranchName => _shopBranchNameController.value;
   String get contactName => _shopContactNameController.value;
   String get shopEmail => _shopEmailController.value;
@@ -161,6 +169,8 @@ class UserBloc {
         changeShopId(value.id);
         changeShopNit(value.nit);
         changeShopName(value.name);
+        changeShopAddress(value.address);
+        changeShopCity(value.city);
         changeShopBranchName(value.branchName);
         changeShopContactName(value.contactName);
         changeShopEmail(value.email);
@@ -197,6 +207,8 @@ class UserBloc {
     _shopIdController?.close();
     _shopNitController?.close();
     _shopNameController?.close();
+    _shopAddressController?.close();
+    _shopCityController?.close();
     _shopBranchNameController?.close();
     _shopContactNameController?.close();
     _shopEmailController?.close();

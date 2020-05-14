@@ -248,7 +248,23 @@ class _FormResumePageState extends State<FormResumePage> {
                   hint: Text('Temperatura actual'),
                   value: _temperature,
                   items: _getOptionsDropdownItems(),
-                  onChanged: (value) => setState(() => _temperature = value),
+                  onChanged: (value) => setState(() {
+                    _temperature = value;
+                    final currentTemp = value == 'mas de 41°'
+                        ? 42.0
+                        : double.parse(value.replaceFirst('°', ''));
+                    if (currentTemp >= 37) {
+                      Fluttertoast.showToast(
+                        msg: currentTemp > 38 ? "Fiebre Detectada!" : "Temperatura peligrosa!",
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.CENTER,
+                        timeInSecForIosWeb: 1,
+                        backgroundColor: currentTemp > 38 ? Colors.red : Colors.orange,
+                        textColor: Colors.white,
+                        fontSize: 18.0,
+                      );
+                    }
+                  }),
                 ),
               )
             ],
@@ -315,13 +331,12 @@ class _FormResumePageState extends State<FormResumePage> {
       formJson["temperature"] = _temperature;
       formJson["shopId"] = shopJson.id;
       final user = UserModel(
-        identificationType: formDataMap['identificationType'],
-        identification: formDataMap['identification'],
-        name: formDataMap['name'],
-        lastName: formDataMap['lastName'],
-        contact: formDataMap['contact'],
-        email: formDataMap['email']
-      );
+          identificationType: formDataMap['identificationType'],
+          identification: formDataMap['identification'],
+          name: formDataMap['name'],
+          lastName: formDataMap['lastName'],
+          contact: formDataMap['contact'],
+          email: formDataMap['email']);
       formJson.addAll(user.toJson());
       await Firestore.instance.collection('Forms').add(formJson);
 

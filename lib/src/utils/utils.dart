@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:customers/src/providers/shopDbProvider.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -22,14 +23,15 @@ Future<File> writeFileContent(String content) async {
 }
 
 Future<String> sendEmail(String fileUrl) async {
+  final shop = await ShopDBProvider.db.getShop();
   String platformResponse;
   final Email email = Email(
     body: '''<h2>Ruta del archivo:</h2> <br/>
       $fileUrl <br/>
-      <h3>Recuerde que el archivo estara disponible por 2 dias</h3>.
+      <h3>Recuerde que el archivo estará disponible por 2 días</h3>.
     ''',
     subject: 'PaseYa - Link Descarga de Archivo CSV',
-    recipients: ['davo.gomez1@gmail.com'],
+    recipients: [shop.email],
     isHTML: true,
   );
 

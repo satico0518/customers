@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:csv/csv.dart';
 import 'dart:io';
 
+import 'package:fluttertoast/fluttertoast.dart';
+
 class FormList extends StatefulWidget {
   static final String routeName = 'formlist';
 
@@ -24,16 +26,16 @@ class _FormListState extends State<FormList> {
         title: Text('Listado'),
         actions: [
           Row(
-              children: <Widget>[
-                Text('CSV'),
-                IconButton(
-                  icon: Icon(Icons.file_download),
-                  onPressed: () => _downloadCsv(),
-                ),
-              ],
-            )
+            children: <Widget>[
+              Text('CSV'),
+              IconButton(
+                icon: Icon(Icons.file_download),
+                onPressed: () => _downloadCsv(),
+              ),
+            ],
+          )
         ],
-      ),      
+      ),
       body: SingleChildScrollView(
         child: Container(
           child: Column(
@@ -80,7 +82,8 @@ class _FormListState extends State<FormList> {
                                     color:
                                         Theme.of(context).secondaryHeaderColor,
                                     textColor: Colors.white,
-                                    onPressed: () => _details(context, item.data),
+                                    onPressed: () =>
+                                        _details(context, item.data),
                                     child: Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceAround,
@@ -96,10 +99,25 @@ class _FormListState extends State<FormList> {
                             .toList(),
                       );
                     } else {
-                      return Center(child: Padding(
-                        padding: EdgeInsets.only(top: 50.0),
-                        child: CircularProgressIndicator(),
-                      ));
+                      return Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: MediaQuery.of(context).size.width / 4),
+                        child: Column(
+                          children: [
+                            SizedBox(
+                              height: 100,
+                            ),
+                            CircularProgressIndicator(),
+                            SizedBox(
+                              height: 30,
+                            ),
+                            Text(
+                              'cargando entrevistas...',
+                              style: TextStyle(fontSize: 16),
+                            )
+                          ],
+                        ),
+                      );
                     }
                   },
                 ),
@@ -126,8 +144,19 @@ class _FormListState extends State<FormList> {
       dataToExport.add(tempList);
     });
     String csv = const ListToCsvConverter().convert(dataToExport);
-    print('csv $csv');
     final File txtfile = await writeFileContent(csv);
     print('txtfile: $txtfile');
+    final fileUrl = await uploadFile(txtfile, 'entrevistas_${DateTime.now().millisecondsSinceEpoch.toString()}.txt');
+    final response = await sendEmail(fileUrl);
+    print('Email response: $response');
+    Fluttertoast.showToast(
+      msg: response,
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.CENTER,
+      timeInSecForIosWeb: 3,
+      backgroundColor: Colors.green,
+      textColor: Colors.white,
+      fontSize: 18.0,
+    );
   }
 }

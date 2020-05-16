@@ -39,7 +39,7 @@ class _RegisterPageState extends State<RegisterPage> {
       child: Scaffold(
         key: _scaffoldKey,
         appBar: AppBar(
-          title: Text('Registro Visitante'),
+          title: Text('Registro'),
           actions: <Widget>[
             Row(
               children: <Widget>[

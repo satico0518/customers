@@ -4,6 +4,7 @@ import 'package:customers/src/pages/home-page.dart';
 import 'package:customers/src/pages/qr-reader-page.dart';
 import 'package:customers/src/pages/register-page.dart';
 import 'package:customers/src/pages/shop-form.page.dart';
+import 'package:customers/src/pages/terms-page.dart';
 import 'package:customers/src/providers/shopDbProvider.dart';
 import 'package:customers/src/providers/userFirebase.provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -23,6 +24,7 @@ class _LoginPageState extends State<LoginPage> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   String _userName = '';
   String _password = '';
+  bool _aceptTerms = false;
 
   @override
   Widget build(BuildContext context) {
@@ -67,13 +69,17 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 Column(
                   children: <Widget>[
-                    SizedBox(height: 150,),
+                    SizedBox(
+                      height: 150,
+                    ),
                     Text(
                       'PaseYa',
                       style: GoogleFonts.righteous(
                           letterSpacing: 5, fontSize: 55, color: Colors.white),
                     ),
-                    SizedBox(height: 70,),
+                    SizedBox(
+                      height: 70,
+                    ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 10.0),
                       child: Container(
@@ -83,7 +89,10 @@ class _LoginPageState extends State<LoginPage> {
                           child: Column(
                             children: [
                               TextFormField(
-                                style: TextStyle(color: Theme.of(context).secondaryHeaderColor, fontWeight: FontWeight.bold),
+                                style: TextStyle(
+                                    color:
+                                        Theme.of(context).secondaryHeaderColor,
+                                    fontWeight: FontWeight.bold),
                                 keyboardType: TextInputType.emailAddress,
                                 decoration: InputDecoration(
                                   labelText: 'Correo',
@@ -91,9 +100,7 @@ class _LoginPageState extends State<LoginPage> {
                                     Icons.mail_outline,
                                     color: Colors.white,
                                   ),
-                                  labelStyle:
-                                      TextStyle(color: Colors.white),
-                                  
+                                  labelStyle: TextStyle(color: Colors.white),
                                 ),
                                 validator: (value) {
                                   if (value.isEmpty)
@@ -107,7 +114,10 @@ class _LoginPageState extends State<LoginPage> {
                                 height: 10,
                               ),
                               TextFormField(
-                                style: TextStyle(color: Theme.of(context).secondaryHeaderColor, fontWeight: FontWeight.bold),
+                                style: TextStyle(
+                                    color:
+                                        Theme.of(context).secondaryHeaderColor,
+                                    fontWeight: FontWeight.bold),
                                 obscureText: true,
                                 decoration: InputDecoration(
                                   labelText: 'Contraseña',
@@ -115,8 +125,7 @@ class _LoginPageState extends State<LoginPage> {
                                     Icons.vpn_key,
                                     color: Colors.white,
                                   ),
-                                  labelStyle:
-                                      TextStyle(color: Colors.white),
+                                  labelStyle: TextStyle(color: Colors.white),
                                 ),
                                 validator: (value) {
                                   if (value.isEmpty)
@@ -127,6 +136,34 @@ class _LoginPageState extends State<LoginPage> {
                                     setState(() => _password = value),
                               ),
                               SizedBox(
+                                height: 20,
+                              ),
+                              Container(
+                                color: Color.fromRGBO(255, 255, 255, .3),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Checkbox(
+                                      checkColor: Colors.white,
+                                      activeColor: Theme.of(context)
+                                          .secondaryHeaderColor,
+                                      value: _aceptTerms,
+                                      onChanged: (value) =>
+                                          setState(() => _aceptTerms = value),
+                                    ),
+                                    GestureDetector(
+                                      onTap: () => Navigator.of(context)
+                                          .pushNamed(TermsPage.routeName),
+                                      child: Text(
+                                        'Acepto términos y condiciones',
+                                        textAlign: TextAlign.justify,
+                                        style: TextStyle(color: Colors.white, decoration: TextDecoration.underline),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(
                                 height: 50,
                               ),
                               ButtonTheme(
@@ -135,12 +172,10 @@ class _LoginPageState extends State<LoginPage> {
                                   padding: EdgeInsets.symmetric(
                                       vertical: 20, horizontal: 100),
                                   textColor: Colors.white,
-                                  color: Theme.of(context)
-                                      .secondaryHeaderColor,
+                                  color: Theme.of(context).secondaryHeaderColor,
                                   child: Icon(Icons.input),
                                   shape: RoundedRectangleBorder(
-                                      borderRadius:
-                                          BorderRadius.circular(50)),
+                                      borderRadius: BorderRadius.circular(50)),
                                   onPressed: () => _handleLogin(),
                                 ),
                               )
@@ -149,7 +184,9 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                     ),
-                    SizedBox(height: 70,),
+                    SizedBox(
+                      height: 70,
+                    ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
@@ -183,7 +220,7 @@ class _LoginPageState extends State<LoginPage> {
 
   _handleLogin() async {
     final bloc = Provider.of(context);
-    if (_formKey.currentState.validate()) {
+    if (_formKey.currentState.validate() && _areTermsAccepted()) {
       _formKey.currentState.save();
       try {
         final FirebaseUser user = await UserFirebaseProvider.fb
@@ -230,5 +267,21 @@ class _LoginPageState extends State<LoginPage> {
       return 'Operación no permitida!';
     } else
       return 'Error desconocido.';
+  }
+
+  bool _areTermsAccepted() {
+    if (!_aceptTerms) {
+      Fluttertoast.showToast(
+        msg: 'Debe aceptar los términos y condiciones.',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.orange,
+        textColor: Colors.white,
+        fontSize: 16.0,
+      );
+      return false;
+    }
+    return true;
   }
 }

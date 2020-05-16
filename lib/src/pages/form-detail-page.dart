@@ -2,6 +2,7 @@ import 'package:customers/src/providers/form-questions.provider.dart';
 import 'package:customers/src/providers/userFirebase.provider.dart';
 import 'package:customers/src/utils/utils.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class FormDetail extends StatelessWidget {
   static final String routeName = 'formdetail';
@@ -117,7 +118,7 @@ class FormDetail extends StatelessWidget {
         textColor: Colors.white,
         padding: EdgeInsets.symmetric(vertical: 20),
         color: Theme.of(context).secondaryHeaderColor,
-        onPressed: () => _downloadPDF(formDataMap),
+        onPressed: () => _downloadPDF(context, formDataMap),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
@@ -132,7 +133,16 @@ class FormDetail extends StatelessWidget {
     );
   }
 
-  _downloadPDF(Map<String, dynamic> formDataMap) async {
+  _downloadPDF(BuildContext context, Map<String, dynamic> formDataMap) async {
     final response = await sendSingleFormEmail(formDataMap);
+    Fluttertoast.showToast(
+      msg: response,
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.CENTER,
+      timeInSecForIosWeb: 3,
+      backgroundColor: Colors.green,
+      textColor: Colors.white,
+      fontSize: 18.0,
+    ).then((value) => Navigator.of(context).pop());
   }
 }

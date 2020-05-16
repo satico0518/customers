@@ -1,4 +1,5 @@
 import 'package:customers/src/providers/form-questions.provider.dart';
+import 'package:customers/src/providers/userFirebase.provider.dart';
 import 'package:flutter/material.dart';
 
 class FormDetail extends StatelessWidget {
@@ -14,7 +15,8 @@ class FormDetail extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            _getUserInfo(formDataMap, context),
+            SizedBox(height: 20,),
+            UserFirebaseProvider.fb.getUserInfo(formDataMap, context),
             _getFormField(getQuestion(1), formDataMap['yourSymptoms'],
                 memo: formDataMap['yourSymptomsDesc']),
             _getFormField(getQuestion(2), formDataMap['yourHomeSymptoms']),
@@ -43,65 +45,6 @@ class FormDetail extends StatelessWidget {
             _getExport(context, formDataMap),
           ],
         ),
-      ),
-    );
-  }
-
-  Container _getUserInfo(Map<String, dynamic> user, BuildContext context) {
-    final textStyle = TextStyle(fontSize: 18, color: Colors.white);
-    _returnIdTypeCode(String text) {
-      String code = 'CC';
-      switch (text) {
-        case 'Cedula Ciudadanía':
-          code = 'CC';
-          break;
-        case 'NIT':
-          code = 'NIT';
-          break;
-        case 'Cedula Extrangería':
-          code = 'CE';
-          break;
-        case 'Registro Civil':
-          code = 'RC';
-          break;
-        case 'Otro':
-          code = 'Otro';
-          break;
-        default:
-          code = 'N/A';
-      }
-      return code;
-    }
-
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: 20, vertical: 30),
-      color: Theme.of(context).primaryColor,
-      width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(
-            'Identificación: ${_returnIdTypeCode(user['identificationType'])} ${user['identification']}',
-            style: textStyle,
-          ),
-          Text(
-            'Nombre: ${user['name']} ${user['lastName']}',
-            style: textStyle,
-          ),
-          Text(
-            'Teléfono: ${user['contact']}',
-            style: textStyle,
-          ),
-          Text(
-            'Email: ${user['email']}',
-            style: textStyle,
-          ),
-          Text(
-            'Temperatura: ${user['temperature']}',
-            style: textStyle,
-          ),
-        ],
       ),
     );
   }
@@ -178,10 +121,10 @@ class FormDetail extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             Text(
-              'Exportar a PDF',
+              'Enviar a correo',
               style: TextStyle(fontSize: 20),
             ),
-            Icon(Icons.file_download)
+            Icon(Icons.send)
           ],
         ),
       ),

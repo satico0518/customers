@@ -5,8 +5,8 @@ ShopModel shopModelFromJson(String str) => ShopModel.fromJson(json.decode(str));
 String shopModelToJson(ShopModel data) => json.encode(data.toJson());
 
 class ShopModel {
-    String id;
     String firebaseId;
+    String documentId;
     String nit;
     String name;
     String address;
@@ -15,10 +15,11 @@ class ShopModel {
     String contactName;
     String phone;
     String email;
+    String password;
 
     ShopModel({
-        this.id,
         this.firebaseId,
+        this.documentId,
         this.nit,
         this.name,
         this.address,
@@ -27,11 +28,12 @@ class ShopModel {
         this.contactName,
         this.phone,
         this.email,
+        this.password
     });
 
     factory ShopModel.fromJson(Map<String, dynamic> json) => ShopModel(
-        id: json["id"],
         firebaseId: json["firebaseId"],
+        documentId: json["documentId"],
         nit: json["nit"],
         name: json["name"],
         address: json["address"],
@@ -40,11 +42,12 @@ class ShopModel {
         contactName: json["contactName"],
         phone: json["phone"],
         email: json["email"],
+        password: json["password"]
     );
 
     Map<String, dynamic> toJson() => {
-        "id": id,
         "firebaseId": firebaseId,
+        "documentId": documentId,
         "nit": nit,
         "name": name,
         "address": address,
@@ -53,5 +56,6 @@ class ShopModel {
         "contactName": contactName,
         "phone": phone,
         "email": email,
+        "password": password
     };
 }

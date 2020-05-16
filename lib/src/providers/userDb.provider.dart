@@ -24,28 +24,31 @@ class UserDBProvider {
     return await openDatabase(path, version: 1, onOpen: (db) {},
         onCreate: (Database db, int version) async {
       await db.execute('CREATE TABLE User ('
+          ' firebaseId TEXT,'
+          ' documentId TEXT,'
           ' identificationType TEXT,'
           ' identification TEXT,'
           ' name TEXT,'
           ' lastName TEXT,'
           ' contact TEXT,'
-          ' email TEXT)');
+          ' email TEXT,'
+          ' password TEXT)');
     });
   }
 
-  Future<int> addUser(UserModel form) async {
+  Future<int> addUser(UserModel user) async {
     final db = await database;
-    final res = await db.insert('User', form.toJson());
+    final res = await db.insert('User', user.toJson());
     return res;
   }
 
   Future<UserModel> getUser() async {
     final db = await database;
-    final form = await db.query('User');
-    List<UserModel> scanList = form.isNotEmpty
-        ? form.map((x) => UserModel.fromJson(x)).toList()
+    final user = await db.query('User');
+    List<UserModel> userModel = user.isNotEmpty
+        ? user.map((x) => UserModel.fromJson(x)).toList()
         : [];
-    return scanList.length > 0 ? scanList.first : null;
+    return userModel.length > 0 ? userModel.first : null;
   }
 
   // UPDATE

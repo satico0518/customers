@@ -19,6 +19,8 @@ class FormModel {
     int employeeAcceptHomeSymptoms;
     int employeeAcceptVacationSymptoms;
     String lastDate;
+    String shopDocumentId;
+    String userDocumentId;
 
     FormModel({
         this.yourSymptoms,
@@ -34,7 +36,9 @@ class FormModel {
         this.employeeAcceptYourSymptoms,
         this.employeeAcceptHomeSymptoms,
         this.employeeAcceptVacationSymptoms,
-        this.lastDate
+        this.lastDate,
+        this.shopDocumentId,
+        this.userDocumentId
     });
 
     factory FormModel.fromJson(Map<String, dynamic> json) => FormModel(
@@ -51,7 +55,9 @@ class FormModel {
         employeeAcceptYourSymptoms: json["employeeAcceptYourSymptoms"],
         employeeAcceptHomeSymptoms: json["employeeAcceptHomeSymptoms"],
         employeeAcceptVacationSymptoms: json["employeeAcceptVacationSymptoms"],
-        lastDate: json["lastDate"]
+        lastDate: json["lastDate"],
+        shopDocumentId: json["shopDocumentId"],
+        userDocumentId: json["userDocumentId"]
     );
 
     Map<String, dynamic> toJson() => {
@@ -68,6 +74,8 @@ class FormModel {
         "employeeAcceptYourSymptoms": employeeAcceptYourSymptoms,
         "employeeAcceptHomeSymptoms": employeeAcceptHomeSymptoms,
         "employeeAcceptVacationSymptoms": employeeAcceptVacationSymptoms,
-        "lastDate": lastDate
+        "lastDate": lastDate,
+        "shopDocumentId": shopDocumentId,
+        "userDocumentId": userDocumentId,
     };
 }

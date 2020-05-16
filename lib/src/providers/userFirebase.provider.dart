@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:customers/src/models/user.model.dart';
+import 'package:customers/src/utils/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -51,29 +52,7 @@ class UserFirebaseProvider {
 
   Container getUserInfo(Map<String, dynamic> user, BuildContext context) {
     final textStyle = TextStyle(fontSize: 18, color: Colors.white);
-    _returnIdTypeCode(String text) {
-      String code = 'CC';
-      switch (text) {
-        case 'Cedula Ciudadanía':
-          code = 'CC';
-          break;
-        case 'NIT':
-          code = 'NIT';
-          break;
-        case 'Cedula Extrangería':
-          code = 'CE';
-          break;
-        case 'Registro Civil':
-          code = 'RC';
-          break;
-        case 'Otro':
-          code = 'Otro';
-          break;
-        default:
-          code = 'N/A';
-      }
-      return code;
-    }
+    
 
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 20),
@@ -84,7 +63,7 @@ class UserFirebaseProvider {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Text(
-            'Identificación: ${_returnIdTypeCode(user['identificationType'])} ${user['identification']}',
+            'Identificación: ${returnIdTypeCode(user['identificationType'])} ${user['identification']}',
             style: textStyle,
           ),
           Text(

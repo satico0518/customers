@@ -9,6 +9,7 @@ import 'package:customers/src/providers/userFirebase.provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class LoginPage extends StatefulWidget {
   static final String routeName = 'login';
@@ -26,104 +27,74 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
-    int _index = 0;
     return SafeArea(
       child: Scaffold(
         key: _scaffoldKey,
-        bottomNavigationBar: BottomNavigationBar(
-          iconSize: 40,
-          currentIndex: _index,
-          backgroundColor: Color.fromRGBO(255, 255, 255, .9),
-          items: [
-            BottomNavigationBarItem(
-              title: Text(
-                'Registro Persona',
-                style: TextStyle(fontSize: 18),
-              ),
-              icon: Icon(
-                Icons.person,
-                color: Theme.of(context).secondaryHeaderColor,
-              ),
-            ),
-            BottomNavigationBarItem(
-              title: Text(
-                'Registro Comercio',
-                style: TextStyle(fontSize: 18),
-              ),
-              icon: Icon(
-                Icons.store_mall_directory,
-                color: Theme.of(context).secondaryHeaderColor,
-              ),
-            ),
-          ],
-          onTap: (index) {
-            setState(() => _index = index);
-            index == 0
-                ? Navigator.of(context).pushNamed(RegisterPage.routeName)
-                : Navigator.of(context).pushNamed(ShopForm.routeName);
-          },
-        ),
         body: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment(0.8, 0.0),
-              colors: [
-                const Color(0xffa4b9f3),
-                const Color(0xFF000000)
-              ], // whitish to gray
-              tileMode: TileMode.mirror, // repeats the gradient over the canvas
-            ),
-          ),
           height: MediaQuery.of(context).size.height,
           width: screenSize.width,
           child: SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
+            child: Stack(
+              children: [
                 Container(
                   width: double.infinity,
-                  height: MediaQuery.of(context).size.height / 4,
-                  child: Image(
-                      fit: BoxFit.fitWidth,
-                      image: AssetImage('assets/img/banner.jpg')),
+                  height: MediaQuery.of(context).size.height,
+                  child: Opacity(
+                    opacity: .6,
+                    child: Image(
+                        fit: BoxFit.cover,
+                        image: AssetImage('assets/img/background.jpg')),
+                  ),
                 ),
-                SizedBox(
-                  height: 50,
-                ),
-                Text(
-                  'Ingreso',
-                  style: TextStyle(fontSize: 25, color: Colors.white),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(20.0).copyWith(bottom: 0),
-                  child: Divider(color: Colors.grey),
+                Opacity(
+                  opacity: .8,
+                  child: Container(
+                    width: double.infinity,
+                    height: MediaQuery.of(context).size.height,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment(0.8, 0.0),
+                        colors: [
+                          const Color(0xffa4b9f3),
+                          const Color(0xFF000000)
+                        ], // whitish to gray
+                        tileMode: TileMode
+                            .mirror, // repeats the gradient over the canvas
+                      ),
+                    ),
+                  ),
                 ),
                 Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: <Widget>[
+                    SizedBox(height: 150,),
+                    Text(
+                      'PaseYa',
+                      style: GoogleFonts.righteous(
+                          letterSpacing: 5, fontSize: 55, color: Colors.white),
+                    ),
+                    SizedBox(height: 70,),
                     Padding(
-                      padding: const EdgeInsets.all(20.0),
+                      padding: const EdgeInsets.symmetric(horizontal: 10.0),
                       child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(5),
-                          color: Color.fromRGBO(255, 255, 255, .9),
-                        ),
                         padding: EdgeInsets.all(30),
                         child: Form(
                           key: _formKey,
                           child: Column(
                             children: [
                               TextFormField(
+                                style: TextStyle(color: Theme.of(context).secondaryHeaderColor, fontWeight: FontWeight.bold),
                                 keyboardType: TextInputType.emailAddress,
                                 decoration: InputDecoration(
-                                    labelText: 'Correo',
-                                    hintText: 'correo@dominio.com',
-                                    helperText: 'Ingrese el Correo',
-                                    icon: Icon(Icons.mail_outline),
-                                    border: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(10))),
+                                  labelText: 'Correo',
+                                  icon: Icon(
+                                    Icons.mail_outline,
+                                    color: Colors.white,
+                                  ),
+                                  labelStyle:
+                                      TextStyle(color: Colors.white),
+                                  
+                                ),
                                 validator: (value) {
                                   if (value.isEmpty)
                                     return 'Correo es obligatorio';
@@ -136,14 +107,17 @@ class _LoginPageState extends State<LoginPage> {
                                 height: 10,
                               ),
                               TextFormField(
+                                style: TextStyle(color: Theme.of(context).secondaryHeaderColor, fontWeight: FontWeight.bold),
                                 obscureText: true,
                                 decoration: InputDecoration(
-                                    labelText: 'Contraseña',
-                                    helperText: 'Ingrese la Contraseña',
-                                    icon: Icon(Icons.vpn_key),
-                                    border: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(10))),
+                                  labelText: 'Contraseña',
+                                  icon: Icon(
+                                    Icons.vpn_key,
+                                    color: Colors.white,
+                                  ),
+                                  labelStyle:
+                                      TextStyle(color: Colors.white),
+                                ),
                                 validator: (value) {
                                   if (value.isEmpty)
                                     return 'Contraseña es obligatorio';
@@ -153,28 +127,52 @@ class _LoginPageState extends State<LoginPage> {
                                     setState(() => _password = value),
                               ),
                               SizedBox(
-                                height: 30,
+                                height: 50,
                               ),
                               ButtonTheme(
-                                minWidth: double.infinity,
                                 child: RaisedButton(
-                                  padding: EdgeInsets.symmetric(vertical: 10),
+                                  elevation: 10,
+                                  padding: EdgeInsets.symmetric(
+                                      vertical: 20, horizontal: 100),
                                   textColor: Colors.white,
-                                  color: Theme.of(context).secondaryHeaderColor,
-                                  child: Text(
-                                    'Entrar',
-                                    style: TextStyle(fontSize: 20),
-                                  ),
+                                  color: Theme.of(context)
+                                      .secondaryHeaderColor,
+                                  child: Icon(Icons.input),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius:
+                                          BorderRadius.circular(50)),
                                   onPressed: () => _handleLogin(),
                                 ),
-                              ),
+                              )
                             ],
                           ),
                         ),
                       ),
+                    ),
+                    SizedBox(height: 70,),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        GestureDetector(
+                          onTap: () => Navigator.of(context)
+                              .pushNamed(ShopForm.routeName),
+                          child: Text(
+                            'Registrar Comercio',
+                            style: TextStyle(color: Colors.white, fontSize: 15),
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () => Navigator.of(context)
+                              .pushNamed(RegisterPage.routeName),
+                          child: Text(
+                            'Registrar Persona',
+                            style: TextStyle(color: Colors.white, fontSize: 15),
+                          ),
+                        ),
+                      ],
                     )
                   ],
-                )
+                ),
               ],
             ),
           ),
@@ -191,15 +189,17 @@ class _LoginPageState extends State<LoginPage> {
         final FirebaseUser user = await UserFirebaseProvider.fb
             .loginUserToFirebase(_userName.trim(), _password.trim());
         if (user.uid.isNotEmpty) {
-          final QuerySnapshot userSnapshot = await UserFirebaseProvider.fb.getUserFirebaseByemail(_userName.trim());
+          final QuerySnapshot userSnapshot = await UserFirebaseProvider.fb
+              .getUserFirebaseByemail(_userName.trim());
           bloc.changeUserIsLogged(true);
           if (userSnapshot.documents[0].data['type'] == 'CUSTOMER') {
-            Navigator.of(context).pushNamedAndRemoveUntil(HomePage.routeName, (route) => false);
+            Navigator.of(context)
+                .pushNamedAndRemoveUntil(HomePage.routeName, (route) => false);
           } else {
             ShopDBProvider.db.saveShopIfNotExists(context, _userName.trim());
-            Navigator.of(context).pushNamedAndRemoveUntil(QRReaderPage.routeName, (route) => false);
+            Navigator.of(context).pushNamedAndRemoveUntil(
+                QRReaderPage.routeName, (route) => false);
           }
-            
         }
       } catch (e) {
         Fluttertoast.showToast(

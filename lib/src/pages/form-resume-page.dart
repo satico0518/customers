@@ -2,11 +2,13 @@ import 'dart:convert';
 import 'dart:ui';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:customers/src/bloc/provider.dart';
+import 'package:customers/src/bloc/user.bloc.dart';
 import 'package:customers/src/models/form.model.dart';
 import 'package:customers/src/models/user.model.dart';
-import 'package:customers/src/pages/home-page.dart';
+import 'package:customers/src/pages/qr-reader-page.dart';
 import 'package:customers/src/providers/form-questions.provider.dart';
-import 'package:customers/src/providers/shopDbProvider.dart';
+import 'package:customers/src/providers/userFirebase.provider.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -55,7 +57,7 @@ class _FormResumePageState extends State<FormResumePage> {
                 SizedBox(
                   height: 30,
                 ),
-                _getUserInfo(formDataMap, context),
+                UserFirebaseProvider.fb.getUserInfo(formDataMap, context),
                 _getFormField(getQuestion(1), formDataMap['yourSymptoms'], 1,
                     memo: formDataMap['yourSymptomsDesc']),
                 _getFormField(
@@ -106,61 +108,6 @@ class _FormResumePageState extends State<FormResumePage> {
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  Container _getUserInfo(Map<String, dynamic> user, BuildContext context) {
-    final textStyle = TextStyle(fontSize: 18, color: Colors.white);
-    _returnIdTypeCode(String text) {
-      String code = 'CC';
-      switch (text) {
-        case 'Cedula Ciudadanía':
-          code = 'CC';
-          break;
-        case 'NIT':
-          code = 'NIT';
-          break;
-        case 'Cedula Extrangería':
-          code = 'CE';
-          break;
-        case 'Registro Civil':
-          code = 'RC';
-          break;
-        case 'Otro':
-          code = 'Otro';
-          break;
-        default:
-          code = 'N/A';
-      }
-      return code;
-    }
-
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: 20),
-      color: Theme.of(context).primaryColor,
-      width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(
-            'Identificación: ${_returnIdTypeCode(user['identificationType'])} ${user['identification']}',
-            style: textStyle,
-          ),
-          Text(
-            'Nombre: ${user['name']} ${user['lastName']}',
-            style: textStyle,
-          ),
-          Text(
-            'Teléfono: ${user['contact']}',
-            style: textStyle,
-          ),
-          Text(
-            'Email: ${user['email']}',
-            style: textStyle,
-          ),
-        ],
       ),
     );
   }
@@ -255,11 +202,14 @@ class _FormResumePageState extends State<FormResumePage> {
                         : double.parse(value.replaceFirst('°', ''));
                     if (currentTemp >= 37) {
                       Fluttertoast.showToast(
-                        msg: currentTemp > 38 ? "Fiebre Detectada!" : "Temperatura peligrosa!",
+                        msg: currentTemp > 38
+                            ? "Fiebre Detectada!"
+                            : "Temperatura peligrosa!",
                         toastLength: Toast.LENGTH_SHORT,
                         gravity: ToastGravity.CENTER,
                         timeInSecForIosWeb: 1,
-                        backgroundColor: currentTemp > 38 ? Colors.red : Colors.orange,
+                        backgroundColor:
+                            currentTemp > 38 ? Colors.red : Colors.orange,
                         textColor: Colors.white,
                         fontSize: 18.0,
                       );
@@ -287,6 +237,7 @@ class _FormResumePageState extends State<FormResumePage> {
   }
 
   _saveDataToFirebase(formDataMap) async {
+    final UserBloc bloc = Provider.of(context);
     if (_temperature.isEmpty) {
       Fluttertoast.showToast(
         msg: "Debe registrar la temperatura del visitante!",
@@ -302,34 +253,28 @@ class _FormResumePageState extends State<FormResumePage> {
 
     try {
       final FormModel form = FormModel(
-          yourSymptoms: formDataMap['yourSymptoms'],
-          yourSymptomsDesc: formDataMap['yourSymptomsDesc'],
-          yourHomeSymptoms: formDataMap['yourHomeSymptoms'],
-          haveBeenIsolated: formDataMap['haveBeenIsolated'],
-          haveBeenIsolatedDesc: formDataMap['haveBeenIsolatedDesc'],
-          haveBeenVisited: formDataMap['haveBeenVisited'],
-          haveBeenVisitedDesc: formDataMap['haveBeenVisitedDesc'],
-          haveBeenWithPeople: formDataMap['haveBeenWithPeople'],
-          isEmployee: formDataMap['isEmployee'],
-          visitorAccept: formDataMap['visitorAccept'],
-          employeeAcceptYourSymptoms: formDataMap['employeeAcceptYourSymptoms'],
-          employeeAcceptHomeSymptoms: formDataMap['employeeAcceptHomeSymptoms'],
-          employeeAcceptVacationSymptoms:
-              formDataMap['employeeAcceptVacationSymptoms'],
-          lastDate: formDataMap['lastDate']);
-      // INSERT SHOP
-      final shopJson = await ShopDBProvider.db.getShop();
-      if (shopJson.firebaseId == null) {
-        final shopRef =
-            await Firestore.instance.collection('Shops').add(shopJson.toJson());
-        shopJson.firebaseId = shopRef.documentID;
-        ShopDBProvider.db.updateShop(shopJson);
-      }
+        yourSymptoms: formDataMap['yourSymptoms'],
+        yourSymptomsDesc: formDataMap['yourSymptomsDesc'],
+        yourHomeSymptoms: formDataMap['yourHomeSymptoms'],
+        haveBeenIsolated: formDataMap['haveBeenIsolated'],
+        haveBeenIsolatedDesc: formDataMap['haveBeenIsolatedDesc'],
+        haveBeenVisited: formDataMap['haveBeenVisited'],
+        haveBeenVisitedDesc: formDataMap['haveBeenVisitedDesc'],
+        haveBeenWithPeople: formDataMap['haveBeenWithPeople'],
+        isEmployee: formDataMap['isEmployee'],
+        visitorAccept: formDataMap['visitorAccept'],
+        employeeAcceptYourSymptoms: formDataMap['employeeAcceptYourSymptoms'],
+        employeeAcceptHomeSymptoms: formDataMap['employeeAcceptHomeSymptoms'],
+        employeeAcceptVacationSymptoms:
+            formDataMap['employeeAcceptVacationSymptoms'],
+        lastDate: formDataMap['lastDate'],
+        userDocumentId: formDataMap['userDocumentId'],
+      );
 
       // INSERT FORM
+      form.shopDocumentId = bloc.shopDocumentId;
       final formJson = form.toJson();
       formJson["temperature"] = _temperature;
-      formJson["shopId"] = shopJson.id;
       final user = UserModel(
           identificationType: formDataMap['identificationType'],
           identification: formDataMap['identification'],
@@ -340,25 +285,6 @@ class _FormResumePageState extends State<FormResumePage> {
       formJson.addAll(user.toJson());
       await Firestore.instance.collection('Forms').add(formJson);
 
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text("Operación exitosa!"),
-            content: Text("La entrevista ha quedado registrada."),
-            actions: <Widget>[
-              FlatButton(
-                child: Text("Ok"),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  Navigator.of(context).pushNamedAndRemoveUntil(
-                      HomePage.routeName, (Route<dynamic> route) => false);
-                },
-              ),
-            ],
-          );
-        },
-      );
       Fluttertoast.showToast(
         msg: "Entrevista registrada!",
         toastLength: Toast.LENGTH_SHORT,
@@ -368,7 +294,7 @@ class _FormResumePageState extends State<FormResumePage> {
         textColor: Colors.white,
         fontSize: 16.0,
       ).then((value) => Navigator.of(context).pushNamedAndRemoveUntil(
-          HomePage.routeName, (Route<dynamic> route) => false));
+          QRReaderPage.routeName, (Route<dynamic> route) => false));
     } catch (e) {
       Fluttertoast.showToast(
         msg: "Error: ${e.toString()}",

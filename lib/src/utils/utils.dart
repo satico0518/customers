@@ -59,3 +59,14 @@ Future<String> uploadFile(File file, String fileName) async {
     return null;
   }
 }
+
+String handleMessage(String message) {
+  if (message.contains('ERROR_WEAK_PASSWORD')) {
+    return 'Password demasiado debil';
+  } else if (message.contains('ERROR_INVALID_EMAIL')) {
+    return 'Formato de correo invalido';
+  } else if (message.contains('ERROR_EMAIL_ALREADY_IN_USE')) {
+    return 'El correo ya existe';
+  } else
+    return 'error desconocido: $message';
+}

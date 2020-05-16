@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:barcode_scan/barcode_scan.dart';
+import 'package:customers/src/bloc/provider.dart';
 import 'package:customers/src/pages/form-list-page.dart';
 import 'package:customers/src/pages/form-resume-page.dart';
 import 'package:customers/src/pages/shop-form.page.dart';
@@ -16,7 +17,9 @@ class QRReaderPage extends StatefulWidget {
 class _QRReaderPageState extends State<QRReaderPage> {
   int _cIndex = 0;
   @override
+
   Widget build(BuildContext context) {
+    final bloc = Provider.of(context);
     return Scaffold(
       appBar: AppBar(
         title: Text('Lectura de Codigo QR'),
@@ -38,6 +41,21 @@ class _QRReaderPageState extends State<QRReaderPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
+              Text(
+                'Bienvenido ${bloc.shopName}',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 25, color: Colors.white),
+              ),
+              Divider(
+                height: 50,
+                color: Theme.of(context).secondaryHeaderColor,
+                indent: 30,
+                endIndent: 30,
+                thickness: 3,
+              ),
+              SizedBox(
+                height: 50,
+              ),
               Text(
                 'Aca puedes leer el codigo QR de tu visitante para obtener la información de su entrevista COVID-19',
                 style: TextStyle(fontSize: 20, color: Colors.white),
@@ -113,8 +131,8 @@ class _QRReaderPageState extends State<QRReaderPage> {
   }
 
   void goTo(int value) {
-    value == 0 ?
-      Navigator.of(context).pushNamed(ShopForm.routeName) :
-      Navigator.of(context).pushNamed(FormList.routeName);
+    value == 0
+        ? Navigator.of(context).pushNamed(ShopForm.routeName)
+        : Navigator.of(context).pushNamed(FormList.routeName);
   }
 }

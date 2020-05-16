@@ -226,7 +226,8 @@ class _SignaturePageState extends State<SignaturePage> {
         employeeAcceptYourSymptoms: bloc.employeeAcceptYourSymptoms,
         employeeAcceptHomeSymptoms: bloc.employeeAcceptHomeSymptoms,
         employeeAcceptVacationSymptoms: bloc.employeeAcceptVacationSymptoms,
-        lastDate: bloc.lastDate);
+        lastDate: bloc.lastDate,
+        userDocumentId: bloc.userDocumentId);
     final user = new UserModel(
         name: bloc.userName,
         lastName: bloc.lastName,

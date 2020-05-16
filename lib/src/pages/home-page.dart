@@ -1,7 +1,7 @@
 import 'package:customers/src/bloc/provider.dart';
-import 'package:customers/src/pages/qr-reader-page.dart';
+import 'package:customers/src/pages/form-page.dart';
+import 'package:customers/src/pages/login-page.dart';
 import 'package:customers/src/pages/register-page.dart';
-import 'package:customers/src/pages/shop-form.page.dart';
 import 'package:customers/src/providers/qr.shared-preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -14,9 +14,19 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
-    final bloc = Provider.of(context);
     return SafeArea(
       child: Scaffold(
+        appBar: AppBar(
+          actions: [
+            Row(
+              children: [
+                Text('Salir'),
+                SizedBox(width: 5,),
+                IconButton(icon: Icon(Icons.input), onPressed: () => _logOut(context)),
+              ],
+            )
+          ],
+        ),
         key: _scaffoldKey,
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
         floatingActionButton: FloatingActionButton.extended(
@@ -80,42 +90,39 @@ class HomePage extends StatelessWidget {
                 Column(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: <Widget>[
-                    GestureDetector(
-                      onTap: () {
-                        if (bloc.shopNit != null) {
-                          Navigator.pushNamed(context, QRReaderPage.routeName);
-                        } else {
-                          Navigator.pushNamed(context, ShopForm.routeName);
-                        }
-                      },
-                      child: _getContainer(
-                          screenSize,
-                          Icon(
-                            Icons.business,
-                            size: 30,
-                            color: Theme.of(context).primaryColor,
-                          ),
-                          'Ingresar como Comercio',
-                          'Puedes scanear los codigos QR de tus visitantes para cargar todos los datos de su entrevista.'),
-                    ),
                     SizedBox(
                       height: 15,
                     ),
                     GestureDetector(
                       onTap: () =>
-                          Navigator.pushNamed(context, RegisterPage.routeName),
+                          Navigator.pushNamed(context, FormPage.routeName),
                       child: _getContainer(
-                          screenSize,
-                          Icon(
-                            Icons.people,
-                            size: 30,
-                            color: Theme.of(context).primaryColor,
-                          ),
-                          'Ingresar como Persona',
-                          'Puedes guardar tu información y los datos de la entevista para generar un código QR.'),
+                        context,
+                        screenSize,
+                        Icon(
+                          Icons.description,
+                          size: 30,
+                          color: Colors.white,
+                        ),
+                        'Diligenciar Entrevista',
+                      ),
                     ),
                     SizedBox(
                       height: 20,
+                    ),
+                    GestureDetector(
+                      onTap: () =>
+                          Navigator.pushNamed(context, RegisterPage.routeName, arguments: {'onlySave': true}),
+                      child: _getContainer(
+                        context,
+                        screenSize,
+                        Icon(
+                          Icons.person,
+                          size: 30,
+                          color: Colors.white,
+                        ),
+                        'Actualizar Usuario',
+                      ),
                     ),
                   ],
                 )
@@ -128,11 +135,11 @@ class HomePage extends StatelessWidget {
   }
 
   Container _getContainer(
-      dynamic screenSize, Icon icon, String text, String description) {
+      BuildContext context, dynamic screenSize, Icon icon, String text) {
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 8, horizontal: 5),
+      padding: EdgeInsets.symmetric(vertical: 15, horizontal: 5),
       decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).secondaryHeaderColor,
           borderRadius: BorderRadius.circular(5),
           boxShadow: [
             BoxShadow(
@@ -150,8 +157,7 @@ class HomePage extends StatelessWidget {
             children: <Widget>[
               Text(
                 text,
-                style: TextStyle(
-                    fontSize: 20, color: Colors.black87, fontFamily: 'Roboto'),
+                style: TextStyle(fontSize: 20, color: Colors.white),
               ),
               icon,
             ],
@@ -159,13 +165,6 @@ class HomePage extends StatelessWidget {
           SizedBox(
             height: 5,
           ),
-          Container(
-              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-              child: Text(
-                description,
-                textAlign: TextAlign.justify,
-                style: TextStyle(fontSize: 15),
-              ))
         ],
       ),
     );
@@ -186,5 +185,11 @@ class HomePage extends StatelessWidget {
     } else {
       Navigator.pushNamed(context, QRCodePage.routeName);
     }
+  }
+
+  void _logOut(BuildContext context) {
+    final bloc = Provider.of(context);
+    bloc.changeUserIsLogged(false);
+    Navigator.of(context).pushNamedAndRemoveUntil(LoginPage.routeName, (route) => false);
   }
 }

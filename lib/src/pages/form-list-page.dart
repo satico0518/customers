@@ -135,10 +135,8 @@ class _FormListState extends State<FormList> {
     });
     String csv = const ListToCsvConverter().convert(dataToExport);
     final File txtfile = await writeFileContent(csv);
-    print('txtfile: $txtfile');
     final fileUrl = await uploadFile(txtfile, 'entrevistas_${DateTime.now().millisecondsSinceEpoch.toString()}.txt');
-    final response = await sendEmail(fileUrl);
-    print('Email response: $response');
+    final response = await sendFormListEmail(fileUrl);
     Fluttertoast.showToast(
       msg: response,
       toastLength: Toast.LENGTH_SHORT,

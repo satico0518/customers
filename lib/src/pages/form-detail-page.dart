@@ -1,5 +1,6 @@
 import 'package:customers/src/providers/form-questions.provider.dart';
 import 'package:customers/src/providers/userFirebase.provider.dart';
+import 'package:customers/src/utils/utils.dart';
 import 'package:flutter/material.dart';
 
 class FormDetail extends StatelessWidget {
@@ -131,13 +132,7 @@ class FormDetail extends StatelessWidget {
     );
   }
 
-  _downloadPDF(Map<String, dynamic> formDataMap) {
-    // List<String> values = ['uno', 'dos', 'tres', 'cuatro'];
-    // final pdf = pw.Document();
-    // pdf.addPage(
-    //   pw.Page(
-    //     build: null
-    //   ),
-    // );
+  _downloadPDF(Map<String, dynamic> formDataMap) async {
+    final response = await sendSingleFormEmail(formDataMap);
   }
 }

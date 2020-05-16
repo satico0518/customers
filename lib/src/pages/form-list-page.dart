@@ -125,7 +125,9 @@ class _FormListState extends State<FormList> {
   }
 
   _downloadCsv() async {
-    List<List<dynamic>> dataToExport = [];
+    List<List<dynamic>> dataToExport = [[
+      "Sintomas", 
+    ]];
     _listData.forEach((element) {
       final List<dynamic> tempList = [];
       element.data.forEach((key, value) {

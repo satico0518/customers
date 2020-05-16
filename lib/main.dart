@@ -10,6 +10,7 @@ import 'package:customers/src/pages/qr-reader-page.dart';
 import 'package:customers/src/pages/register-page.dart';
 import 'package:customers/src/pages/shop-form.page.dart';
 import 'package:customers/src/pages/signature.dart';
+import 'package:customers/src/pages/terms-page.dart';
 import 'package:flutter/material.dart';
 
 void main() => runApp(MyApp());
@@ -37,7 +38,8 @@ class MyApp extends StatelessWidget {
           FormResumePage.routeName: (BuildContext context) => FormResumePage(),
           SignaturePage.routeName: (BuildContext context) => SignaturePage(),
           QRCodePage.routeName: (BuildContext context) => QRCodePage(),
-          QRReaderPage.routeName: (BuildContext context) => QRReaderPage()
+          QRReaderPage.routeName: (BuildContext context) => QRReaderPage(),
+          TermsPage.routeName: (BuildContext context) => TermsPage()
         },
       ),
     );

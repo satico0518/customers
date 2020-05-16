@@ -166,3 +166,35 @@ String handleMessage(String message) {
   } else
     return 'error desconocido: $message';
 }
+
+String getTermsAndConditionsText() {
+  return '''PRIMERO: Significados: (i) "Datos Personales" significa la información personal registrada en cualquier base de datos que
+la haga susceptible de tratamiento, que para efectos de la presente autorización, al ser registrada en la Aplicación por el
+Usuario/Titular, en su conjunto, genera la posibilidad de identificar al Usuario/Titular de conformidad con las protecciones y
+derechos establecidos en la Ley 1581 de 2012 de la República de Colombia y demás regulación aplicable; (ii) “Datos
+Personales Sensibles” significa aquellos relativos a la intimidad del Usuario/Titular que para efectos de la presente
+autorización son datos relacionados con la salud del Usuario/Titular de conformidad con las protecciones y derechos
+establecidos en la Ley 1581 de 2012 de la República de Colombia y demás regulación aplicable; (iii) “Usuario/Titular”
+significa la persona natural o el individuo que accede a la Aplicación, y en la que libre y voluntariamente procede a registrar
+sus Datos Personales y Datos Personales Sensibles, y a quien el Responsable le garantizará en todo momento los derechos y
+protecciones establecidos en la Ley 1581 de 2012 de la República de Colombia y demás regulación aplicable; (iv)
+“Responsable” significa la empresa [INSERTAR RAZÓN SOCIAL DE EMPRESA] con NIT [INSERTAR NIT], empresa
+debidamente constituida de conformidad con las leyes de la República de Colombia; (v) “Aplicación” significa el software al
+que el Usuario/Titular accede, de propiedad del Responsable y en el que el Usuario/Titular registra sus Datos Personales y
+Datos Personales Sensibles. SEGUNDO: Autorización: Con la aceptación de la presente autorización, y el ingreso de los
+Datos Personales y Datos Personales Sensibles en la Aplicación, el Usuario/Titular de los Datos Personales declara que el
+procesamiento de sus Datos Personales para el(los) siguiente(s) fin(es) relacionado(s) a continuación, por parte del
+Responsable ha(n) sido autorizado(s) y así mismo acuerda y autoriza el procesamiento de los Datos Personales Sensibles para
+el(los) fin(es) descrito(s) a continuación por parte del Responsable en el territorio de la República de Colombia: (a)
+[INSERTAR LA FINALIDAD POR LA QUE DESEAN SOLICITAR AUTORIZACIÓN AL TITULAR]. Ej. Registro en la
+aplicación del Responsable de los Datos Personales y Datos Personales Sensibles para el seguimiento de los síntomas del
+Usuario/Titular para que éste registre si se encuentra infectado con el nuevo coronavirus -COVID-19 también conocido como
+SARS-CoV-2. (b) [INSERTAR CUALQUIER OTRA FINALIDAD]. TERCERO: Transmisión y transferencia: Ni los
+Datos Personales ni los Datos Personales Sensibles serán transferidos ni transmitidos a ningún tercero. CUARTO:
+Autoridades Gubernamentales: El Usuario/Titular declara conocer y aceptar que el Responsable puede requerir poner los
+Datos Personales, los Datos Personales Sensibles o parte de ellos a disposición de las autoridades competentes (ya sea
+autoridades judiciales y administrativas), incluyendo pero sin limitar, autoridades sanitarias en la República de Colombia en
+cualquier nivel (municipal, distrital, departamental y/o nacional).
+ACEPTACIÓN: Haciendo Click en “Sí Acepto”, el Usuario/Titular otorga la autorización de uso y protección de Datos
+Personales y Datos Personales Sensibles de conformidad con los Términos y Condiciones anteriormente establecidos.''';
+}

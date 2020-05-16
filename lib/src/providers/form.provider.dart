@@ -37,7 +37,9 @@ class DBProvider {
           'employeeAcceptYourSymptoms INTEGER, '
           'employeeAcceptHomeSymptoms INTEGER, '
           'employeeAcceptVacationSymptoms INTEGER, '
-          'lastDate TEXT)');
+          'lastDate TEXT, '
+          'shopDocumentId TEXT, '
+          'userDocumentId TEXT)');
     });
   }
 

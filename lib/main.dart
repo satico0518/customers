@@ -4,6 +4,7 @@ import 'package:customers/src/pages/form-list-page.dart';
 import 'package:customers/src/pages/form-page.dart';
 import 'package:customers/src/pages/form-resume-page.dart';
 import 'package:customers/src/pages/home-page.dart';
+import 'package:customers/src/pages/login-page.dart';
 import 'package:customers/src/pages/qr-page.dart';
 import 'package:customers/src/pages/qr-reader-page.dart';
 import 'package:customers/src/pages/register-page.dart';
@@ -21,10 +22,12 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: 'Clientes Comercio',
         theme: ThemeData(
-            primaryColor: Color(0xff002d6a),
-            secondaryHeaderColor: Color(0xff00a461)),
-        initialRoute: HomePage.routeName,
+          primaryColor: Color(0xff002d6a),
+          secondaryHeaderColor: Color(0xff00a461),
+        ),
+        initialRoute: LoginPage.routeName,
         routes: {
+          LoginPage.routeName: (BuildContext context) => LoginPage(),
           HomePage.routeName: (BuildContext context) => HomePage(),
           RegisterPage.routeName: (BuildContext context) => RegisterPage(),
           FormPage.routeName: (BuildContext context) => FormPage(),

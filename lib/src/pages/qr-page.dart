@@ -90,18 +90,8 @@ class _QRCodePageState extends State<QRCodePage> {
 
   Future<String> getDataToQR() async {
     final args = await getQr();
-    final bloc = Provider.of(context);
-    final Map<String, dynamic> userMap = {
-      "identificationType": bloc.identificationType,
-      "identification": bloc.identification,
-      "name": bloc.userName,
-      "lastName": bloc.lastName,
-      "contact": bloc.contact,
-      "email": bloc.email
-    };
     var completer = new Completer<String>();
     final decodedata = jsonDecode(args);
-    decodedata.addAll(userMap);
     final result = jsonEncode(decodedata);
     completer.complete(result);
     return completer.future;

@@ -50,7 +50,7 @@ class _FormListState extends State<FormList> {
                 child: StreamBuilder<QuerySnapshot>(
                   stream: Firestore.instance
                       .collection('Forms')
-                      .where('shopId', isEqualTo: bloc.shopId)
+                      .where('shopDocumentId', isEqualTo: bloc.shopDocumentId)
                       .snapshots(),
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
@@ -58,11 +58,7 @@ class _FormListState extends State<FormList> {
                       return DataTable(
                         columns: [
                           DataColumn(label: Text('Fecha')),
-                          DataColumn(label: Text('Tipo Iden.')),
-                          DataColumn(label: Text('Identificación')),
-                          DataColumn(label: Text('Nombres')),
-                          DataColumn(label: Text('Apellidos')),
-                          DataColumn(label: Text('Temperatura')),
+                          DataColumn(label: Text('Temp.')),
                           DataColumn(label: Text('Ver')),
                         ],
                         rows: snapshot.data.documents
@@ -70,12 +66,6 @@ class _FormListState extends State<FormList> {
                               (item) => DataRow(
                                 cells: <DataCell>[
                                   DataCell(Text(item.data['lastDate'] ?? '')),
-                                  DataCell(Text(
-                                      item.data['identificationType'] ?? '')),
-                                  DataCell(
-                                      Text(item.data['identification'] ?? '')),
-                                  DataCell(Text(item.data['name'] ?? '')),
-                                  DataCell(Text(item.data['lastName'] ?? '')),
                                   DataCell(
                                       Text(item.data['temperature'] ?? '')),
                                   DataCell(FlatButton(

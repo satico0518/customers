@@ -355,7 +355,7 @@ class _RegisterPageState extends State<RegisterPage> {
           password: bloc.password.trim(),
         );
         if (bloc.userDocumentId == null || bloc.userDocumentId.isEmpty) {
-          final DocumentReference fbUser = await UserFirebaseProvider.fb.addUserToFirebase(user);
+          final DocumentReference fbUser = await UserFirebaseProvider.fb.addUserToFirebase(user, "CUSTOMER");
           bloc.changeUserDocumentId(fbUser.documentID);
           user.documentId = bloc.userDocumentId;
         }

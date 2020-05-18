@@ -5,6 +5,7 @@ import 'package:customers/src/models/shop.model.dart';
 import 'package:customers/src/pages/login-page.dart';
 import 'package:customers/src/providers/shopDbProvider.dart';
 import 'package:customers/src/providers/shopFirebase.provider.dart';
+import 'package:customers/src/providers/userFirebase.provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -387,7 +388,7 @@ class _ShopFormState extends State<ShopForm> {
         );
         if (bloc.shopDocumentId == null || bloc.shopDocumentId.isEmpty) {
           final DocumentReference fbShop =
-              await ShopFirebaseProvider.fb.addShopToFirebase(shop);
+              await UserFirebaseProvider.fb.addUserToFirebase(shop, "SHOP");
           bloc.changeShopDocumentId(fbShop.documentID);
           shop.documentId = bloc.shopDocumentId;
         }

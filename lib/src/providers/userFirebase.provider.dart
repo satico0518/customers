@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:customers/src/models/user.model.dart';
 import 'package:customers/src/utils/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -17,10 +16,10 @@ class UserFirebaseProvider {
     return result.user;
   }
 
-  Future<DocumentReference> addUserToFirebase(UserModel user) async {
+  Future<DocumentReference> addUserToFirebase(dynamic user, String type) async {
     Firestore fb = Firestore.instance;
     final firebaseUser = user.toJson();
-    firebaseUser.addAll({"type": "CUSTOMER"});
+    firebaseUser.addAll({"type": type});
     return fb.collection('Users').add(firebaseUser);
   }
 
@@ -42,7 +41,7 @@ class UserFirebaseProvider {
     return fb.collection('Users').document(documentId).get();
   }
 
-  Future<QuerySnapshot> getUserFirebaseByemail(String email) {
+  Future<QuerySnapshot> getUserFirebaseByEmail(String email) {
     Firestore fb = Firestore.instance;
     return fb
         .collection('Users')

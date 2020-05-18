@@ -157,14 +157,17 @@ class _LoginPageState extends State<LoginPage> {
                                       child: Text(
                                         'Acepto términos y condiciones',
                                         textAlign: TextAlign.justify,
-                                        style: TextStyle(color: Colors.white, decoration: TextDecoration.underline),
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            decoration:
+                                                TextDecoration.underline),
                                       ),
                                     ),
                                   ],
                                 ),
                               ),
                               SizedBox(
-                                height: 50,
+                                height: 30,
                               ),
                               ButtonTheme(
                                 child: RaisedButton(
@@ -185,7 +188,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     SizedBox(
-                      height: 70,
+                      height: 50,
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -227,15 +230,19 @@ class _LoginPageState extends State<LoginPage> {
             .loginUserToFirebase(_userName.trim(), _password.trim());
         if (user.uid.isNotEmpty) {
           final QuerySnapshot userSnapshot = await UserFirebaseProvider.fb
-              .getUserFirebaseByemail(_userName.trim());
+              .getUserFirebaseByEmail(_userName.trim());
           bloc.changeUserIsLogged(true);
-          if (userSnapshot.documents[0].data['type'] == 'CUSTOMER') {
-            Navigator.of(context)
-                .pushNamedAndRemoveUntil(HomePage.routeName, (route) => false);
+          if (userSnapshot.documents.length > 0) {
+            if (userSnapshot.documents[0].data['type'] == 'CUSTOMER') {
+              Navigator.of(context).pushNamedAndRemoveUntil(
+                  HomePage.routeName, (route) => false);
+            } else {
+              ShopDBProvider.db.saveShopIfNotExists(context, _userName.trim());
+              Navigator.of(context).pushNamedAndRemoveUntil(
+                  QRReaderPage.routeName, (route) => false);
+            }
           } else {
-            ShopDBProvider.db.saveShopIfNotExists(context, _userName.trim());
-            Navigator.of(context).pushNamedAndRemoveUntil(
-                QRReaderPage.routeName, (route) => false);
+            throw ErrorDescription('Usuario no registrado!');
           }
         }
       } catch (e) {

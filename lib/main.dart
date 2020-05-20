@@ -1,4 +1,5 @@
 import 'package:customers/src/bloc/provider.dart';
+import 'package:customers/src/pages/branchs-page.dart';
 import 'package:customers/src/pages/form-detail-page.dart';
 import 'package:customers/src/pages/form-list-page.dart';
 import 'package:customers/src/pages/form-page.dart';
@@ -11,13 +12,22 @@ import 'package:customers/src/pages/register-page.dart';
 import 'package:customers/src/pages/shop-form.page.dart';
 import 'package:customers/src/pages/signature.dart';
 import 'package:customers/src/pages/terms-page.dart';
+import 'package:customers/src/providers/auth.shared-preferences.dart';
 import 'package:flutter/material.dart';
+import 'package:customers/src/utils/utils.dart';
 
-void main() => runApp(MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final _prefs = PreferenceAuth();
+  _prefs.initPrefs();
+  await getInitialRoute();
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final _prefs = PreferenceAuth();
     return Provider(
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -26,7 +36,7 @@ class MyApp extends StatelessWidget {
           primaryColor: Color(0xff002d6a),
           secondaryHeaderColor: Color(0xff00a461),
         ),
-        initialRoute: LoginPage.routeName,
+        initialRoute: _prefs.initialRoute,
         routes: {
           LoginPage.routeName: (BuildContext context) => LoginPage(),
           HomePage.routeName: (BuildContext context) => HomePage(),
@@ -35,6 +45,7 @@ class MyApp extends StatelessWidget {
           FormList.routeName: (BuildContext context) => FormList(),
           FormDetail.routeName: (BuildContext context) => FormDetail(),
           ShopForm.routeName: (BuildContext context) => ShopForm(),
+          BranchPage.routeName: (BuildContext context) => BranchPage(),
           FormResumePage.routeName: (BuildContext context) => FormResumePage(),
           SignaturePage.routeName: (BuildContext context) => SignaturePage(),
           QRCodePage.routeName: (BuildContext context) => QRCodePage(),

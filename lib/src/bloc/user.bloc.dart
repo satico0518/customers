@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:customers/src/models/shop-branch.model.dart';
 import 'package:customers/src/providers/form.provider.dart';
 import 'package:customers/src/providers/shopDbProvider.dart';
 import 'package:customers/src/providers/userDb.provider.dart';
@@ -15,7 +16,9 @@ class UserBloc {
   final _userContactController = BehaviorSubject<String>();
   final _userEmailController = BehaviorSubject<String>();
   final _userPasswordController = BehaviorSubject<String>();
+  final _userIsEditingController = BehaviorSubject<bool>();
 
+  final _shopIsLoggedController = BehaviorSubject<bool>();
   final _shopFirebaseIdController = BehaviorSubject<String>();
   final _shopDocumentIdController = BehaviorSubject<String>();
   final _shopNitController = BehaviorSubject<String>();
@@ -27,6 +30,9 @@ class UserBloc {
   final _shopPhoneController = BehaviorSubject<String>();
   final _shopEmailController = BehaviorSubject<String>();
   final _shopPasswordController = BehaviorSubject<String>();
+  final _shopCurrentBranchDocIdController = BehaviorSubject<ShopBranchModel>();
+  final _shopBranchesController = BehaviorSubject<List<ShopBranchModel>>();
+  final _shopIsEditingController = BehaviorSubject<bool>();
 
   final _yourSymptomsController = BehaviorSubject<int>();
   final _yourHomeSymptomsController = BehaviorSubject<int>();
@@ -43,9 +49,11 @@ class UserBloc {
   final _employeeAcceptVacationSymptomsController = BehaviorSubject<int>();
   final _lastDateController = BehaviorSubject<String>();
   final _formShopDocIdController = BehaviorSubject<String>();
+  final _formShopBranchDocIdController = BehaviorSubject<String>();
   final _formUserDocIdController = BehaviorSubject<String>();
 
   Stream<bool> get userIsLoggedStream => _userIsLoggedController.stream;
+  Stream<bool> get userIsEditingStream => _userIsEditingController.stream;
   Stream<String> get userFirebaseIdStream => _userFirebaseIdController.stream;
   Stream<String> get userDocumentIdStream => _userDocumentIdController.stream;
   Stream<String> get userIdTypeStream => _userIdTypeController.stream;
@@ -56,6 +64,7 @@ class UserBloc {
   Stream<String> get userEmailStream => _userEmailController.stream;
   Stream<String> get userPasswordStream => _userPasswordController.stream;
 
+  Stream<bool> get shopIsLoggedStream => _shopIsLoggedController.stream;
   Stream<String> get shopFirebaseIdStream => _shopFirebaseIdController.stream;
   Stream<String> get shopDocumentIdStream => _shopDocumentIdController.stream;
   Stream<String> get shopNitStream => _shopNitController.stream;
@@ -67,6 +76,9 @@ class UserBloc {
   Stream<String> get shopPhoneStream => _shopPhoneController.stream;
   Stream<String> get shopEmailStream => _shopEmailController.stream;
   Stream<String> get shopPasswordStream => _shopPasswordController.stream;
+  Stream<ShopBranchModel> get shopCurrBranchStream => _shopCurrentBranchDocIdController.stream;
+  Stream<List<ShopBranchModel>> get shopBranchesStream => _shopBranchesController.stream;
+  Stream<bool> get shopIsEditingStream => _shopIsEditingController.stream;
 
   Stream<int> get yourSymptomsStream => _yourSymptomsController.stream;
   Stream<int> get yourHomeSymptomsStream => _yourHomeSymptomsController.stream;
@@ -83,9 +95,11 @@ class UserBloc {
   Stream<int> get employeeAcceptVacationSymptomsStream => _employeeAcceptVacationSymptomsController.stream;
   Stream<String> get lastDateStream => _lastDateController.stream;
   Stream<String> get formShopDocIdStream => _formShopDocIdController.stream;
+  Stream<String> get formShopBranchDocIdStream => _formShopBranchDocIdController.stream;
   Stream<String> get formUserDocIdStream => _formUserDocIdController.stream;
 
   Function(bool) get changeUserIsLogged => _userIsLoggedController.sink.add;
+  Function(bool) get changeUserIsEditing => _userIsEditingController.sink.add;
   Function(String) get changeUserFirebaseId => _userFirebaseIdController.sink.add;
   Function(String) get changeUserDocumentId => _userDocumentIdController.sink.add;
   Function(String) get changeUserIdType => _userIdTypeController.sink.add;
@@ -96,6 +110,7 @@ class UserBloc {
   Function(String) get changeUserEmail => _userEmailController.sink.add;
   Function(String) get changeUserPassword => _userPasswordController.sink.add;
 
+  Function(bool) get changeShopIsLogged => _shopIsLoggedController.sink.add;
   Function(String) get changeShopFirebaseId => _shopFirebaseIdController.sink.add;
   Function(String) get changeShopDocumentId => _shopDocumentIdController.sink.add;
   Function(String) get changeShopNit => _shopNitController.sink.add;
@@ -107,6 +122,9 @@ class UserBloc {
   Function(String) get changeShopPhone => _shopPhoneController.sink.add;
   Function(String) get changeShopEmail => _shopEmailController.sink.add;
   Function(String) get changeShopPassword => _shopPasswordController.sink.add;
+  Function(ShopBranchModel) get changeShopCurrBranch => _shopCurrentBranchDocIdController.sink.add;
+  Function(List<ShopBranchModel>) get changeShopBranches => _shopBranchesController.sink.add;
+  Function(bool) get changeShopIsEditing => _shopIsEditingController.sink.add;
 
   Function(int) get changeYourSymptoms => _yourSymptomsController.sink.add;
   Function(int) get changeYourHomeSymptoms => _yourHomeSymptomsController.sink.add;
@@ -123,9 +141,11 @@ class UserBloc {
   Function(int) get changeEmployeeAcceptVacationSymptoms => _employeeAcceptVacationSymptomsController.sink.add;
   Function(String) get changeLastDate => _lastDateController.sink.add;
   Function(String) get changeFormShopDocId => _formShopDocIdController.sink.add;
+  Function(String) get changeFormShopBranchDocId => _formShopBranchDocIdController.sink.add;
   Function(String) get changeFormUserDocId => _formUserDocIdController.sink.add;
 
   bool get userIsLogged => _userIsLoggedController.value;
+  bool get userIsEditing => _userIsEditingController.value;
   String get userFirebaseId => _userFirebaseIdController.value;
   String get userDocumentId => _userDocumentIdController.value;
   String get identificationType => _userIdTypeController.value;
@@ -136,6 +156,7 @@ class UserBloc {
   String get email => _userEmailController.value;
   String get password => _userPasswordController.value;
 
+  bool get shopIsLogged => _shopIsLoggedController.value;
   String get shopFirebaseId => _shopFirebaseIdController.value;
   String get shopDocumentId => _shopDocumentIdController.value;
   String get shopNit => _shopNitController.value;
@@ -147,6 +168,9 @@ class UserBloc {
   String get phone => _shopPhoneController.value;
   String get shopEmail => _shopEmailController.value;
   String get shopPassword => _shopPasswordController.value;
+  ShopBranchModel get shopCurrBranch => _shopCurrentBranchDocIdController.value;
+  List<ShopBranchModel> get shopBranches => _shopBranchesController.value;
+  bool get shopIsEditing => _shopIsEditingController.value;
 
   int get yourSymptoms => _yourSymptomsController.value ?? 0;
   int get yourHomeSymptoms => _yourHomeSymptomsController.value ?? 0;
@@ -163,6 +187,7 @@ class UserBloc {
   int get employeeAcceptVacationSymptoms => _employeeAcceptVacationSymptomsController.value ?? 0;
   String get lastDate => _lastDateController.value ?? '';
   String get formShopDocId => _formShopDocIdController.value ?? '';
+  String get formShopBranchDocId => _formShopBranchDocIdController.value ?? '';
   String get formUserDocId => _formUserDocIdController.value ?? '';
 
   UserBloc() {
@@ -192,6 +217,9 @@ class UserBloc {
         changeShopPhone(value.phone);
         changeShopEmail(value.email);
         changeShopPassword(value.password);
+        changeShopCurrBranch(value.currentBranch);
+        ShopDBProvider.db.getShopBranchs().then((value) => changeShopBranches(value))
+        ;
       }
     });    
     DBProvider.db.getForm().then((value) {
@@ -211,6 +239,7 @@ class UserBloc {
         changeEmployeeAcceptVacationSymptoms(value.employeeAcceptVacationSymptoms);
         changeLastDate(value.lastDate);
         changeFormShopDocId(value.shopDocumentId);
+        changeFormShopBranchDocId(value.shopBranchDocumentId);
         changeFormUserDocId(value.userDocumentId);
       }
     });
@@ -218,6 +247,7 @@ class UserBloc {
 
   dispose() {
     _userIsLoggedController?.close();
+    _userIsEditingController?.close();
     _userFirebaseIdController?.close();
     _userDocumentIdController?.close();
     _userIdTypeController?.close();
@@ -227,6 +257,7 @@ class UserBloc {
     _userContactController?.close();
     _userEmailController?.close();
     _userPasswordController?.close();
+    _shopIsLoggedController?.close();
     _shopFirebaseIdController?.close();
     _shopDocumentIdController?.close();
     _shopNitController?.close();
@@ -238,6 +269,9 @@ class UserBloc {
     _shopEmailController?.close();
     _shopPasswordController?.close();
     _shopPhoneController?.close();
+    _shopBranchesController?.close();
+    _shopCurrentBranchDocIdController?.close();
+    _shopIsEditingController?.close();
     _yourSymptomsController?.close();
     _yourHomeSymptomsController?.close();
     _haveBeenIsolatedController?.close();
@@ -253,6 +287,7 @@ class UserBloc {
     _employeeAcceptVacationSymptomsController?.close();
     _lastDateController?.close();
     _formShopDocIdController?.close();
+    _formShopBranchDocIdController?.close();
     _formUserDocIdController?.close();
   }
 }

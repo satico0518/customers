@@ -1,11 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:customers/src/bloc/provider.dart';
+import 'package:customers/src/models/shop-branch.model.dart';
+import 'package:customers/src/models/user.model.dart';
 import 'package:customers/src/pages/home-page.dart';
 import 'package:customers/src/pages/qr-reader-page.dart';
 import 'package:customers/src/pages/register-page.dart';
 import 'package:customers/src/pages/shop-form.page.dart';
-import 'package:customers/src/pages/terms-page.dart';
+import 'package:customers/src/providers/auth.shared-preferences.dart';
 import 'package:customers/src/providers/shopDbProvider.dart';
+import 'package:customers/src/providers/shopFirebase.provider.dart';
+import 'package:customers/src/providers/userDb.provider.dart';
 import 'package:customers/src/providers/userFirebase.provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -24,10 +28,11 @@ class _LoginPageState extends State<LoginPage> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   String _userName = '';
   String _password = '';
-  bool _aceptTerms = false;
+  bool _showPass = false;
 
   @override
   Widget build(BuildContext context) {
+    final bloc = Provider.of(context);
     final screenSize = MediaQuery.of(context).size;
     return SafeArea(
       child: Scaffold(
@@ -70,7 +75,7 @@ class _LoginPageState extends State<LoginPage> {
                 Column(
                   children: <Widget>[
                     SizedBox(
-                      height: 150,
+                      height: MediaQuery.of(context).size.height * .2,
                     ),
                     Text(
                       'PaseYa',
@@ -78,7 +83,7 @@ class _LoginPageState extends State<LoginPage> {
                           letterSpacing: 5, fontSize: 55, color: Colors.white),
                     ),
                     SizedBox(
-                      height: 70,
+                      height: 50,
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 10.0),
@@ -89,6 +94,7 @@ class _LoginPageState extends State<LoginPage> {
                           child: Column(
                             children: [
                               TextFormField(
+                                initialValue: _userName,
                                 style: TextStyle(
                                     color:
                                         Theme.of(context).secondaryHeaderColor,
@@ -114,19 +120,27 @@ class _LoginPageState extends State<LoginPage> {
                                 height: 10,
                               ),
                               TextFormField(
+                                initialValue: _password,
                                 style: TextStyle(
                                     color:
                                         Theme.of(context).secondaryHeaderColor,
                                     fontWeight: FontWeight.bold),
-                                obscureText: true,
+                                obscureText: !_showPass,
                                 decoration: InputDecoration(
-                                  labelText: 'Contraseña',
-                                  icon: Icon(
-                                    Icons.vpn_key,
-                                    color: Colors.white,
-                                  ),
-                                  labelStyle: TextStyle(color: Colors.white),
-                                ),
+                                    labelText: 'Contraseña',
+                                    icon: Icon(
+                                      Icons.vpn_key,
+                                      color: Colors.white,
+                                    ),
+                                    labelStyle: TextStyle(color: Colors.white),
+                                    suffixIcon: IconButton(
+                                        onPressed: () => setState(
+                                            () => _showPass = !_showPass),
+                                        icon: Icon(
+                                          Icons.remove_red_eye,
+                                          color: Theme.of(context)
+                                              .secondaryHeaderColor,
+                                        ))),
                                 validator: (value) {
                                   if (value.isEmpty)
                                     return 'Contraseña es obligatorio';
@@ -136,47 +150,19 @@ class _LoginPageState extends State<LoginPage> {
                                     setState(() => _password = value),
                               ),
                               SizedBox(
-                                height: 20,
-                              ),
-                              Container(
-                                color: Color.fromRGBO(255, 255, 255, .3),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Checkbox(
-                                      checkColor: Colors.white,
-                                      activeColor: Theme.of(context)
-                                          .secondaryHeaderColor,
-                                      value: _aceptTerms,
-                                      onChanged: (value) =>
-                                          setState(() => _aceptTerms = value),
-                                    ),
-                                    GestureDetector(
-                                      onTap: () => Navigator.of(context)
-                                          .pushNamed(TermsPage.routeName),
-                                      child: Text(
-                                        'Acepto términos y condiciones',
-                                        textAlign: TextAlign.justify,
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            decoration:
-                                                TextDecoration.underline),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              SizedBox(
-                                height: 30,
+                                height: 40,
                               ),
                               ButtonTheme(
                                 child: RaisedButton(
                                   elevation: 10,
                                   padding: EdgeInsets.symmetric(
-                                      vertical: 20, horizontal: 100),
+                                      vertical: 15, horizontal: 100),
                                   textColor: Colors.white,
                                   color: Theme.of(context).secondaryHeaderColor,
-                                  child: Icon(Icons.input),
+                                  child: Icon(
+                                    Icons.input,
+                                    size: 25,
+                                  ),
                                   shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(50)),
                                   onPressed: () => _handleLogin(),
@@ -194,16 +180,21 @@ class _LoginPageState extends State<LoginPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
                         GestureDetector(
-                          onTap: () => Navigator.of(context)
-                              .pushNamed(ShopForm.routeName),
+                          onTap: () {
+                            bloc.changeShopIsEditing(false);
+                            Navigator.of(context).pushNamed(ShopForm.routeName);
+                          },
                           child: Text(
                             'Registrar Comercio',
                             style: TextStyle(color: Colors.white, fontSize: 15),
                           ),
                         ),
                         GestureDetector(
-                          onTap: () => Navigator.of(context)
-                              .pushNamed(RegisterPage.routeName),
+                          onTap: () {
+                            bloc.changeUserIsEditing(false);
+                            Navigator.of(context)
+                                .pushNamed(RegisterPage.routeName);
+                          },
                           child: Text(
                             'Registrar Persona',
                             style: TextStyle(color: Colors.white, fontSize: 15),
@@ -223,7 +214,7 @@ class _LoginPageState extends State<LoginPage> {
 
   _handleLogin() async {
     final bloc = Provider.of(context);
-    if (_formKey.currentState.validate() && _areTermsAccepted()) {
+    if (_formKey.currentState.validate()) {
       _formKey.currentState.save();
       try {
         final FirebaseUser user = await UserFirebaseProvider.fb
@@ -231,13 +222,47 @@ class _LoginPageState extends State<LoginPage> {
         if (user.uid.isNotEmpty) {
           final QuerySnapshot userSnapshot = await UserFirebaseProvider.fb
               .getUserFirebaseByEmail(_userName.trim());
-          bloc.changeUserIsLogged(true);
           if (userSnapshot.documents.length > 0) {
+            final _prefs = PreferenceAuth();
+            _prefs.initPrefs();
             if (userSnapshot.documents[0].data['type'] == 'CUSTOMER') {
+              bloc.changeUserIsLogged(true);
+              bloc.changeShopIsLogged(false);
+              _prefs.isUserLoggedIn = true;
+              _prefs.isShopLoggedIn = false;
+              final userData = UserModel.fromJson(userSnapshot.documents[0].data);
+              bloc.changeUserIdType(userData.identificationType);
+              bloc.changeUserIdentification(userData.identification);
+              bloc.changeUserName(userData.name);
+              bloc.changeUserLastName(userData.lastName);
+              bloc.changeUserContact(userData.contact);
+              bloc.changeUserEmail(userData.email);
+              bloc.changeUserPassword(userData.password);
+              bloc.changeUserDocumentId(userData.documentId);
+              bloc.changeUserFirebaseId(userData.firebaseId);
+              UserDBProvider.db.deleteUser();
+              UserDBProvider.db.addUser(userData);
               Navigator.of(context).pushNamedAndRemoveUntil(
                   HomePage.routeName, (route) => false);
             } else {
+              bloc.changeUserIsLogged(false);
+              bloc.changeShopIsLogged(true);
+              _prefs.isUserLoggedIn = false;
+              _prefs.isShopLoggedIn = true;
               ShopDBProvider.db.saveShopIfNotExists(context, _userName.trim());
+              if (bloc.shopCurrBranch == null) {
+                final DocumentSnapshot shopDocId = await ShopFirebaseProvider.fb
+                    .getShopFirebase(userSnapshot.documents[0].documentID);
+                bloc.changeShopDocumentId(shopDocId.documentID);
+                final QuerySnapshot branches = await ShopFirebaseProvider.fb
+                    .getBranchsFbByShopDocId(shopDocId.documentID);
+                bloc.changeShopBranches(branches.documents
+                    .map((e) => ShopBranchModel.fromJson(e.data))
+                    .toList());
+                bloc.changeShopCurrBranch(bloc.shopBranches[0]);
+                bloc.shopCurrBranch.branchDocumentId = branches.documents[0].documentID;
+                _prefs.currentBranchDocId = branches.documents[0].documentID;
+              } else _prefs.currentBranchDocId = bloc.shopCurrBranch.branchDocumentId;
               Navigator.of(context).pushNamedAndRemoveUntil(
                   QRReaderPage.routeName, (route) => false);
             }
@@ -273,22 +298,6 @@ class _LoginPageState extends State<LoginPage> {
     } else if (message.contains('ERROR_OPERATION_NOT_ALLOWED')) {
       return 'Operación no permitida!';
     } else
-      return 'Error desconocido.';
-  }
-
-  bool _areTermsAccepted() {
-    if (!_aceptTerms) {
-      Fluttertoast.showToast(
-        msg: 'Debe aceptar los términos y condiciones.',
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.CENTER,
-        timeInSecForIosWeb: 1,
-        backgroundColor: Colors.orange,
-        textColor: Colors.white,
-        fontSize: 16.0,
-      );
-      return false;
-    }
-    return true;
+      return 'Error: $message';
   }
 }

@@ -20,6 +20,7 @@ class FormModel {
     int employeeAcceptVacationSymptoms;
     String lastDate;
     String shopDocumentId;
+    String shopBranchDocumentId;
     String userDocumentId;
 
     FormModel({
@@ -38,6 +39,7 @@ class FormModel {
         this.employeeAcceptVacationSymptoms,
         this.lastDate,
         this.shopDocumentId,
+        this.shopBranchDocumentId,
         this.userDocumentId
     });
 
@@ -57,6 +59,7 @@ class FormModel {
         employeeAcceptVacationSymptoms: json["employeeAcceptVacationSymptoms"],
         lastDate: json["lastDate"],
         shopDocumentId: json["shopDocumentId"],
+        shopBranchDocumentId: json["shopBranchDocumentId"],
         userDocumentId: json["userDocumentId"]
     );
 
@@ -76,6 +79,7 @@ class FormModel {
         "employeeAcceptVacationSymptoms": employeeAcceptVacationSymptoms,
         "lastDate": lastDate,
         "shopDocumentId": shopDocumentId,
+        "shopBranchDocumentId": shopBranchDocumentId,
         "userDocumentId": userDocumentId,
     };
 }

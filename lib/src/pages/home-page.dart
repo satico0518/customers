@@ -2,6 +2,7 @@ import 'package:customers/src/bloc/provider.dart';
 import 'package:customers/src/pages/form-page.dart';
 import 'package:customers/src/pages/login-page.dart';
 import 'package:customers/src/pages/register-page.dart';
+import 'package:customers/src/providers/auth.shared-preferences.dart';
 import 'package:customers/src/providers/qr.shared-preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -14,6 +15,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
+    final bloc = Provider.of(context);
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
@@ -21,14 +23,17 @@ class HomePage extends StatelessWidget {
             Row(
               children: [
                 Text('Salir'),
-                SizedBox(width: 5,),
-                IconButton(icon: Icon(Icons.input), onPressed: () => _logOut(context)),
+                SizedBox(
+                  width: 5,
+                ),
+                IconButton(
+                    icon: Icon(Icons.input), onPressed: () => _logOut(context)),
               ],
             )
           ],
         ),
         key: _scaffoldKey,
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
         floatingActionButton: FloatingActionButton.extended(
           backgroundColor: Colors.white,
           label: Text(
@@ -42,10 +47,6 @@ class HomePage extends StatelessWidget {
           onPressed: () =>
               _goToQr(context, _scaffoldKey.currentState.showSnackBar),
         ),
-        // appBar: AppBar(
-        //   centerTitle: true,
-        //   title: Text('Control COVID-19'),
-        // ),
         body: Container(
           height: MediaQuery.of(context).size.height,
           decoration: BoxDecoration(
@@ -91,7 +92,7 @@ class HomePage extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: <Widget>[
                     SizedBox(
-                      height: 15,
+                      height: 10,
                     ),
                     GestureDetector(
                       onTap: () =>
@@ -111,8 +112,10 @@ class HomePage extends StatelessWidget {
                       height: 20,
                     ),
                     GestureDetector(
-                      onTap: () =>
-                          Navigator.pushNamed(context, RegisterPage.routeName, arguments: {'onlySave': true}),
+                      onTap: () {
+                        bloc.changeUserIsEditing(true);
+                        Navigator.pushNamed(context, RegisterPage.routeName);
+                      },
                       child: _getContainer(
                         context,
                         screenSize,
@@ -137,7 +140,8 @@ class HomePage extends StatelessWidget {
   Container _getContainer(
       BuildContext context, dynamic screenSize, Icon icon, String text) {
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 15, horizontal: 5),
+      height: 50,
+      padding: EdgeInsets.symmetric(vertical: 7, horizontal: 5),
       decoration: BoxDecoration(
           color: Theme.of(context).secondaryHeaderColor,
           borderRadius: BorderRadius.circular(5),
@@ -188,8 +192,12 @@ class HomePage extends StatelessWidget {
   }
 
   void _logOut(BuildContext context) {
+    final _prefs = PreferenceAuth();
+    _prefs.initPrefs();
+    _prefs.isUserLoggedIn = false;
     final bloc = Provider.of(context);
     bloc.changeUserIsLogged(false);
-    Navigator.of(context).pushNamedAndRemoveUntil(LoginPage.routeName, (route) => false);
+    Navigator.of(context)
+        .pushNamedAndRemoveUntil(LoginPage.routeName, (route) => false);
   }
 }

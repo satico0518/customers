@@ -44,7 +44,6 @@ class _FormResumePageState extends State<FormResumePage> {
   Widget build(BuildContext context) {
     final String args = ModalRoute.of(context).settings.arguments;
     final Map<String, dynamic> formDataMap = jsonDecode(args);
-
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
@@ -273,8 +272,10 @@ class _FormResumePageState extends State<FormResumePage> {
 
       // INSERT FORM
       form.shopDocumentId = bloc.shopDocumentId;
+      form.shopBranchDocumentId = bloc.shopCurrBranch.branchDocumentId;
       final formJson = form.toJson();
       formJson["temperature"] = _temperature;
+      formJson["insertDate"] = DateTime.now();
       final user = UserModel(
           identificationType: formDataMap['identificationType'],
           identification: formDataMap['identification'],

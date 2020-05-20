@@ -3,6 +3,7 @@ import 'package:customers/src/bloc/user.bloc.dart';
 import 'package:customers/src/bloc/provider.dart';
 import 'package:customers/src/models/user.model.dart';
 import 'package:customers/src/pages/login-page.dart';
+import 'package:customers/src/pages/terms-page.dart';
 import 'package:customers/src/providers/userDb.provider.dart';
 import 'package:customers/src/providers/userFirebase.provider.dart';
 import 'package:flutter/material.dart';
@@ -18,6 +19,7 @@ class RegisterPage extends StatefulWidget {
 
 class _RegisterPageState extends State<RegisterPage> {
   final _formKey = GlobalKey<FormState>();
+  bool _aceptTerms = false;
   bool _showPass = false;
   List<String> _identificationTypes = [
     '-- Tipo Documento --',
@@ -30,8 +32,6 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, dynamic> _onlySave =
-        ModalRoute.of(context).settings.arguments ?? {"onlySave": false};
     final bloc = Provider.of(context);
     final _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -41,18 +41,26 @@ class _RegisterPageState extends State<RegisterPage> {
         appBar: AppBar(
           title: Text('Registro'),
           actions: <Widget>[
-            Row(
-              children: <Widget>[
-                Text('Actualizar Usuario'),
-                IconButton(
-                  icon: Icon(Icons.save),
-                  onPressed: () => _saveUserData(
-                    _scaffoldKey.currentState.showSnackBar,
-                    bloc,
-                  ),
-                ),
-              ],
-            )
+            StreamBuilder<bool>(
+                stream: bloc.userIsEditingStream,
+                builder: (context, snapshot) {
+                  return Visibility(
+                    visible: snapshot.data,
+                    child: Row(
+                      children: <Widget>[
+                        Text('Actualizar Usuario'),
+                        IconButton(
+                          icon: Icon(Icons.save),
+                          onPressed: () {
+                            _aceptTerms = true;
+                            _saveUserData(
+                                _scaffoldKey.currentState.showSnackBar, bloc);
+                          },
+                        ),
+                      ],
+                    ),
+                  );
+                })
           ],
         ),
         body: SingleChildScrollView(
@@ -92,42 +100,48 @@ class _RegisterPageState extends State<RegisterPage> {
                   SizedBox(
                     height: 10,
                   ),
-                  Visibility(
-                    visible: !_onlySave['onlySave'] ?? true,
-                    child: StreamBuilder<String>(
-                      stream: bloc.userFirebaseIdStream,
-                      builder: (context, snapshot) {
-                        if (!snapshot.hasData) {
-                          return ButtonTheme(
-                            minWidth: double.infinity,
-                            buttonColor: Theme.of(context).secondaryHeaderColor,
-                            child: RaisedButton(
-                              padding: EdgeInsets.symmetric(
-                                  vertical: 20, horizontal: 20),
-                              onPressed: () => _saveUserData(
-                                _scaffoldKey.currentState.showSnackBar,
-                                bloc,
-                              ),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceAround,
-                                children: <Widget>[
-                                  Text(
-                                    'Registrarme',
-                                    style: TextStyle(
-                                        color: Colors.white, fontSize: 20),
-                                  )
-                                ],
-                              ),
-                              shape: RoundedRectangleBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(5))),
+                  StreamBuilder<bool>(
+                    stream: bloc.userIsEditingStream,
+                    builder: (context, snapshot) {
+                      return Visibility(
+                        visible: !snapshot.data,
+                        child: Column(
+                          children: [
+                            _getTermsAndConditions(),
+                            SizedBox(
+                              height: 10,
                             ),
-                          );
-                        }
-                        return SizedBox();
-                      },
-                    ),
+                            ButtonTheme(
+                              minWidth: double.infinity,
+                              buttonColor:
+                                  Theme.of(context).secondaryHeaderColor,
+                              child: RaisedButton(
+                                padding: EdgeInsets.symmetric(
+                                    vertical: 20, horizontal: 20),
+                                onPressed: () => _saveUserData(
+                                  _scaffoldKey.currentState.showSnackBar,
+                                  bloc,
+                                ),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceAround,
+                                  children: <Widget>[
+                                    Text(
+                                      'Registrarme',
+                                      style: TextStyle(
+                                          color: Colors.white, fontSize: 20),
+                                    )
+                                  ],
+                                ),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(5))),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),
@@ -182,6 +196,7 @@ class _RegisterPageState extends State<RegisterPage> {
         stream: bloc.userIdentificationStream,
         builder: (context, snapshot) {
           return TextFormField(
+            keyboardType: TextInputType.number,
             initialValue: bloc.identification,
             textCapitalization: TextCapitalization.sentences,
             decoration: InputDecoration(
@@ -208,8 +223,9 @@ class _RegisterPageState extends State<RegisterPage> {
         stream: bloc.userNameStream,
         builder: (context, snapshot) {
           return TextFormField(
+            keyboardType: TextInputType.text,
             initialValue: bloc.userName,
-          textCapitalization: TextCapitalization.words,
+            textCapitalization: TextCapitalization.words,
             decoration: InputDecoration(
               hintText: 'Nombre',
               labelText: 'Nombre',
@@ -233,8 +249,9 @@ class _RegisterPageState extends State<RegisterPage> {
         stream: bloc.userLastNameStream,
         builder: (context, snapshot) {
           return TextFormField(
+            keyboardType: TextInputType.text,
             initialValue: bloc.lastName,
-          textCapitalization: TextCapitalization.words,
+            textCapitalization: TextCapitalization.words,
             decoration: InputDecoration(
               hintText: 'Apellido',
               labelText: 'Apellido',
@@ -258,8 +275,9 @@ class _RegisterPageState extends State<RegisterPage> {
         stream: bloc.userContactStream,
         builder: (context, snapshot) {
           return TextFormField(
+            keyboardType: TextInputType.number,
             initialValue: bloc.contact,
-          textCapitalization: TextCapitalization.words,
+            textCapitalization: TextCapitalization.words,
             decoration: InputDecoration(
               hintText: 'Numero de contacto',
               labelText: 'Numero de contacto',
@@ -333,8 +351,51 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
+  Container _getTermsAndConditions() {
+    return Container(
+      color: Color.fromRGBO(0, 0, 0, .2),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Checkbox(
+            checkColor: Theme.of(context).primaryColor,
+            activeColor: Theme.of(context).secondaryHeaderColor,
+            value: _aceptTerms,
+            onChanged: (value) => setState(() => _aceptTerms = value),
+          ),
+          GestureDetector(
+            onTap: () => Navigator.of(context).pushNamed(TermsPage.routeName),
+            child: Text(
+              'Acepto términos y condiciones',
+              textAlign: TextAlign.justify,
+              style: TextStyle(
+                  color: Theme.of(context).primaryColor,
+                  decoration: TextDecoration.underline),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  bool _areTermsAccepted() {
+    if (!_aceptTerms) {
+      Fluttertoast.showToast(
+        msg: 'Debe aceptar los términos y condiciones.',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.orange,
+        textColor: Colors.white,
+        fontSize: 16.0,
+      );
+      return false;
+    }
+    return true;
+  }
+
   _saveUserData(showSnackBar, UserBloc bloc) async {
-    if (_formKey.currentState.validate()) {
+    if (_formKey.currentState.validate() && _areTermsAccepted()) {
       _formKey.currentState.save();
       try {
         // todo
@@ -355,11 +416,14 @@ class _RegisterPageState extends State<RegisterPage> {
           password: bloc.password.trim(),
         );
         if (bloc.userDocumentId == null || bloc.userDocumentId.isEmpty) {
-          final DocumentReference fbUser = await UserFirebaseProvider.fb.addUserToFirebase(user, "CUSTOMER");
+          final DocumentReference fbUser =
+              await UserFirebaseProvider.fb.addUserToFirebase(user, "CUSTOMER");
           bloc.changeUserDocumentId(fbUser.documentID);
-          user.documentId = bloc.userDocumentId;
         }
-          
+        user.documentId = bloc.userDocumentId;
+        await UserFirebaseProvider.fb
+            .updateUserToFirebase(user, bloc.userDocumentId);
+
         await UserDBProvider.db.deleteUser();
         await UserDBProvider.db.addUser(user);
         Fluttertoast.showToast(

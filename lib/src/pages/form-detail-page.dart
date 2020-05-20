@@ -19,7 +19,7 @@ class FormDetail extends StatelessWidget {
               Text('enviar email'),
               IconButton(
                   icon: Icon(Icons.send),
-                  onPressed: () => _downloadPDF(context, formDataMap)),
+                  onPressed: () => _sendDetailEmail(context, formDataMap)),
             ],
           )
         ],
@@ -123,7 +123,7 @@ class FormDetail extends StatelessWidget {
     );
   }
 
-  _downloadPDF(BuildContext context, Map<String, dynamic> formDataMap) async {
+  _sendDetailEmail(BuildContext context, Map<String, dynamic> formDataMap) async {
     final response = await sendSingleFormEmail(formDataMap);
     Fluttertoast.showToast(
       msg: response,

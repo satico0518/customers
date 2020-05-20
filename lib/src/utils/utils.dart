@@ -96,6 +96,7 @@ Future<String> sendSingleFormEmail(Map<String, dynamic> form) async {
     body: '''
       <h2>Entrevista Individual</h2>
       <div>
+          Temperatura Registrada: ${form['temperature']}<br>
           Identificacion: ${returnIdTypeCode(form['identificationType'])} ${form['identification']}<br>
           Nombre: ${form['name']} ${form['lastName']}<br>
           Telefono: ${form['contact']}<br>

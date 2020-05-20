@@ -22,11 +22,14 @@ class UserFirebaseProvider {
     firebaseUser.addAll({"type": type});
     return fb.collection('Users').add(firebaseUser);
   }
-  
+
   Future<void> updateUserToFirebase(dynamic user, String docId) async {
     Firestore fb = Firestore.instance;
     final firebaseUser = user.toJson();
-    return fb.collection('Users').document(docId).setData(firebaseUser, merge: true);
+    return fb
+        .collection('Users')
+        .document(docId)
+        .setData(firebaseUser, merge: true);
   }
 
   Future<FirebaseUser> loginUserToFirebase(
@@ -57,7 +60,6 @@ class UserFirebaseProvider {
 
   Container getUserInfo(Map<String, dynamic> user, BuildContext context) {
     final textStyle = TextStyle(fontSize: 18, color: Colors.white);
-    
 
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 20),
@@ -67,9 +69,12 @@ class UserFirebaseProvider {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text(
-            'Temperatura Registrada: ${user['temperature']}',
-            style: textStyle,
+          Visibility(
+            visible: user['temperature'] != null,
+            child: Text(
+              'Temperatura registrada: ${user['temperature']}',
+              style: textStyle,
+            ),
           ),
           Text(
             'Identificación: ${returnIdTypeCode(user['identificationType'])} ${user['identification']}',

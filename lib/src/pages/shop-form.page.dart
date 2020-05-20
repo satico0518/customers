@@ -167,7 +167,7 @@ class _ShopFormState extends State<ShopForm> {
       stream: bloc.shopNitStream,
       builder: (context, snapshot) {
         return TextFormField(
-            keyboardType: TextInputType.number,
+          keyboardType: TextInputType.number,
           initialValue: bloc.shopNit,
           textCapitalization: TextCapitalization.sentences,
           decoration: InputDecoration(
@@ -196,7 +196,7 @@ class _ShopFormState extends State<ShopForm> {
       stream: bloc.shopNameStream,
       builder: (context, snapshot) {
         return TextFormField(
-            keyboardType: TextInputType.text,
+          keyboardType: TextInputType.text,
           initialValue: bloc.shopName,
           textCapitalization: TextCapitalization.words,
           decoration: InputDecoration(
@@ -221,7 +221,7 @@ class _ShopFormState extends State<ShopForm> {
       stream: bloc.shopCityStream,
       builder: (context, snapshot) {
         return TextFormField(
-            keyboardType: TextInputType.text,
+          keyboardType: TextInputType.text,
           initialValue: bloc.shopCity,
           textCapitalization: TextCapitalization.words,
           decoration: InputDecoration(
@@ -479,12 +479,9 @@ class _ShopFormState extends State<ShopForm> {
           final DocumentReference fbShop =
               await UserFirebaseProvider.fb.addUserToFirebase(shop, "SHOP");
           bloc.changeShopDocumentId(fbShop.documentID);
-          shop.documentId = bloc.shopDocumentId;
-        } else {
-          shop.documentId = bloc.shopDocumentId;
-          UserFirebaseProvider.fb
-              .updateUserToFirebase(shop, bloc.shopDocumentId);
         }
+        shop.documentId = bloc.shopDocumentId;
+        UserFirebaseProvider.fb.updateUserToFirebase(shop, bloc.shopDocumentId);
 
         await ShopDBProvider.db.deleteShop();
         await ShopDBProvider.db.addShop(shop);

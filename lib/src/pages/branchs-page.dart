@@ -130,9 +130,11 @@ class _BranchPageState extends State<BranchPage> {
                                                   CrossAxisAlignment.center,
                                               children: [
                                                 GestureDetector(
-                                                  onTap: () =>
-                                                      bloc.changeShopCurrBranch(
-                                                          item),
+                                                  onTap: () {
+                                                    bloc.changeShopCurrBranch(
+                                                        item);
+                                                    bloc.changeShopBranchName(item.branchName);
+                                                  },
                                                   child: Icon(
                                                     Icons.adjust,
                                                     color: Theme.of(context)
@@ -150,11 +152,8 @@ class _BranchPageState extends State<BranchPage> {
                                           DataCell(
                                               Text(item.branchAddress ?? '')),
                                           DataCell(
-                                            IconButton(
-                                              icon: Icon(Icons.edit),
-                                              color: Theme.of(context)
-                                                  .secondaryHeaderColor,
-                                              onPressed: () {
+                                            GestureDetector(
+                                              onTap: () {
                                                 setState(() {
                                                   _branchName = capitalizeWord(
                                                       item.branchName ?? '');
@@ -165,6 +164,11 @@ class _BranchPageState extends State<BranchPage> {
                                                       context, bloc, true);
                                                 });
                                               },
+                                              child: Icon(
+                                                Icons.edit,
+                                                color: Theme.of(context)
+                                                    .secondaryHeaderColor,
+                                              ),
                                             ),
                                           ),
                                         ],

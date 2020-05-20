@@ -29,11 +29,13 @@ class _RegisterPageState extends State<RegisterPage> {
     'Registro Civil',
     'Otro'
   ];
+  String currentPassword;
 
   @override
   Widget build(BuildContext context) {
     final bloc = Provider.of(context);
     final _scaffoldKey = GlobalKey<ScaffoldState>();
+    currentPassword = bloc.password;
 
     return SafeArea(
       child: Scaffold(
@@ -72,14 +74,29 @@ class _RegisterPageState extends State<RegisterPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  _createIdentificationTypeField(bloc),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  _getIdentificationField(bloc),
-                  SizedBox(
-                    height: 10,
-                  ),
+                  StreamBuilder<bool>(
+                      stream: bloc.userIsEditingStream,
+                      builder: (context, snapshot) {
+                        return Visibility(
+                          visible: !snapshot.data,
+                          child: Column(
+                            children: [
+                              _createIdentificationTypeField(bloc),
+                              SizedBox(
+                                height: 10,
+                              ),
+                              _getIdentificationField(bloc),
+                              SizedBox(
+                                height: 10,
+                              ),
+                              _getEmailField(bloc),
+                              SizedBox(
+                                height: 10,
+                              ),
+                            ],
+                          ),
+                        );
+                      }),
                   _getNameField(bloc),
                   SizedBox(
                     height: 10,
@@ -92,7 +109,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   SizedBox(
                     height: 10,
                   ),
-                  _getEmailField(bloc),
+                  _getAddressField(bloc),
                   SizedBox(
                     height: 10,
                   ),
@@ -296,6 +313,32 @@ class _RegisterPageState extends State<RegisterPage> {
         });
   }
 
+  Widget _getAddressField(UserBloc bloc) {
+    return StreamBuilder<String>(
+        stream: bloc.userAddressStream,
+        builder: (context, snapshot) {
+          return TextFormField(
+            keyboardType: TextInputType.text,
+            initialValue: bloc.userAddress,
+            textCapitalization: TextCapitalization.words,
+            decoration: InputDecoration(
+              hintText: 'Dirección',
+              labelText: 'Dirección',
+              helperText: 'Dirección de residencia, incluya ciudad',
+              icon: Icon(
+                Icons.home,
+                color: Theme.of(context).primaryColor,
+              ),
+            ),
+            validator: (value) {
+              if (value.isEmpty) return 'Dirección es obligatorio';
+              return null;
+            },
+            onChanged: bloc.changeUserAddress,
+          );
+        });
+  }
+
   Widget _getEmailField(UserBloc bloc) {
     return StreamBuilder<String>(
       stream: bloc.userEmailStream,
@@ -412,6 +455,7 @@ class _RegisterPageState extends State<RegisterPage> {
           name: bloc.userName.trim(),
           lastName: bloc.lastName.trim(),
           contact: bloc.contact.trim(),
+          address: bloc.userAddress.trim(),
           email: bloc.email.trim(),
           password: bloc.password.trim(),
         );
@@ -423,13 +467,26 @@ class _RegisterPageState extends State<RegisterPage> {
         user.documentId = bloc.userDocumentId;
         await UserFirebaseProvider.fb
             .updateUserToFirebase(user, bloc.userDocumentId);
+        if (currentPassword != bloc.password) {
+          final response =
+              await UserFirebaseProvider.fb.changePassword(bloc.password);
+          await Fluttertoast.showToast(
+            msg: response,
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIosWeb: 3,
+            backgroundColor: Colors.green,
+            textColor: Colors.white,
+            fontSize: 18.0,
+          );
+        }
 
         await UserDBProvider.db.deleteUser();
         await UserDBProvider.db.addUser(user);
         Fluttertoast.showToast(
           msg: 'Registro exitoso!',
           toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.CENTER,
+          gravity: ToastGravity.BOTTOM,
           timeInSecForIosWeb: 3,
           backgroundColor: Colors.green,
           textColor: Colors.white,

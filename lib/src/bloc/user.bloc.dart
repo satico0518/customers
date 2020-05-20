@@ -14,6 +14,7 @@ class UserBloc {
   final _userNameController = BehaviorSubject<String>();
   final _userLastNameController = BehaviorSubject<String>();
   final _userContactController = BehaviorSubject<String>();
+  final _userAddressController = BehaviorSubject<String>();
   final _userEmailController = BehaviorSubject<String>();
   final _userPasswordController = BehaviorSubject<String>();
   final _userIsEditingController = BehaviorSubject<bool>();
@@ -61,6 +62,7 @@ class UserBloc {
   Stream<String> get userNameStream => _userNameController.stream;
   Stream<String> get userLastNameStream => _userLastNameController.stream;
   Stream<String> get userContactStream => _userContactController.stream;
+  Stream<String> get userAddressStream => _userAddressController.stream;
   Stream<String> get userEmailStream => _userEmailController.stream;
   Stream<String> get userPasswordStream => _userPasswordController.stream;
 
@@ -107,6 +109,7 @@ class UserBloc {
   Function(String) get changeUserName => _userNameController.sink.add;
   Function(String) get changeUserLastName => _userLastNameController.sink.add;
   Function(String) get changeUserContact => _userContactController.sink.add;
+  Function(String) get changeUserAddress => _userAddressController.sink.add;
   Function(String) get changeUserEmail => _userEmailController.sink.add;
   Function(String) get changeUserPassword => _userPasswordController.sink.add;
 
@@ -153,6 +156,7 @@ class UserBloc {
   String get userName => _userNameController.value;
   String get lastName => _userLastNameController.value;
   String get contact => _userContactController.value;
+  String get userAddress => _userAddressController.value;
   String get email => _userEmailController.value;
   String get password => _userPasswordController.value;
 
@@ -200,6 +204,7 @@ class UserBloc {
         changeUserName(value.name);
         changeUserLastName(value.lastName);
         changeUserContact(value.contact);
+        changeUserAddress(value.address);
         changeUserEmail(value.email);
         changeUserPassword(value.password);
       }
@@ -255,6 +260,7 @@ class UserBloc {
     _userNameController?.close();
     _userLastNameController?.close();
     _userContactController?.close();
+    _userAddressController?.close();
     _userEmailController?.close();
     _userPasswordController?.close();
     _shopIsLoggedController?.close();

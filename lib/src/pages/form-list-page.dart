@@ -151,17 +151,61 @@ class _FormListState extends State<FormList> {
     if (_listData.length == 0) return;
     List<List<dynamic>> dataToExport = [
       [
-        "Sintomas",
+        "Fecha de registro",
+        "Razon Social",
+        "Sucursal",
+        "Temperatura",
+        "Tipo Identificacion",
+        "Identificacion",
+        "Nombres",
+        "Apellidos",
+        "Telefono",
+        "Email",
+        "Presenta Sintomas",
+        "Observacion Sintomas",
+        "Hogar con Sintomas",
+        "En Aislamiento",
+        "Observacion Aislamiento",
+        "Visitas",
+        "Observacion Visitas",
+        "Mas de 10 Personas",
+        "Es Visitante",
+        "Acepta informacion veridica",
+        "Empleado acepta informar sus sintomas",
+        "Empleado acepta informar sintomas hogar",
+        "Empleado acepta informar sintomas futuros"
       ]
     ];
     _listData.forEach((element) {
-      final List<dynamic> tempList = [];
-      element.data.forEach((key, value) {
-        tempList.add(value);
-      });
-      dataToExport.add(tempList);
+        final data = element.data;
+        final orderedItem = [
+          getFormatedDateFromtimestamp(data['insertDate']),
+          data['shopDocumentId'],
+          data['shopBranchDocumentId'],
+          data['temperature'],
+          data['identificationType'],
+          data['identification'],
+          data['name'],
+          data['lastName'],
+          data['contact'],
+          data['email'],
+          data['yourSymptoms'] == 1 ? 'SI' : 'NO',
+          data['yourSymptomsDesc'],
+          data['yourHomeSymptoms'] == 1 ? 'SI' : 'NO',
+          data['haveBeenIsolated'] == 1 ? 'SI' : 'NO',
+          data['haveBeenIsolatedDesc'],
+          data['haveBeenVisited'] == 1 ? 'SI' : 'NO',
+          data['haveBeenVisitedDesc'],
+          data['haveBeenWithPeople'] == 1 ? 'SI' : 'NO',
+          data['isEmployee'] == 0 ? 'SI' : 'NO',
+          data['visitorAccept'] == 0 ? 'SI' : 'NO',
+          data['employeeAcceptYourSymptoms'] == 1 ? 'SI' : 'NO',
+          data['employeeAcceptHomeSymptoms'] == 1 ? 'SI' : 'NO',
+          data['employeeAcceptVacationSymptoms'] == 1 ? 'SI' : 'NO',
+        ];
+      dataToExport.add(orderedItem);
     });
-    String csv = const ListToCsvConverter().convert(dataToExport);
+    String csv = const ListToCsvConverter(fieldDelimiter: '|').convert(dataToExport);
     final File txtfile = await writeFileContent(csv);
     final fileUrl = await uploadFile(txtfile,
         'entrevistas_${DateTime.now().millisecondsSinceEpoch.toString()}.txt');
@@ -176,4 +220,5 @@ class _FormListState extends State<FormList> {
       fontSize: 18.0,
     );
   }
+
 }

@@ -13,6 +13,7 @@ UserModel {
     String name;
     String lastName;
     String contact;
+    String address;
     String email;
     String password;
 
@@ -24,6 +25,7 @@ UserModel {
         this.name,
         this.lastName,
         this.contact,
+        this.address,
         this.email,
         this.password,
     });
@@ -36,6 +38,7 @@ UserModel {
         name: json["name"],
         lastName: json["lastName"],
         contact: json["contact"],
+        address: json["address"],
         email: json["email"],
         password: json["password"],
     );
@@ -48,6 +51,7 @@ UserModel {
         "name": name,
         "lastName": lastName,
         "contact": contact,
+        "address": address,
         "email": email,
         "password": password,
     };

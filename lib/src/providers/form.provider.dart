@@ -39,6 +39,7 @@ class DBProvider {
           'employeeAcceptVacationSymptoms INTEGER, '
           'lastDate TEXT, '
           'shopDocumentId TEXT, '
+          'shopBranchDocumentId TEXT, '
           'userDocumentId TEXT)');
     });
   }

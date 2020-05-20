@@ -13,11 +13,23 @@ class FormDetail extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Detalle'),
+        actions: [
+          Row(
+            children: [
+              Text('enviar email'),
+              IconButton(
+                  icon: Icon(Icons.send),
+                  onPressed: () => _sendDetailEmail(context, formDataMap)),
+            ],
+          )
+        ],
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            SizedBox(height: 20,),
+            SizedBox(
+              height: 20,
+            ),
             UserFirebaseProvider.fb.getUserInfo(formDataMap, context),
             _getFormField(getQuestion(1), formDataMap['yourSymptoms'],
                 memo: formDataMap['yourSymptomsDesc']),
@@ -44,7 +56,6 @@ class FormDetail extends StatelessWidget {
                 ],
               ),
             ),
-            _getExport(context, formDataMap),
           ],
         ),
       ),
@@ -112,28 +123,7 @@ class FormDetail extends StatelessWidget {
     );
   }
 
-  Container _getExport(BuildContext context, Map<String, dynamic> formDataMap) {
-    return Container(
-      child: RaisedButton(
-        textColor: Colors.white,
-        padding: EdgeInsets.symmetric(vertical: 20),
-        color: Theme.of(context).secondaryHeaderColor,
-        onPressed: () => _downloadPDF(context, formDataMap),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            Text(
-              'Enviar a correo',
-              style: TextStyle(fontSize: 20),
-            ),
-            Icon(Icons.send)
-          ],
-        ),
-      ),
-    );
-  }
-
-  _downloadPDF(BuildContext context, Map<String, dynamic> formDataMap) async {
+  _sendDetailEmail(BuildContext context, Map<String, dynamic> formDataMap) async {
     final response = await sendSingleFormEmail(formDataMap);
     Fluttertoast.showToast(
       msg: response,

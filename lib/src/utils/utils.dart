@@ -1,5 +1,10 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:customers/src/pages/home-page.dart';
+import 'package:customers/src/pages/login-page.dart';
+import 'package:customers/src/pages/qr-reader-page.dart';
+import 'package:customers/src/providers/auth.shared-preferences.dart';
 import 'package:customers/src/providers/form-questions.provider.dart';
 import 'package:customers/src/providers/shopDbProvider.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
@@ -91,6 +96,7 @@ Future<String> sendSingleFormEmail(Map<String, dynamic> form) async {
     body: '''
       <h2>Entrevista Individual</h2>
       <div>
+          Temperatura Registrada: ${form['temperature']}<br>
           Identificacion: ${returnIdTypeCode(form['identificationType'])} ${form['identification']}<br>
           Nombre: ${form['name']} ${form['lastName']}<br>
           Telefono: ${form['contact']}<br>
@@ -146,10 +152,8 @@ Future<String> uploadFile(File file, String fileName) async {
         FirebaseStorage.instance.ref().child(fileName);
     StorageUploadTask uploadTask = fbStorageRef.putFile(file);
     StorageTaskSnapshot snapshot = await uploadTask.onComplete;
-
     var downloadUrl = await snapshot.ref.getDownloadURL();
     if (uploadTask.isComplete) return downloadUrl.toString();
-
     return null;
   } catch (e) {
     return null;
@@ -167,8 +171,28 @@ String handleMessage(String message) {
     return 'error desconocido: $message';
 }
 
+String capitalizeWord(String word) {
+  return '${word[0].toUpperCase()}${word.substring(1)}';
+}
+
+String getFormatedDateFromtimestamp(Timestamp time) {
+  if (time == null) return '';
+  return DateTime.parse(time.toDate().toString()).toString().split('.')[0];
+}
+
+Future<void> getInitialRoute() async {
+  final _prefs = new PreferenceAuth();
+  await _prefs.initPrefs();  
+  if (_prefs.isUserLoggedIn)
+    _prefs.initialRoute = HomePage.routeName;
+  else if (_prefs.isShopLoggedIn)
+    _prefs.initialRoute = QRReaderPage.routeName;
+  else
+    _prefs.initialRoute = LoginPage.routeName;
+}
+
 String getTermsAndConditionsText() {
-  return '''PRIMERO: Significados: (i) "Datos Personales" significa la información personal registrada en cualquier base de datos que
+  return '''PRIMERO: Significados: (i) “Datos Personales” significa la información personal registrada en cualquier base de datos que
 la haga susceptible de tratamiento, que para efectos de la presente autorización, al ser registrada en la Aplicación por el
 Usuario/Titular, en su conjunto, genera la posibilidad de identificar al Usuario/Titular de conformidad con las protecciones y
 derechos establecidos en la Ley 1581 de 2012 de la República de Colombia y demás regulación aplicable; (ii) “Datos
@@ -178,23 +202,27 @@ establecidos en la Ley 1581 de 2012 de la República de Colombia y demás regula
 significa la persona natural o el individuo que accede a la Aplicación, y en la que libre y voluntariamente procede a registrar
 sus Datos Personales y Datos Personales Sensibles, y a quien el Responsable le garantizará en todo momento los derechos y
 protecciones establecidos en la Ley 1581 de 2012 de la República de Colombia y demás regulación aplicable; (iv)
-“Responsable” significa la empresa [INSERTAR RAZÓN SOCIAL DE EMPRESA] con NIT [INSERTAR NIT], empresa
-debidamente constituida de conformidad con las leyes de la República de Colombia; (v) “Aplicación” significa el software al
-que el Usuario/Titular accede, de propiedad del Responsable y en el que el Usuario/Titular registra sus Datos Personales y
-Datos Personales Sensibles. SEGUNDO: Autorización: Con la aceptación de la presente autorización, y el ingreso de los
-Datos Personales y Datos Personales Sensibles en la Aplicación, el Usuario/Titular de los Datos Personales declara que el
-procesamiento de sus Datos Personales para el(los) siguiente(s) fin(es) relacionado(s) a continuación, por parte del
-Responsable ha(n) sido autorizado(s) y así mismo acuerda y autoriza el procesamiento de los Datos Personales Sensibles para
-el(los) fin(es) descrito(s) a continuación por parte del Responsable en el territorio de la República de Colombia: (a)
-[INSERTAR LA FINALIDAD POR LA QUE DESEAN SOLICITAR AUTORIZACIÓN AL TITULAR]. Ej. Registro en la
-aplicación del Responsable de los Datos Personales y Datos Personales Sensibles para el seguimiento de los síntomas del
-Usuario/Titular para que éste registre si se encuentra infectado con el nuevo coronavirus -COVID-19 también conocido como
-SARS-CoV-2. (b) [INSERTAR CUALQUIER OTRA FINALIDAD]. TERCERO: Transmisión y transferencia: Ni los
-Datos Personales ni los Datos Personales Sensibles serán transferidos ni transmitidos a ningún tercero. CUARTO:
-Autoridades Gubernamentales: El Usuario/Titular declara conocer y aceptar que el Responsable puede requerir poner los
-Datos Personales, los Datos Personales Sensibles o parte de ellos a disposición de las autoridades competentes (ya sea
-autoridades judiciales y administrativas), incluyendo pero sin limitar, autoridades sanitarias en la República de Colombia en
-cualquier nivel (municipal, distrital, departamental y/o nacional).
+“Responsable” significa la empresa FastFire de Colombia SAS con NIT 900.596.937-8, empresa debidamente constituida de
+conformidad con las leyes de la República de Colombia; (v) “Aplicación” significa el software al que el Usuario/Titular
+accede, de propiedad del Responsable y en el que el Usuario/Titular registra sus Datos Personales y Datos Personales
+Sensibles. SEGUNDO: Autorización: Con la aceptación de la presente autorización, y el ingreso de los Datos Personales y
+Datos Personales Sensibles en la Aplicación, el Usuario/Titular de los Datos Personales declara que el procesamiento de sus
+Datos Personales para el(los) siguiente(s) fin(es) relacionado(s) a continuación, por parte del Responsable ha(n) sido
+autorizado(s) y así mismo acuerda y autoriza el procesamiento de los Datos Personales Sensibles para el(los) fin(es) descrito(s)
+a continuación por parte del Responsable en el territorio de la República de Colombia: (a) Registro en la aplicación del
+Responsable de los Datos Personales y Datos Personales Sensibles para el seguimiento de los síntomas del Usuario/Titular
+para que éste registre si se encuentra con síntomas o infectado con el nuevo coronavirus -COVID-19 también conocido como
+SARS-CoV-2. (b) Registro de personas que ingresan a empresas, establecimientos de comercio o cualquier entidad con el fin
+de poder control de flujo y realizar trazabilidad en caso de aparecer algún caso de infección con el nuevo coronavirus -COVID-
+19 también conocido como SARS-CoV-2. (c) Realizar tamizaje y encuesta del estado de salud de cada persona que ingrese a
+empresas, establecimientos de comercio o cualquier entidad con el fin de identificar un posible infectado con el nuevo
+coronavirus -COVID-19 también conocido como SARS-CoV-2. (d) Cumplir con los protocolos de inspección, vigilancia y
+control establecidos por el gobierno para protección de la salud la comunidad en general. TERCERO: Transmisión y
+transferencia: Ni los Datos Personales ni los Datos Personales Sensibles serán transferidos ni transmitidos a ningún tercero.
+CUARTO: Autoridades Gubernamentales: El Usuario/Titular declara conocer y aceptar que el Responsable puede requerir
+poner los Datos Personales, los Datos Personales Sensibles o parte de ellos a disposición de las autoridades competentes (ya
+sea autoridades judiciales y administrativas), incluyendo pero sin limitar, autoridades sanitarias en la República de Colombia
+en cualquier nivel (municipal, distrital, departamental y/o nacional).
 ACEPTACIÓN: Haciendo Click en “Sí Acepto”, el Usuario/Titular otorga la autorización de uso y protección de Datos
 Personales y Datos Personales Sensibles de conformidad con los Términos y Condiciones anteriormente establecidos.''';
 }

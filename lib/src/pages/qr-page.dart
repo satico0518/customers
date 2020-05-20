@@ -28,63 +28,66 @@ class _QRCodePageState extends State<QRCodePage> {
           )
         ],
       ),
-      body: Container(
-          padding: EdgeInsets.all(30),
-          child: Column(
-            children: <Widget>[
-              Text(
-                'Presenta este código QR en los establecimientos que visites, de esta manera se podrá cargar toda la información de tu entrevista COVID-19!',
-                style: TextStyle(fontSize: 20),
-                textAlign: TextAlign.justify,
-              ),
-              SizedBox(
-                height: 50,
-              ),
-              Container(
-                color: Colors.grey[50],
-                // child: Image.memory(image)
-                child: FutureBuilder<String>(
-                  future: getDataToQR(),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      return QrImage(
-                        foregroundColor: Theme.of(context).secondaryHeaderColor,
-                        data: snapshot.data,
-                        version: QrVersions.auto,
-                        size: MediaQuery.of(context).size.width * .9,
-                        errorStateBuilder: (cxt, err) {
-                          return Container(
-                            child: Center(
-                              child: Text(
-                                "Oops! ${err.toString()}",
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                          );
-                        },
-                      );
-                    } else {
-                      return Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            CircularProgressIndicator(),
-                            Text('generando código ...'),
-                          ],
-                        ),
-                      );
-                    }
-                  },
+      body: SingleChildScrollView(
+        child: Container(
+            padding: EdgeInsets.all(30),
+            child: Column(
+              children: <Widget>[
+                Text(
+                  'Presenta este código QR en los establecimientos que visites, de esta manera se podrá cargar toda la información de tu entrevista COVID-19!',
+                  style: TextStyle(fontSize: 20),
+                  textAlign: TextAlign.justify,
                 ),
-              ),
-              StreamBuilder<String>(
-                stream: bloc.lastDateStream,
-                builder: (context, snapshot) {
-                  return Text('Última fecha de actualización: ${bloc.lastDate}.');
-                }
-              )
-            ],
-          )),
+                SizedBox(
+                  height: 50,
+                ),
+                Container(
+                  color: Colors.grey[50],
+                  // child: Image.memory(image)
+                  child: FutureBuilder<String>(
+                    future: getDataToQR(),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        return QrImage(
+                          foregroundColor:
+                              Theme.of(context).secondaryHeaderColor,
+                          data: snapshot.data,
+                          version: QrVersions.auto,
+                          size: MediaQuery.of(context).size.width * .9,
+                          errorStateBuilder: (cxt, err) {
+                            return Container(
+                              child: Center(
+                                child: Text(
+                                  "Oops! ${err.toString()}",
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            );
+                          },
+                        );
+                      } else {
+                        return Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              CircularProgressIndicator(),
+                              Text('generando código ...'),
+                            ],
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                ),
+                StreamBuilder<String>(
+                    stream: bloc.lastDateStream,
+                    builder: (context, snapshot) {
+                      return Text(
+                          'Última fecha de actualización: ${bloc.lastDate}.');
+                    })
+              ],
+            )),
+      ),
     );
   }
 

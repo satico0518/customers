@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:customers/src/models/shop-branch.model.dart';
+
 ShopModel shopModelFromJson(String str) => ShopModel.fromJson(json.decode(str));
 
 String shopModelToJson(ShopModel data) => json.encode(data.toJson());
@@ -16,6 +18,7 @@ class ShopModel {
     String phone;
     String email;
     String password;
+    ShopBranchModel currentBranch;
 
     ShopModel({
         this.firebaseId,
@@ -28,7 +31,8 @@ class ShopModel {
         this.contactName,
         this.phone,
         this.email,
-        this.password
+        this.password,
+        this.currentBranch
     });
 
     factory ShopModel.fromJson(Map<String, dynamic> json) => ShopModel(

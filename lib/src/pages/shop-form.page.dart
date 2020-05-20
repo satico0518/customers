@@ -1,8 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:customers/src/bloc/provider.dart';
 import 'package:customers/src/bloc/user.bloc.dart';
+import 'package:customers/src/models/shop-branch.model.dart';
 import 'package:customers/src/models/shop.model.dart';
+import 'package:customers/src/pages/home-page.dart';
 import 'package:customers/src/pages/login-page.dart';
+import 'package:customers/src/pages/qr-reader-page.dart';
+import 'package:customers/src/pages/terms-page.dart';
 import 'package:customers/src/providers/shopDbProvider.dart';
 import 'package:customers/src/providers/shopFirebase.provider.dart';
 import 'package:customers/src/providers/userFirebase.provider.dart';
@@ -20,7 +24,7 @@ class ShopForm extends StatefulWidget {
 class _ShopFormState extends State<ShopForm> {
   final _formKey = GlobalKey<FormState>();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
-
+  bool _aceptTerms = false;
   bool _showPass = false;
 
   @override
@@ -32,16 +36,29 @@ class _ShopFormState extends State<ShopForm> {
         appBar: AppBar(
           title: Text('Registro'),
           actions: <Widget>[
-            Row(
-              children: <Widget>[
-                Text('Actualizar Tienda'),
-                IconButton(
-                  icon: Icon(Icons.save),
-                  onPressed: () => _saveShopData(
-                      _scaffoldKey.currentState.showSnackBar, bloc),
-                ),
-              ],
-            )
+            StreamBuilder<bool>(
+                stream: bloc.shopIsEditingStream,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return Visibility(
+                      visible: snapshot.data,
+                      child: Row(
+                        children: <Widget>[
+                          Text('Actualizar Tienda'),
+                          IconButton(
+                            icon: Icon(Icons.save),
+                            onPressed: () {
+                              _aceptTerms = true;
+                              _saveShopData(
+                                  _scaffoldKey.currentState.showSnackBar, bloc);
+                            },
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+                  return Text('');
+                })
           ],
         ),
         body: SingleChildScrollView(
@@ -86,35 +103,56 @@ class _ShopFormState extends State<ShopForm> {
                   SizedBox(
                     height: 10,
                   ),
-                  _getShopEmailField(bloc),
-                  SizedBox(
-                    height: 10,
+                  StreamBuilder<bool>(
+                    stream: bloc.shopIsEditingStream,
+                    builder: (context, snapshot) {
+                      return Visibility(
+                        visible: !snapshot.data,
+                        child: Column(
+                          children: [
+                            _getShopEmailField(bloc),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            _getPasswordField(bloc),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            _getTermsAndConditions(),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            ButtonTheme(
+                              minWidth: double.infinity,
+                              buttonColor:
+                                  Theme.of(context).secondaryHeaderColor,
+                              child: RaisedButton(
+                                padding: EdgeInsets.symmetric(
+                                    vertical: 20, horizontal: 20),
+                                onPressed: () => _saveShopData(
+                                    _scaffoldKey.currentState.showSnackBar,
+                                    bloc),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceAround,
+                                  children: <Widget>[
+                                    Text(
+                                      'Registrar Tienda',
+                                      style: TextStyle(
+                                          color: Colors.white, fontSize: 20),
+                                    ),
+                                  ],
+                                ),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(10))),
+                              ),
+                            )
+                          ],
+                        ),
+                      );
+                    },
                   ),
-                  _getPasswordField(bloc),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  ButtonTheme(
-                    minWidth: double.infinity,
-                    buttonColor: Theme.of(context).secondaryHeaderColor,
-                    child: RaisedButton(
-                      padding:
-                          EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-                      onPressed: () => _saveShopData(
-                          _scaffoldKey.currentState.showSnackBar, bloc),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: <Widget>[
-                          Text(
-                            'Registrar Tienda',
-                            style: TextStyle(color: Colors.white, fontSize: 20),
-                          ),
-                        ],
-                      ),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10))),
-                    ),
-                  )
                 ],
               ),
             ),
@@ -129,17 +167,22 @@ class _ShopFormState extends State<ShopForm> {
       stream: bloc.shopNitStream,
       builder: (context, snapshot) {
         return TextFormField(
+          keyboardType: TextInputType.number,
           initialValue: bloc.shopNit,
           textCapitalization: TextCapitalization.sentences,
           decoration: InputDecoration(
             hintText: 'NIT',
             labelText: 'NIT',
-            helperText: 'Ingrese el número de NIT',
+            helperText: 'NIT sin dígito de verificación',
             icon:
                 Icon(Icons.trip_origin, color: Theme.of(context).primaryColor),
           ),
           validator: (value) {
             if (value.isEmpty) return 'NIT es obligatorio';
+            if (value.contains('-')) {
+              bloc.changeShopNit(value.split('-')[0]);
+              return 'ingrese NIT sin dígito de verificación';
+            }
             return null;
           },
           onChanged: bloc.changeShopNit,
@@ -153,6 +196,7 @@ class _ShopFormState extends State<ShopForm> {
       stream: bloc.shopNameStream,
       builder: (context, snapshot) {
         return TextFormField(
+          keyboardType: TextInputType.text,
           initialValue: bloc.shopName,
           textCapitalization: TextCapitalization.words,
           decoration: InputDecoration(
@@ -177,6 +221,7 @@ class _ShopFormState extends State<ShopForm> {
       stream: bloc.shopCityStream,
       builder: (context, snapshot) {
         return TextFormField(
+          keyboardType: TextInputType.text,
           initialValue: bloc.shopCity,
           textCapitalization: TextCapitalization.words,
           decoration: InputDecoration(
@@ -206,7 +251,7 @@ class _ShopFormState extends State<ShopForm> {
           decoration: InputDecoration(
             hintText: 'Dirección',
             labelText: 'Dirección',
-            helperText: 'Ingrese la Dirección',
+            helperText: 'Ingrese la Dirección de la sucursal inicial',
             icon: Icon(Icons.directions, color: Theme.of(context).primaryColor),
           ),
           validator: (value) {
@@ -229,7 +274,7 @@ class _ShopFormState extends State<ShopForm> {
           decoration: InputDecoration(
             hintText: 'Sucursal',
             labelText: 'Sucursal',
-            helperText: 'Ingrese el nombre de la sucursal',
+            helperText: 'Ingrese el nombre de la sucursal inicial',
             icon: Icon(Icons.shopping_basket,
                 color: Theme.of(context).primaryColor),
           ),
@@ -307,9 +352,11 @@ class _ShopFormState extends State<ShopForm> {
                       context: context,
                       builder: (BuildContext context) {
                         return AlertDialog(
-                          title: Text("Por que un correo?"),
-                          content: Text("Este correo electrónico sera usado para el proceso de ingreso y sera donde se envien los archivos con el listado de las entrevistas registradas.",
-                          textAlign: TextAlign.justify,),
+                          title: Text("Por qué un correo?"),
+                          content: Text(
+                            "Este correo electrónico será usado para el proceso de ingreso y será donde se envíen los archivos con el listado de las entrevistas registradas.",
+                            textAlign: TextAlign.justify,
+                          ),
                           actions: <Widget>[
                             FlatButton(
                               child: Text("Ok"),
@@ -320,8 +367,8 @@ class _ShopFormState extends State<ShopForm> {
                       },
                     );
                   },
-                  icon: Icon(Icons.info,
-                      color: Theme.of(context).primaryColor))),
+                  icon:
+                      Icon(Icons.info, color: Theme.of(context).primaryColor))),
           validator: (value) {
             if (value.isEmpty) return 'Correo Electrónico es obligatorio';
             return null;
@@ -362,20 +409,55 @@ class _ShopFormState extends State<ShopForm> {
     );
   }
 
+  Container _getTermsAndConditions() {
+    return Container(
+      color: Color.fromRGBO(0, 0, 0, .2),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Checkbox(
+            checkColor: Theme.of(context).primaryColor,
+            activeColor: Theme.of(context).secondaryHeaderColor,
+            value: _aceptTerms,
+            onChanged: (value) => setState(() => _aceptTerms = value),
+          ),
+          GestureDetector(
+            onTap: () => Navigator.of(context).pushNamed(TermsPage.routeName),
+            child: Text(
+              'Acepto términos y condiciones',
+              textAlign: TextAlign.justify,
+              style: TextStyle(
+                  color: Theme.of(context).primaryColor,
+                  decoration: TextDecoration.underline),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  bool _areTermsAccepted() {
+    if (!_aceptTerms) {
+      Fluttertoast.showToast(
+        msg: 'Debe aceptar los términos y condiciones.',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.orange,
+        textColor: Colors.white,
+        fontSize: 16.0,
+      );
+      return false;
+    }
+    return true;
+  }
+
   _saveShopData(showSnackBar, UserBloc bloc) async {
-    if (_formKey.currentState.validate()) {
+    if (_formKey.currentState.validate() && _areTermsAccepted()) {
       _formKey.currentState.save();
 
       try {
-        // todo
-        if (bloc.shopFirebaseId == null || bloc.shopFirebaseId.isEmpty) {
-          final FirebaseUser fbShop = await ShopFirebaseProvider.fb
-              .signUp(bloc.shopEmail.trim(), bloc.shopPassword.trim());
-          bloc.changeShopFirebaseId(fbShop.uid);
-        }
-
         final shop = new ShopModel(
-          firebaseId: bloc.shopFirebaseId.trim(),
           nit: bloc.shopNit.trim(),
           name: bloc.shopName.trim(),
           address: bloc.shopAddress.trim(),
@@ -386,15 +468,37 @@ class _ShopFormState extends State<ShopForm> {
           email: bloc.shopEmail.trim(),
           password: bloc.shopPassword.trim(),
         );
+        if (bloc.shopFirebaseId == null || bloc.shopFirebaseId.isEmpty) {
+          final FirebaseUser fbShop = await ShopFirebaseProvider.fb
+              .signUp(bloc.shopEmail.trim(), bloc.shopPassword.trim());
+          bloc.changeShopFirebaseId(fbShop.uid);
+        }
+        shop.firebaseId = bloc.shopFirebaseId;
+
         if (bloc.shopDocumentId == null || bloc.shopDocumentId.isEmpty) {
           final DocumentReference fbShop =
               await UserFirebaseProvider.fb.addUserToFirebase(shop, "SHOP");
           bloc.changeShopDocumentId(fbShop.documentID);
-          shop.documentId = bloc.shopDocumentId;
         }
+        shop.documentId = bloc.shopDocumentId;
+        UserFirebaseProvider.fb.updateUserToFirebase(shop, bloc.shopDocumentId);
 
         await ShopDBProvider.db.deleteShop();
         await ShopDBProvider.db.addShop(shop);
+        if (bloc.shopBranches == null || bloc.shopBranches.length == 0) {
+          final branch = ShopBranchModel(
+              shopDocumentId: bloc.shopDocumentId,
+              branchName: bloc.shopBranchName,
+              branchAddress: bloc.shopAddress,
+              branchMemo: 'Sucursal Inicial');
+          final branchRef =
+              await ShopFirebaseProvider.fb.addShopBranchToFirebase(branch);
+          branch.branchDocumentId = branchRef.documentID;
+          await ShopFirebaseProvider.fb.updateShopBranchFirebase(branch);
+          ShopDBProvider.db.addShopBranch(branch);
+          bloc.changeShopCurrBranch(branch);
+          bloc.changeShopBranches([branch]);
+        }
         Fluttertoast.showToast(
           msg: 'Registro exitoso!',
           toastLength: Toast.LENGTH_SHORT,
@@ -404,7 +508,12 @@ class _ShopFormState extends State<ShopForm> {
           textColor: Colors.white,
           fontSize: 18.0,
         );
-        Navigator.pushNamed(context, LoginPage.routeName);
+        if (bloc.userIsLogged != null && bloc.userIsLogged)
+          Navigator.pushNamed(context, HomePage.routeName);
+        else if (bloc.shopIsLogged != null && bloc.shopIsLogged)
+          Navigator.pushNamed(context, QRReaderPage.routeName);
+        else
+          Navigator.pushNamed(context, LoginPage.routeName);
       } catch (e) {
         Fluttertoast.showToast(
           msg: 'Error: ${handleMessage(e.toString())}',

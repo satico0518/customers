@@ -2,10 +2,18 @@ import 'dart:io';
 
 import 'package:barcode_scan/barcode_scan.dart';
 import 'package:customers/src/bloc/provider.dart';
+import 'package:customers/src/bloc/user.bloc.dart';
+import 'package:customers/src/models/shop-branch.model.dart';
+import 'package:customers/src/pages/branchs-page.dart';
 import 'package:customers/src/pages/form-list-page.dart';
 import 'package:customers/src/pages/form-resume-page.dart';
+import 'package:customers/src/pages/login-page.dart';
 import 'package:customers/src/pages/shop-form.page.dart';
+import 'package:customers/src/providers/auth.shared-preferences.dart';
+import 'package:customers/src/providers/shopDbProvider.dart';
+import 'package:customers/src/utils/utils.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class QRReaderPage extends StatefulWidget {
   static final String routeName = 'qrreader';
@@ -17,12 +25,29 @@ class QRReaderPage extends StatefulWidget {
 class _QRReaderPageState extends State<QRReaderPage> {
   int _cIndex = 0;
   @override
-
   Widget build(BuildContext context) {
+    final _prefs = PreferenceAuth();
+    _prefs.initPrefs();
     final bloc = Provider.of(context);
+    ShopDBProvider.db
+        .getShopBranchByDocId(_prefs.currentBranchDocId)
+        .then((value) => bloc.changeShopCurrBranch(value));
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Lectura de Codigo QR'),
+        actions: [
+          Row(
+            children: [
+              Text('Salir'),
+              SizedBox(
+                width: 5,
+              ),
+              IconButton(
+                  icon: Icon(Icons.input), onPressed: () => _logOut(context)),
+            ],
+          )
+        ],
       ),
       body: Center(
         child: Container(
@@ -41,11 +66,15 @@ class _QRReaderPageState extends State<QRReaderPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              Text(
-                'Bienvenido ${bloc.shopName}',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 25, color: Colors.white),
-              ),
+              StreamBuilder<String>(
+                  stream: bloc.shopNameStream,
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) return Text('');
+                    return Text(
+                      'Bienvenido ${capitalizeWord(snapshot.data)}',
+                      style: TextStyle(fontSize: 25, color: Colors.white),
+                    );
+                  }),
               Divider(
                 height: 50,
                 color: Theme.of(context).secondaryHeaderColor,
@@ -53,6 +82,17 @@ class _QRReaderPageState extends State<QRReaderPage> {
                 endIndent: 30,
                 thickness: 3,
               ),
+              StreamBuilder<ShopBranchModel>(
+                  stream: bloc.shopCurrBranchStream,
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData)
+                      return Text('Sucursal: Seleccione sucursal',
+                          style: TextStyle(fontSize: 15, color: Colors.white));
+                    return Text(
+                      'Sucursal: ${capitalizeWord(snapshot.data.branchName)}',
+                      style: TextStyle(fontSize: 15, color: Colors.white),
+                    );
+                  }),
               SizedBox(
                 height: 50,
               ),
@@ -91,18 +131,26 @@ class _QRReaderPageState extends State<QRReaderPage> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _cIndex,
-        onTap: goTo,
+        onTap: (index) => goTo(index, bloc),
         items: [
           BottomNavigationBarItem(
               title: Text('Editar Tienda'),
               icon: Icon(
                 Icons.edit,
                 color: Theme.of(context).secondaryHeaderColor,
+                size: 22,
               )),
           BottomNavigationBarItem(
             title: Text('Ver Entrevistas'),
             icon: Icon(
               Icons.list,
+              color: Theme.of(context).secondaryHeaderColor,
+            ),
+          ),
+          BottomNavigationBarItem(
+            title: Text('Sucursales'),
+            icon: Icon(
+              Icons.shop_two,
               color: Theme.of(context).secondaryHeaderColor,
             ),
           ),
@@ -130,9 +178,41 @@ class _QRReaderPageState extends State<QRReaderPage> {
     }
   }
 
-  void goTo(int value) {
-    value == 0
-        ? Navigator.of(context).pushNamed(ShopForm.routeName)
-        : Navigator.of(context).pushNamed(FormList.routeName);
+  void goTo(int index, UserBloc bloc) {
+    if (index == 1 && (bloc.shopCurrBranch == null)) {
+      Fluttertoast.showToast(
+        msg: 'Debe seleccionar una sucursal',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIosWeb: 3,
+        backgroundColor: Colors.orange,
+        textColor: Colors.white,
+        fontSize: 18.0,
+      );
+      return;
+    }
+    switch (index) {
+      case 0:
+        bloc.changeShopIsEditing(true);
+        Navigator.of(context).pushNamed(ShopForm.routeName);
+        break;
+      case 1:
+        Navigator.of(context).pushNamed(FormList.routeName);
+        break;
+      case 2:
+        Navigator.of(context).pushNamed(BranchPage.routeName);
+        break;
+      default:
+    }
+  }
+
+  void _logOut(BuildContext context) {
+    final _prefs = PreferenceAuth();
+    _prefs.initPrefs();
+    _prefs.isShopLoggedIn = false;
+    final bloc = Provider.of(context);
+    bloc.changeShopIsLogged(false);
+    Navigator.of(context)
+        .pushNamedAndRemoveUntil(LoginPage.routeName, (route) => false);
   }
 }

@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:customers/src/bloc/user.bloc.dart';
 import 'package:customers/src/bloc/provider.dart';
 import 'package:customers/src/models/user.model.dart';
+import 'package:customers/src/pages/home-page.dart';
 import 'package:customers/src/pages/login-page.dart';
 import 'package:customers/src/pages/terms-page.dart';
 import 'package:customers/src/providers/userDb.provider.dart';
@@ -35,7 +36,7 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget build(BuildContext context) {
     final bloc = Provider.of(context);
     final _scaffoldKey = GlobalKey<ScaffoldState>();
-    currentPassword = bloc.password;
+    currentPassword = bloc.password ?? '';
 
     return SafeArea(
       child: Scaffold(
@@ -467,20 +468,6 @@ class _RegisterPageState extends State<RegisterPage> {
         user.documentId = bloc.userDocumentId;
         await UserFirebaseProvider.fb
             .updateUserToFirebase(user, bloc.userDocumentId);
-        if (currentPassword != bloc.password) {
-          final response =
-              await UserFirebaseProvider.fb.changePassword(bloc.password);
-          await Fluttertoast.showToast(
-            msg: response,
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.CENTER,
-            timeInSecForIosWeb: 3,
-            backgroundColor: Colors.green,
-            textColor: Colors.white,
-            fontSize: 18.0,
-          );
-        }
-
         await UserDBProvider.db.deleteUser();
         await UserDBProvider.db.addUser(user);
         Fluttertoast.showToast(
@@ -492,7 +479,13 @@ class _RegisterPageState extends State<RegisterPage> {
           textColor: Colors.white,
           fontSize: 18.0,
         );
-        Navigator.pushNamed(context, LoginPage.routeName);
+        
+        if (currentPassword != bloc.password) {
+          await UserFirebaseProvider.fb.changePassword(bloc.password);
+          bloc.changeUserIsLogged(false);
+          Navigator.pushNamed(context, LoginPage.routeName);
+        } else
+          Navigator.pushNamed(context, HomePage.routeName);          
       } catch (e) {
         Fluttertoast.showToast(
           msg: 'Error: ${handleMessage(e.toString())}',

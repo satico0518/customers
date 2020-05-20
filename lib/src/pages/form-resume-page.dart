@@ -42,8 +42,22 @@ class _FormResumePageState extends State<FormResumePage> {
 
   @override
   Widget build(BuildContext context) {
-    final String args = ModalRoute.of(context).settings.arguments;
-    final Map<String, dynamic> formDataMap = jsonDecode(args);
+    String args = ModalRoute.of(context).settings.arguments;
+    Map<String, dynamic> _formDataMap;
+    try {
+      _formDataMap = jsonDecode(args);
+    } catch (e) {
+      Fluttertoast.showToast(
+        msg: 'Error al leer código, intente de nuevo!',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIosWeb: 3,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 18.0,
+      );
+      Navigator.of(context).pop();
+    }
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
@@ -56,32 +70,33 @@ class _FormResumePageState extends State<FormResumePage> {
                 SizedBox(
                   height: 30,
                 ),
-                UserFirebaseProvider.fb.getUserInfo(formDataMap, context),
-                _getFormField(getQuestion(1), formDataMap['yourSymptoms'], 1,
-                    memo: formDataMap['yourSymptomsDesc']),
+                UserFirebaseProvider.fb.getUserInfo(_formDataMap, context),
+                _getFormField(getQuestion(1), _formDataMap['yourSymptoms'], 1,
+                    memo: _formDataMap['yourSymptomsDesc']),
                 _getFormField(
-                    getQuestion(2), formDataMap['yourHomeSymptoms'], 1),
+                    getQuestion(2), _formDataMap['yourHomeSymptoms'], 1),
                 _getFormField(
-                    getQuestion(3), formDataMap['haveBeenIsolated'], 0,
-                    memo: formDataMap['haveBeenIsolatedDesc']),
-                _getFormField(getQuestion(4), formDataMap['haveBeenVisited'], 1,
-                    memo: formDataMap['haveBeenVisitedDesc']),
+                    getQuestion(3), _formDataMap['haveBeenIsolated'], 0,
+                    memo: _formDataMap['haveBeenIsolatedDesc']),
+                _getFormField(
+                    getQuestion(4), _formDataMap['haveBeenVisited'], 1,
+                    memo: _formDataMap['haveBeenVisitedDesc']),
                 _getFormField(
                   getQuestion(5),
-                  formDataMap['haveBeenWithPeople'],
+                  _formDataMap['haveBeenWithPeople'],
                   1,
                 ),
-                _getFormField(getQuestion(6), formDataMap['visitorAccept'], 0),
+                _getFormField(getQuestion(6), _formDataMap['visitorAccept'], 0),
                 Visibility(
-                  visible: formDataMap['isEmployee'] == 1 ? true : false,
+                  visible: _formDataMap['isEmployee'] == 1 ? true : false,
                   child: Column(
                     children: <Widget>[
                       _getFormField(getQuestion(7),
-                          formDataMap['employeeAcceptYourSymptoms'], 0),
+                          _formDataMap['employeeAcceptYourSymptoms'], 0),
                       _getFormField(getQuestion(8),
-                          formDataMap['employeeAcceptHomeSymptoms'], 0),
+                          _formDataMap['employeeAcceptHomeSymptoms'], 0),
                       _getFormField(getQuestion(9),
-                          formDataMap['employeeAcceptVacationSymptoms'], 0),
+                          _formDataMap['employeeAcceptVacationSymptoms'], 0),
                     ],
                   ),
                 ),
@@ -97,7 +112,7 @@ class _FormResumePageState extends State<FormResumePage> {
                       style: TextStyle(fontSize: 20),
                     ),
                     color: Theme.of(context).primaryColor,
-                    onPressed: () => _saveDataToFirebase(formDataMap),
+                    onPressed: () => _saveDataToFirebase(_formDataMap),
                   ),
                 ),
                 SizedBox(

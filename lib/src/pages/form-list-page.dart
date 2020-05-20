@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:customers/src/bloc/provider.dart';
+import 'package:customers/src/bloc/user.bloc.dart';
 import 'package:customers/src/pages/form-detail-page.dart';
 import 'package:customers/src/utils/utils.dart';
 import 'package:flutter/material.dart';
@@ -34,7 +35,7 @@ class _FormListState extends State<FormList> {
               Text('CSV'),
               IconButton(
                 icon: Icon(Icons.file_download),
-                onPressed: () => _downloadCsv(),
+                onPressed: () => _downloadCsv(bloc),
               ),
             ],
           )
@@ -147,7 +148,7 @@ class _FormListState extends State<FormList> {
     Navigator.of(context).pushNamed(FormDetail.routeName, arguments: data);
   }
 
-  _downloadCsv() async {
+  _downloadCsv(UserBloc bloc) async {
     if (_listData.length == 0) return;
     List<List<dynamic>> dataToExport = [
       [
@@ -180,8 +181,8 @@ class _FormListState extends State<FormList> {
         final data = element.data;
         final orderedItem = [
           getFormatedDateFromtimestamp(data['insertDate']),
-          data['shopDocumentId'],
-          data['shopBranchDocumentId'],
+          bloc.shopName,
+          bloc.shopCurrBranch.branchName,
           data['temperature'],
           data['identificationType'],
           data['identification'],

@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:customers/src/bloc/provider.dart';
 import 'package:customers/src/bloc/user.bloc.dart';
 import 'package:customers/src/models/shop-branch.model.dart';
+import 'package:customers/src/providers/auth.shared-preferences.dart';
 import 'package:customers/src/providers/shopDbProvider.dart';
 import 'package:customers/src/providers/shopFirebase.provider.dart';
 import 'package:customers/src/utils/utils.dart';
@@ -131,9 +132,12 @@ class _BranchPageState extends State<BranchPage> {
                                               children: [
                                                 GestureDetector(
                                                   onTap: () {
+                                                    final _prefs = PreferenceAuth();
+                                                    _prefs.initPrefs();
                                                     bloc.changeShopCurrBranch(
                                                         item);
                                                     bloc.changeShopBranchName(item.branchName);
+                                                    _prefs.currentBranchDocId = item.branchDocumentId;
                                                   },
                                                   child: Icon(
                                                     Icons.adjust,

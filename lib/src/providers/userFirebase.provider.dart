@@ -47,7 +47,7 @@ class UserFirebaseProvider {
       await currentUser.updatePassword(newPassword);
       return 'Contraseña actualizada exitosamente!';
     } catch (e) {
-      return 'No se pudo actualizar la contraseña: ${e.toString()}';  
+      return 'No se pudo actualizar la contraseña: ${e.toString()}';
     }
   }
 
@@ -79,6 +79,11 @@ class UserFirebaseProvider {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
+          Visibility(
+            visible: user['gettingIn'] != null,
+            child: Text('Registro de ${user['gettingIn'] != null ? (user['gettingIn'] ? 'Ingreso' : 'Salida') : 'NA'}', style: textStyle),
+          ),
+          Divider(color: Colors.white,),
           Visibility(
             visible: user['temperature'] != null,
             child: Text(

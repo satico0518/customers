@@ -191,7 +191,10 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         GestureDetector(
                           onTap: () {
-                            bloc.changeUserIsEditing(false);
+                            if (bloc.userDocumentId != null)
+                              bloc.changeUserIsEditing(true);
+                              else
+                              bloc.changeUserIsEditing(false);
                             Navigator.of(context)
                                 .pushNamed(RegisterPage.routeName);
                           },

@@ -26,10 +26,12 @@ class _ShopFormState extends State<ShopForm> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   bool _aceptTerms = false;
   bool _showPass = false;
+  String _currentPassword;
 
   @override
   Widget build(BuildContext context) {
     final bloc = Provider.of(context);
+    _currentPassword = bloc.shopPassword ?? '';
     return SafeArea(
       child: Scaffold(
         key: _scaffoldKey,
@@ -75,7 +77,12 @@ class _ShopFormState extends State<ShopForm> {
                   SizedBox(
                     height: 10,
                   ),
-                  _getNitField(bloc),
+                  StreamBuilder<bool>(
+                      stream: bloc.shopIsEditingStream,
+                      builder: (context, snapshot) {
+                        return Visibility(
+                            visible: !snapshot.data, child: _getNitField(bloc));
+                      }),
                   SizedBox(
                     height: 10,
                   ),
@@ -83,7 +90,13 @@ class _ShopFormState extends State<ShopForm> {
                   SizedBox(
                     height: 10,
                   ),
-                  _getShopBranchNameField(bloc),
+                  StreamBuilder<bool>(
+                      stream: bloc.shopIsEditingStream,
+                      builder: (context, snapshot) {
+                        return Visibility(
+                            visible: !snapshot.data,
+                            child: _getShopBranchNameField(bloc));
+                      }),
                   SizedBox(
                     height: 10,
                   ),
@@ -103,6 +116,10 @@ class _ShopFormState extends State<ShopForm> {
                   SizedBox(
                     height: 10,
                   ),
+                  _getPasswordField(bloc),
+                  SizedBox(
+                    height: 10,
+                  ),
                   StreamBuilder<bool>(
                     stream: bloc.shopIsEditingStream,
                     builder: (context, snapshot) {
@@ -111,10 +128,6 @@ class _ShopFormState extends State<ShopForm> {
                         child: Column(
                           children: [
                             _getShopEmailField(bloc),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            _getPasswordField(bloc),
                             SizedBox(
                               height: 10,
                             ),
@@ -482,7 +495,6 @@ class _ShopFormState extends State<ShopForm> {
         }
         shop.documentId = bloc.shopDocumentId;
         UserFirebaseProvider.fb.updateUserToFirebase(shop, bloc.shopDocumentId);
-
         await ShopDBProvider.db.deleteShop();
         await ShopDBProvider.db.addShop(shop);
         if (bloc.shopBranches == null || bloc.shopBranches.length == 0) {
@@ -507,10 +519,15 @@ class _ShopFormState extends State<ShopForm> {
           backgroundColor: Colors.green,
           textColor: Colors.white,
           fontSize: 18.0,
-        );
-        if (bloc.userIsLogged != null && bloc.userIsLogged)
-          Navigator.pushNamed(context, HomePage.routeName);
-        else if (bloc.shopIsLogged != null && bloc.shopIsLogged)
+        );        
+        if (_currentPassword != bloc.shopPassword) {
+          await UserFirebaseProvider.fb.changePassword(bloc.shopPassword);
+          bloc.changeShopIsLogged(false);
+          Navigator.pushNamed(context, LoginPage.routeName);
+          return;
+        }
+          
+        if (bloc.shopIsLogged != null && bloc.shopIsLogged)
           Navigator.pushNamed(context, QRReaderPage.routeName);
         else
           Navigator.pushNamed(context, LoginPage.routeName);

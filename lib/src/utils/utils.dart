@@ -58,7 +58,8 @@ Future<String> sendFormListEmail(String fileUrl) async {
   final Email email = Email(
     body: '''
         <p>Usted ha recibido un link para descargar el archivo con las entrevistas solicitadas</p>
-        Haga clic <a href="$fileUrl">aqui</a> para descargar el archivo
+        Haga clic en el siguiente link para descargar el archivo<br>
+        $fileUrl
         <p>Recuerde que el archivo estará disponible por 2 días</p>
     ''',
     subject: 'PaseYa - Link Descarga de Archivo CSV',

@@ -31,6 +31,7 @@ class UserDBProvider {
           ' name TEXT,'
           ' lastName TEXT,'
           ' contact TEXT,'
+          ' address TEXT,'
           ' email TEXT,'
           ' password TEXT)');
     });

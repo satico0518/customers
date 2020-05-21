@@ -179,7 +179,7 @@ class _QRReaderPageState extends State<QRReaderPage> {
   }
 
   void goTo(int index, UserBloc bloc) {
-    if (index == 1 && (bloc.shopCurrBranch == null)) {
+    if (index == 1 && bloc.shopCurrBranch == null) {
       Fluttertoast.showToast(
         msg: 'Debe seleccionar una sucursal',
         toastLength: Toast.LENGTH_SHORT,

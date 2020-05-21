@@ -41,6 +41,16 @@ class UserFirebaseProvider {
         .user;
   }
 
+  Future<String> changePassword(String newPassword) async {
+    try {
+      final currentUser = await _auth.currentUser();
+      await currentUser.updatePassword(newPassword);
+      return 'Contraseña actualizada exitosamente!';
+    } catch (e) {
+      return 'No se pudo actualizar la contraseña: ${e.toString()}';  
+    }
+  }
+
   Future<FirebaseUser> getCurrentUser() async {
     return _auth.currentUser();
   }

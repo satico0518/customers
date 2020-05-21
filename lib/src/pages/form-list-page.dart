@@ -78,11 +78,24 @@ class _FormListState extends State<FormList> {
                             ],
                             rows: snapshot.data.documents
                                 .map(
-                                  (item) => DataRow(
+                                  (item) {
+                                    Icon gettingInIcon;
+                                    if (item.data['gettingIn'] != null) {
+                                      if (item.data['gettingIn'])
+                                        gettingInIcon = Icon(Icons.arrow_downward, color: Colors.green, size: 15,);
+                                        else
+                                        gettingInIcon = Icon(Icons.arrow_upward, color: Colors.red, size: 15,);
+                                    } else gettingInIcon = Icon(Icons.block, color: Colors.white, size: 1,);
+                                    return DataRow(
                                     cells: <DataCell>[
-                                      DataCell(Text(
-                                          getFormatedDateFromtimestamp(
-                                              item.data['insertDate']))),
+                                      DataCell(Row(
+                                        children: [
+                                          gettingInIcon,
+                                          Text(
+                                              getFormatedDateFromtimestamp(
+                                                  item.data['insertDate'])),
+                                        ],
+                                      )),
                                       DataCell(
                                           Text(item.data['temperature'] ?? '')),
                                       DataCell(
@@ -101,7 +114,8 @@ class _FormListState extends State<FormList> {
                                         ),
                                       ),
                                     ],
-                                  ),
+                                  );
+                                  } 
                                 )
                                 .toList(),
                           ),
@@ -153,6 +167,7 @@ class _FormListState extends State<FormList> {
     List<List<dynamic>> dataToExport = [
       [
         "Fecha de registro",
+        "Tipo de Registro",
         "Razon Social",
         "Sucursal",
         "Temperatura",
@@ -181,6 +196,7 @@ class _FormListState extends State<FormList> {
         final data = element.data;
         final orderedItem = [
           getFormatedDateFromtimestamp(data['insertDate']),
+          data['gettingIn'] != null ? (data['gettingIn'] == true ? 'Ingreso' : 'Salida') : 'N/A',
           bloc.shopName,
           bloc.shopCurrBranch.branchName,
           data['temperature'],

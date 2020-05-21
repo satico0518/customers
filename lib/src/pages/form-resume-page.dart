@@ -104,15 +104,32 @@ class _FormResumePageState extends State<FormResumePage> {
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 20.0),
                   width: double.infinity,
-                  child: RaisedButton(
-                    padding: EdgeInsets.all(15),
-                    textColor: Colors.white,
-                    child: Text(
-                      'Guardar Entrevista',
-                      style: TextStyle(fontSize: 20),
-                    ),
-                    color: Theme.of(context).primaryColor,
-                    onPressed: () => _saveDataToFirebase(_formDataMap),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      RaisedButton(
+                        padding: EdgeInsets.all(15),
+                        textColor: Colors.white,
+                        child: Text(
+                          'Registrar Ingreso',
+                          style: TextStyle(fontSize: 15),
+                        ),
+                        color: Theme.of(context).secondaryHeaderColor,
+                        onPressed: () =>
+                            _saveDataToFirebase(_formDataMap, true),
+                      ),
+                      RaisedButton(
+                        padding: EdgeInsets.all(15),
+                        textColor: Colors.white,
+                        child: Text(
+                          'Registrar Salida',
+                          style: TextStyle(fontSize: 15),
+                        ),
+                        color: Theme.of(context).primaryColor,
+                        onPressed: () =>
+                            _saveDataToFirebase(_formDataMap, false),
+                      ),
+                    ],
                   ),
                 ),
                 SizedBox(
@@ -250,7 +267,7 @@ class _FormResumePageState extends State<FormResumePage> {
     return list;
   }
 
-  _saveDataToFirebase(formDataMap) async {
+  _saveDataToFirebase(formDataMap, bool isGettingIn) async {
     final UserBloc bloc = Provider.of(context);
     if (_temperature.isEmpty) {
       Fluttertoast.showToast(
@@ -291,6 +308,7 @@ class _FormResumePageState extends State<FormResumePage> {
       final formJson = form.toJson();
       formJson["temperature"] = _temperature;
       formJson["insertDate"] = DateTime.now();
+      formJson["gettingIn"] = isGettingIn;
       final user = UserModel(
           identificationType: formDataMap['identificationType'],
           identification: formDataMap['identification'],

@@ -97,7 +97,10 @@ Future<String> sendSingleFormEmail(Map<String, dynamic> form) async {
     body: '''
       <h2>Entrevista Individual</h2>
       <div>
+          Registro de ${form['gettingIn'] != null ? (form['gettingIn'] ? 'Ingreso' : 'Salida') : 'NA'}<br>
+          <hr>
           Temperatura Registrada: ${form['temperature']}<br>
+          Fecha: ${getFormatedDateFromtimestamp(form['insertDate'])}<br>
           Identificacion: ${returnIdTypeCode(form['identificationType'])} ${form['identification']}<br>
           Nombre: ${form['name']} ${form['lastName']}<br>
           Telefono: ${form['contact']}<br>

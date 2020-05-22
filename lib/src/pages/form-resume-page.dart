@@ -61,7 +61,7 @@ class _FormResumePageState extends State<FormResumePage> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Datos Entrevista'),
+          title: Text('Datos Encuesta'),
         ),
         body: SingleChildScrollView(
           child: Center(
@@ -320,7 +320,7 @@ class _FormResumePageState extends State<FormResumePage> {
       await Firestore.instance.collection('Forms').add(formJson);
 
       Fluttertoast.showToast(
-        msg: "Entrevista registrada!",
+        msg: "Encuesta registrada!",
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.CENTER,
         timeInSecForIosWeb: 1,

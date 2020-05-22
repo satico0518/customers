@@ -18,7 +18,7 @@ Future<String> _localPath() async {
 
 Future<File> _localFile() async {
   final path = await _localPath();
-  return File('$path/entrevistas.txt');
+  return File('$path/encuestas.txt');
 }
 
 Future<File> writeFileContent(String content) async {
@@ -57,7 +57,7 @@ Future<String> sendFormListEmail(String fileUrl) async {
   String platformResponse;
   final Email email = Email(
     body: '''
-        <p>Usted ha recibido un link para descargar el archivo con las entrevistas solicitadas</p>
+        <p>Usted ha recibido un link para descargar el archivo con las encuestas solicitadas</p>
         Haga clic en el siguiente link para descargar el archivo<br>
         $fileUrl
         <p>Recuerde que el archivo estará disponible por 2 días</p>
@@ -95,18 +95,18 @@ Future<String> sendSingleFormEmail(Map<String, dynamic> form) async {
   ''';
   final Email email = Email(
     body: '''
-      <h2>Entrevista Individual</h2>
+      <h2>Encuesta Individual</h2>
       <div>
           Registro de ${form['gettingIn'] != null ? (form['gettingIn'] ? 'Ingreso' : 'Salida') : 'NA'}<br>
           <hr>
           Temperatura Registrada: ${form['temperature']}<br>
-          Fecha: ${getFormatedDateFromtimestamp(form['insertDate'])}<br>
+          Fecha: ${getStringDateFromtimestamp(form['insertDate'])}<br>
           Identificacion: ${returnIdTypeCode(form['identificationType'])} ${form['identification']}<br>
           Nombre: ${form['name']} ${form['lastName']}<br>
           Telefono: ${form['contact']}<br>
           Email: ${form['email']}<br>
       </div>
-      <h3>Formulario COVID 19</h3>
+      <h3>Formulario Salud y Distanciamiento Social</h3>
       <div>
           <p>${getQuestion(1)}</p>
           Respuesta: ${form['yourSymptoms'] == 1 ? 'SI' : 'NO'}
@@ -136,7 +136,7 @@ Future<String> sendSingleFormEmail(Map<String, dynamic> form) async {
       </div>
       ${form['isEmployee'] == 1 ? employeeSection : ''}
     ''',
-    subject: 'PaseYa - Entrevista Individual',
+    subject: 'PaseYa - Encuesta Individual',
     recipients: [shop.email],
     isHTML: true,
   );
@@ -179,7 +179,7 @@ String capitalizeWord(String word) {
   return '${word[0].toUpperCase()}${word.substring(1)}';
 }
 
-String getFormatedDateFromtimestamp(Timestamp time) {
+String getStringDateFromtimestamp(Timestamp time) {
   if (time == null) return '';
   return DateTime.parse(time.toDate().toString()).toString().split('.')[0];
 }
@@ -215,12 +215,11 @@ Datos Personales para el(los) siguiente(s) fin(es) relacionado(s) a continuació
 autorizado(s) y así mismo acuerda y autoriza el procesamiento de los Datos Personales Sensibles para el(los) fin(es) descrito(s)
 a continuación por parte del Responsable en el territorio de la República de Colombia: (a) Registro en la aplicación del
 Responsable de los Datos Personales y Datos Personales Sensibles para el seguimiento de los síntomas del Usuario/Titular
-para que éste registre si se encuentra con síntomas o infectado con el nuevo coronavirus -COVID-19 también conocido como
+para que éste registre si se encuentra con síntomas o infectado con el nuevo coronavirus también conocido como
 SARS-CoV-2. (b) Registro de personas que ingresan a empresas, establecimientos de comercio o cualquier entidad con el fin
-de poder control de flujo y realizar trazabilidad en caso de aparecer algún caso de infección con el nuevo coronavirus -COVID-
-19 también conocido como SARS-CoV-2. (c) Realizar tamizaje y encuesta del estado de salud de cada persona que ingrese a
+de poder control de flujo y realizar trazabilidad en caso de aparecer algún caso de infección con el nuevo coronavirus también conocido como SARS-CoV-2. (c) Realizar tamizaje y encuesta del estado de salud de cada persona que ingrese a
 empresas, establecimientos de comercio o cualquier entidad con el fin de identificar un posible infectado con el nuevo
-coronavirus -COVID-19 también conocido como SARS-CoV-2. (d) Cumplir con los protocolos de inspección, vigilancia y
+coronavirus también conocido como SARS-CoV-2. (d) Cumplir con los protocolos de inspección, vigilancia y
 control establecidos por el gobierno para protección de la salud la comunidad en general. TERCERO: Transmisión y
 transferencia: Ni los Datos Personales ni los Datos Personales Sensibles serán transferidos ni transmitidos a ningún tercero.
 CUARTO: Autoridades Gubernamentales: El Usuario/Titular declara conocer y aceptar que el Responsable puede requerir

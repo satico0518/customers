@@ -18,7 +18,7 @@ class _FormPageState extends State<FormPage> {
     final bloc = Provider.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text('Entrevista'),
+        title: Text('Encuesta'),
       ),
       body: SingleChildScrollView(
         child: Container(

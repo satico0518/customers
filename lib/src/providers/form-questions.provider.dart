@@ -11,7 +11,7 @@ String getQuestion(int number) {
     case 5:
         return '5. Ha estado en contacto con mas de 10 personas en un mismo lugar, en los ultimos 8 dias? Ej: Transporte publico, parque , reunion social, etc';
     case 6:
-        return 'Declaro que la información que he suministrado en este cuestionario es verídica y que en caso de presentar alguno de los síntomas o de tener contacto con alguna persona contagiada con COVID-19, lo reportaré de manera inmediata al personal encargado.';
+        return 'Declaro que la información que he suministrado en este cuestionario es verídica y que en caso de presentar alguno de los síntomas o de tener contacto con alguna persona contagiada, lo reportaré de manera inmediata al personal encargado.';
     case 7:
         return 'Estoy de acuerdo en reportar, de manera inmediata, si presento alguno de los síntomas indicados en este documento.';
     case 8:

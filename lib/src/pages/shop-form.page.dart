@@ -3,7 +3,6 @@ import 'package:customers/src/bloc/provider.dart';
 import 'package:customers/src/bloc/user.bloc.dart';
 import 'package:customers/src/models/shop-branch.model.dart';
 import 'package:customers/src/models/shop.model.dart';
-import 'package:customers/src/pages/home-page.dart';
 import 'package:customers/src/pages/login-page.dart';
 import 'package:customers/src/pages/qr-reader-page.dart';
 import 'package:customers/src/pages/terms-page.dart';
@@ -367,7 +366,7 @@ class _ShopFormState extends State<ShopForm> {
                         return AlertDialog(
                           title: Text("Por qué un correo?"),
                           content: Text(
-                            "Este correo electrónico será usado para el proceso de ingreso y será donde se envíen los archivos con el listado de las entrevistas registradas.",
+                            "Este correo electrónico será usado para el proceso de ingreso y será donde se envíen los archivos con el listado de las encuestas registradas.",
                             textAlign: TextAlign.justify,
                           ),
                           actions: <Widget>[

@@ -34,7 +34,7 @@ class _QRCodePageState extends State<QRCodePage> {
             child: Column(
               children: <Widget>[
                 Text(
-                  'Presenta este código QR en los establecimientos que visites, de esta manera se podrá cargar toda la información de tu entrevista COVID-19!',
+                  'Presenta este código QR en los establecimientos que visites, de esta manera se podrá cargar toda la información de tu encuesta Salud y Distanciamiento Social!',
                   style: TextStyle(fontSize: 20),
                   textAlign: TextAlign.justify,
                 ),

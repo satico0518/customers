@@ -81,9 +81,17 @@ class UserFirebaseProvider {
         children: <Widget>[
           Visibility(
             visible: user['gettingIn'] != null,
-            child: Text('Registro de ${user['gettingIn'] != null ? (user['gettingIn'] ? 'Ingreso' : 'Salida') : 'NA'}', style: textStyle),
+            child: Column(
+              children: [
+                Text(
+                    'Registro de ${user['gettingIn'] != null ? (user['gettingIn'] ? 'Ingreso' : 'Salida') : 'NA'}',
+                    style: textStyle),
+                Divider(
+                  color: Colors.white,
+                ),
+              ],
+            ),
           ),
-          Divider(color: Colors.white,),
           Visibility(
             visible: user['temperature'] != null,
             child: Text(

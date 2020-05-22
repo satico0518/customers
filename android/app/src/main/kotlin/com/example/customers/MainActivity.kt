@@ -1,4 +1,4 @@
-package com.cutomers2020App.customers2020
+package com.cutomers2020.App.customers2020
 
 import androidx.annotation.NonNull;
 import io.flutter.embedding.android.FlutterActivity

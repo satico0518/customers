@@ -8,9 +8,38 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:471936252808:android:339f93107d60bb4759d83d",
+        "android_client_info": {
+          "package_name": "com.cutomers2020.App.customers2020"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "471936252808-mmbt6ka564vmjnhldf7hum454kojs7o0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCkIpHYymYrd0EvTqOrp1MYCoGTmAvEVUI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "471936252808-mmbt6ka564vmjnhldf7hum454kojs7o0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:471936252808:android:9e7dd9a86ffbca6e59d83d",
         "android_client_info": {
-          "package_name": "com.cutomers2020App.customers2020"
+          "package_name": "com.cutomers2020.App.customers2020"
         }
       },
       "oauth_client": [
@@ -39,7 +68,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:471936252808:android:2afa4988dc3367c459d83d",
         "android_client_info": {
-          "package_name": "com.cutomers2020App.customers2020"
+          "package_name": "com.example.customers"
         }
       },
       "oauth_client": [

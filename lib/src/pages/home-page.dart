@@ -76,14 +76,14 @@ class HomePage extends StatelessWidget {
                   height: 20,
                 ),
                 Text(
-                  'Control COVID-19',
+                  'Control Aislamiento',
                   style: TextStyle(fontSize: 25, color: Colors.white),
                 ),
                 Container(
                   padding: EdgeInsets.all(20),
                   alignment: Alignment.topLeft,
                   child: Text(
-                    'Esta aplicación te permite como visitante guardar tu entrevista COVID-19 y generar un codigo QR para que pueda ser leida toda tu informacion en los locales comerciales que visitas.',
+                    'Esta aplicación te permite como visitante guardar tu encuesta de Salud y Distanciamiento Social y generar un código QR para que pueda ser leida toda tu información en los locales comerciales que visitas.',
                     textAlign: TextAlign.justify,
                     style: GoogleFonts.abel(fontSize: 18, color: Colors.white),
                   ),
@@ -105,7 +105,7 @@ class HomePage extends StatelessWidget {
                           size: 30,
                           color: Colors.white,
                         ),
-                        'Diligenciar Entrevista',
+                        'Diligenciar Encuesta',
                       ),
                     ),
                     SizedBox(

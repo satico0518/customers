@@ -18,6 +18,9 @@ class FormList extends StatefulWidget {
 
 class _FormListState extends State<FormList> {
   List<DocumentSnapshot> _listData = [];
+  bool _sortDateDesc = true;
+  bool _sortAsc = true;
+  int _sortColumnIndex;
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +29,7 @@ class _FormListState extends State<FormList> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Entrevistas registradas',
+          'Encuestas registradas',
           style: TextStyle(fontSize: 15),
         ),
         actions: [
@@ -50,17 +53,17 @@ class _FormListState extends State<FormList> {
               Padding(
                 padding: const EdgeInsets.all(15.0),
                 child: Text(
-                    'Listado de entrevistas - ${capitalizeWord(bloc.shopCurrBranch.branchName)}.'),
+                    'Listado de encuestas - ${capitalizeWord(bloc.shopCurrBranch.branchName)}.'),
               ),
               StreamBuilder<QuerySnapshot>(
                 stream: Firestore.instance
                     .collection('Forms')
                     .where('shopBranchDocumentId',
                         isEqualTo: bloc.shopCurrBranch.branchDocumentId)
-                    .orderBy('insertDate', descending: true)
+                    // .orderBy('insertDate', descending: true)
                     .snapshots(),
                 builder: (context, snapshot) {
-                  if (snapshot.hasData && snapshot.data.documents.length > 0) {
+                  if (snapshot.hasData) {
                     _listData = snapshot.data.documents;
                     return Container(
                       height: MediaQuery.of(context).size.height * .75,
@@ -70,64 +73,84 @@ class _FormListState extends State<FormList> {
                         child: SingleChildScrollView(
                           scrollDirection: Axis.vertical,
                           child: DataTable(
+                            sortColumnIndex: _sortColumnIndex,
+                            sortAscending: _sortAsc,
                             dataRowHeight: 25,
                             columns: [
-                              DataColumn(label: Text('Fecha')),
+                              DataColumn(
+                                  label: Text('Fecha'),
+                                  onSort: (colInx, sortAsc) {
+                                    setState(() {
+                                      if (colInx == _sortColumnIndex) {
+                                        _sortAsc = _sortDateDesc = sortAsc;
+                                      } else {
+                                        _sortColumnIndex = colInx;
+                                        _sortAsc = _sortDateDesc;
+                                      }
+                                      _listData.sort((a, b) => a
+                                          .data['insertDate']
+                                          .compareTo(b.data['insertDate']));
+                                      if (!sortAsc)
+                                        _listData = _listData.reversed.toList();
+                                    });
+                                  }),
                               DataColumn(label: Text('Temp.')),
                               DataColumn(label: Text('Ver')),
                             ],
-                            rows: snapshot.data.documents
-                                .map(
-                                  (item) {
-                                    Icon gettingInIcon;
-                                    if (item.data['gettingIn'] != null) {
-                                      if (item.data['gettingIn'])
-                                        gettingInIcon = Icon(Icons.arrow_downward, color: Colors.green, size: 15,);
-                                        else
-                                        gettingInIcon = Icon(Icons.arrow_upward, color: Colors.red, size: 15,);
-                                    } else gettingInIcon = Icon(Icons.block, color: Colors.white, size: 1,);
-                                    return DataRow(
-                                    cells: <DataCell>[
-                                      DataCell(Row(
-                                        children: [
-                                          gettingInIcon,
-                                          Text(
-                                              getFormatedDateFromtimestamp(
-                                                  item.data['insertDate'])),
-                                        ],
-                                      )),
-                                      DataCell(
-                                          Text(item.data['temperature'] ?? '')),
-                                      DataCell(
-                                        GestureDetector(
-                                          onTap: () =>
-                                              _details(context, item.data),
-                                          child: Container(
-                                            width: 20,
-                                            child: Icon(
-                                              Icons.search,
-                                              size: 20,
-                                              color: Theme.of(context)
-                                                  .secondaryHeaderColor,
-                                            ),
-                                          ),
+                            rows: _listData.map((item) {
+                              Icon gettingInIcon;
+                              if (item.data['gettingIn'] != null) {
+                                if (item.data['gettingIn'])
+                                  gettingInIcon = Icon(
+                                    Icons.arrow_downward,
+                                    color: Colors.green,
+                                    size: 15,
+                                  );
+                                else
+                                  gettingInIcon = Icon(
+                                    Icons.arrow_upward,
+                                    color: Colors.red,
+                                    size: 15,
+                                  );
+                              } else
+                                gettingInIcon = Icon(
+                                  Icons.block,
+                                  color: Colors.white,
+                                  size: 1,
+                                );
+                              return DataRow(
+                                cells: <DataCell>[
+                                  DataCell(Row(
+                                    children: [
+                                      gettingInIcon,
+                                      Text(getStringDateFromtimestamp(
+                                          item.data['insertDate'])),
+                                    ],
+                                  )),
+                                  DataCell(
+                                      Text(item.data['temperature'] ?? '')),
+                                  DataCell(
+                                    GestureDetector(
+                                      onTap: () => _details(context, item.data),
+                                      child: Container(
+                                        width: 20,
+                                        child: Icon(
+                                          Icons.search,
+                                          size: 20,
+                                          color: Theme.of(context)
+                                              .secondaryHeaderColor,
                                         ),
                                       ),
-                                    ],
-                                  );
-                                  } 
-                                )
-                                .toList(),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            }).toList(),
                           ),
                         ),
                       ),
                     );
                   } else {
-                    // return Padding(
-                    //   padding: const EdgeInsets.all(20.0),
-                    //   child: Text(
-                    //       'No hay entrevistas registradas para esta sucursal!'),
-                    // );
                     return Padding(
                       padding: EdgeInsets.symmetric(
                           horizontal: MediaQuery.of(context).size.width / 4),
@@ -141,7 +164,7 @@ class _FormListState extends State<FormList> {
                             height: 30,
                           ),
                           Text(
-                            'cargando entrevistas...',
+                            'cargando encuestas...',
                             style: TextStyle(fontSize: 16),
                           )
                         ],
@@ -193,39 +216,42 @@ class _FormListState extends State<FormList> {
       ]
     ];
     _listData.forEach((element) {
-        final data = element.data;
-        final orderedItem = [
-          getFormatedDateFromtimestamp(data['insertDate']),
-          data['gettingIn'] != null ? (data['gettingIn'] == true ? 'Ingreso' : 'Salida') : 'N/A',
-          bloc.shopName,
-          bloc.shopCurrBranch.branchName,
-          data['temperature'],
-          data['identificationType'],
-          data['identification'],
-          data['name'],
-          data['lastName'],
-          data['contact'],
-          data['email'],
-          data['yourSymptoms'] == 1 ? 'SI' : 'NO',
-          data['yourSymptomsDesc'],
-          data['yourHomeSymptoms'] == 1 ? 'SI' : 'NO',
-          data['haveBeenIsolated'] == 1 ? 'SI' : 'NO',
-          data['haveBeenIsolatedDesc'],
-          data['haveBeenVisited'] == 1 ? 'SI' : 'NO',
-          data['haveBeenVisitedDesc'],
-          data['haveBeenWithPeople'] == 1 ? 'SI' : 'NO',
-          data['isEmployee'] == 0 ? 'SI' : 'NO',
-          data['visitorAccept'] == 0 ? 'SI' : 'NO',
-          data['employeeAcceptYourSymptoms'] == 1 ? 'SI' : 'NO',
-          data['employeeAcceptHomeSymptoms'] == 1 ? 'SI' : 'NO',
-          data['employeeAcceptVacationSymptoms'] == 1 ? 'SI' : 'NO',
-        ];
+      final data = element.data;
+      final orderedItem = [
+        getStringDateFromtimestamp(data['insertDate']),
+        data['gettingIn'] != null
+            ? (data['gettingIn'] == true ? 'Ingreso' : 'Salida')
+            : 'N/A',
+        bloc.shopName,
+        bloc.shopCurrBranch.branchName,
+        data['temperature'],
+        data['identificationType'],
+        data['identification'],
+        data['name'],
+        data['lastName'],
+        data['contact'],
+        data['email'],
+        data['yourSymptoms'] == 1 ? 'SI' : 'NO',
+        data['yourSymptomsDesc'],
+        data['yourHomeSymptoms'] == 1 ? 'SI' : 'NO',
+        data['haveBeenIsolated'] == 1 ? 'SI' : 'NO',
+        data['haveBeenIsolatedDesc'],
+        data['haveBeenVisited'] == 1 ? 'SI' : 'NO',
+        data['haveBeenVisitedDesc'],
+        data['haveBeenWithPeople'] == 1 ? 'SI' : 'NO',
+        data['isEmployee'] == 0 ? 'SI' : 'NO',
+        data['visitorAccept'] == 0 ? 'SI' : 'NO',
+        data['employeeAcceptYourSymptoms'] == 1 ? 'SI' : 'NO',
+        data['employeeAcceptHomeSymptoms'] == 1 ? 'SI' : 'NO',
+        data['employeeAcceptVacationSymptoms'] == 1 ? 'SI' : 'NO',
+      ];
       dataToExport.add(orderedItem);
     });
-    String csv = const ListToCsvConverter(fieldDelimiter: '|').convert(dataToExport);
+    String csv =
+        const ListToCsvConverter(fieldDelimiter: '|').convert(dataToExport);
     final File txtfile = await writeFileContent(csv);
     final fileUrl = await uploadFile(txtfile,
-        'entrevistas_${DateTime.now().millisecondsSinceEpoch.toString()}.txt');
+        'encuestas_${DateTime.now().millisecondsSinceEpoch.toString()}.txt');
     final response = await sendFormListEmail(fileUrl);
     Fluttertoast.showToast(
       msg: response,
@@ -237,5 +263,4 @@ class _FormListState extends State<FormList> {
       fontSize: 18.0,
     );
   }
-
 }

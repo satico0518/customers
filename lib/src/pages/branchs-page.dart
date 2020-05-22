@@ -38,180 +38,187 @@ class _BranchPageState extends State<BranchPage> {
               })
         ],
       ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          Padding(
-            padding: EdgeInsets.all(20),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                StreamBuilder<ShopBranchModel>(
-                    stream: bloc.shopCurrBranchStream,
-                    builder: (context, snapshot) {
-                      return RichText(
-                        text: TextSpan(
-                          text:
-                              'Usted está actualmente registrando sobre la sucursal ',
-                          style: TextStyle(color: Colors.black, fontSize: 18),
-                          children: <TextSpan>[
-                            TextSpan(
-                              text:
-                                  ' ${snapshot.hasData ? capitalizeWord(snapshot.data.branchName) : ''}',
-                              style: TextStyle(
-                                  letterSpacing: 5,
-                                  backgroundColor:
-                                      Theme.of(context).secondaryHeaderColor,
-                                  color: Colors.white,
-                                  fontSize: 22),
-                            ),
-                            TextSpan(
-                              text:
-                                  ', si desea cambiar de Sucursal seleccione alguna de la lista inferior.',
-                              style:
-                                  TextStyle(color: Colors.black, fontSize: 18),
-                            )
-                          ],
-                        ),
-                      );
-                    }),
-              ],
-            ),
-          ),
-          StreamBuilder<List<ShopBranchModel>>(
-            stream: bloc.shopBranchesStream,
-            builder: (context, snapshot) {
-              if (!snapshot.hasData) {
-                return Container(
-                  width: double.infinity,
-                  height: MediaQuery.of(context).size.height * .8,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      CircularProgressIndicator(),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      Text('cargando sucursales...'),
-                    ],
-                  ),
-                );
-              }
-              return SingleChildScrollView(
-                scrollDirection: Axis.vertical,
-                child: Container(
-                  height: MediaQuery.of(context).size.height * .6,
-                  color: Colors.grey[200],
-                  width: double.infinity,
-                  child: Expanded(
-                    child: FutureBuilder<List<ShopBranchModel>>(
-                      future: ShopDBProvider.db.getShopBranchs(),
+      body: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Padding(
+              padding: EdgeInsets.all(20),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  StreamBuilder<ShopBranchModel>(
+                      stream: bloc.shopCurrBranchStream,
                       builder: (context, snapshot) {
-                        if (snapshot.hasData) {
-                          return SingleChildScrollView(
-                            scrollDirection: Axis.vertical,
-                            child: SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              child: DataTable(
-                                showCheckboxColumn: true,
-                                dataRowHeight: 30,
-                                columns: [
-                                  DataColumn(label: Text('Nombre')),
-                                  DataColumn(label: Text('Dirección')),
-                                  DataColumn(label: Text('')),
-                                ],
-                                rows: snapshot.data
-                                    .map<DataRow>(
-                                      (ShopBranchModel item) => DataRow(
-                                        cells: <DataCell>[
-                                          DataCell(
-                                            Row(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.center,
-                                              children: [
-                                                GestureDetector(
-                                                  onTap: () {
-                                                    final _prefs = PreferenceAuth();
-                                                    _prefs.initPrefs();
-                                                    bloc.changeShopCurrBranch(
-                                                        item);
-                                                    bloc.changeShopBranchName(item.branchName);
-                                                    _prefs.currentBranchDocId = item.branchDocumentId;
-                                                  },
-                                                  child: Icon(
-                                                    Icons.adjust,
-                                                    color: Theme.of(context)
-                                                        .primaryColor,
+                        return RichText(
+                          text: TextSpan(
+                            text:
+                                'Usted está actualmente registrando sobre la sucursal ',
+                            style: TextStyle(color: Colors.black, fontSize: 18),
+                            children: <TextSpan>[
+                              TextSpan(
+                                text:
+                                    ' ${snapshot.hasData ? capitalizeWord(snapshot.data.branchName) : ''}',
+                                style: TextStyle(
+                                    letterSpacing: 5,
+                                    backgroundColor:
+                                        Theme.of(context).secondaryHeaderColor,
+                                    color: Colors.white,
+                                    fontSize: 22),
+                              ),
+                              TextSpan(
+                                text:
+                                    ', si desea cambiar de Sucursal seleccione alguna de la lista inferior.',
+                                style: TextStyle(
+                                    color: Colors.black, fontSize: 18),
+                              )
+                            ],
+                          ),
+                        );
+                      }),
+                ],
+              ),
+            ),
+            StreamBuilder<List<ShopBranchModel>>(
+              stream: bloc.shopBranchesStream,
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return Container(
+                    width: double.infinity,
+                    height: MediaQuery.of(context).size.height * .8,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        CircularProgressIndicator(),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Text('cargando sucursales...'),
+                      ],
+                    ),
+                  );
+                }
+                return SingleChildScrollView(
+                  scrollDirection: Axis.vertical,
+                  child: Container(
+                    height: MediaQuery.of(context).size.height * .6,
+                    color: Colors.grey[200],
+                    width: double.infinity,
+                    child: Expanded(
+                      child: FutureBuilder<List<ShopBranchModel>>(
+                        future: ShopDBProvider.db.getShopBranchs(),
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData) {
+                            return SingleChildScrollView(
+                              scrollDirection: Axis.vertical,
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: DataTable(
+                                  showCheckboxColumn: true,
+                                  dataRowHeight: 30,
+                                  columns: [
+                                    DataColumn(label: Text('Nombre')),
+                                    DataColumn(label: Text('Dirección')),
+                                    DataColumn(label: Text('')),
+                                  ],
+                                  rows: snapshot.data
+                                      .map<DataRow>(
+                                        (ShopBranchModel item) => DataRow(
+                                          cells: <DataCell>[
+                                            DataCell(
+                                              Row(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.center,
+                                                children: [
+                                                  GestureDetector(
+                                                    onTap: () {
+                                                      final _prefs =
+                                                          PreferenceAuth();
+                                                      _prefs.initPrefs();
+                                                      bloc.changeShopCurrBranch(
+                                                          item);
+                                                      bloc.changeShopBranchName(
+                                                          item.branchName);
+                                                      _prefs.currentBranchDocId =
+                                                          item.branchDocumentId;
+                                                    },
+                                                    child: Icon(
+                                                      Icons.adjust,
+                                                      color: Theme.of(context)
+                                                          .primaryColor,
+                                                    ),
                                                   ),
-                                                ),
-                                                SizedBox(
-                                                  width: 10,
-                                                ),
-                                                Text(capitalizeWord(
-                                                    item.branchName ?? ''))
-                                              ],
-                                            ),
-                                          ),
-                                          DataCell(
-                                              Text(item.branchAddress ?? '')),
-                                          DataCell(
-                                            GestureDetector(
-                                              onTap: () {
-                                                setState(() {
-                                                  _branchName = capitalizeWord(
-                                                      item.branchName ?? '');
-                                                  _branchAddress =
-                                                      item.branchAddress;
-                                                  _currentBranch = item;
-                                                  _addBranch(
-                                                      context, bloc, true);
-                                                });
-                                              },
-                                              child: Icon(
-                                                Icons.edit,
-                                                color: Theme.of(context)
-                                                    .secondaryHeaderColor,
+                                                  SizedBox(
+                                                    width: 10,
+                                                  ),
+                                                  Text(capitalizeWord(
+                                                      item.branchName ?? ''))
+                                                ],
                                               ),
                                             ),
-                                          ),
-                                        ],
-                                      ),
-                                    )
-                                    .toList(),
+                                            DataCell(
+                                                Text(item.branchAddress ?? '')),
+                                            DataCell(
+                                              GestureDetector(
+                                                onTap: () {
+                                                  setState(() {
+                                                    _branchName =
+                                                        capitalizeWord(
+                                                            item.branchName ??
+                                                                '');
+                                                    _branchAddress =
+                                                        item.branchAddress;
+                                                    _currentBranch = item;
+                                                    _addBranch(
+                                                        context, bloc, true);
+                                                  });
+                                                },
+                                                child: Icon(
+                                                  Icons.edit,
+                                                  color: Theme.of(context)
+                                                      .secondaryHeaderColor,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      )
+                                      .toList(),
+                                ),
                               ),
-                            ),
-                          );
-                        } else {
-                          return Padding(
-                            padding: EdgeInsets.symmetric(
-                                horizontal:
-                                    MediaQuery.of(context).size.width / 4),
-                            child: Column(
-                              children: [
-                                SizedBox(
-                                  height: 100,
-                                ),
-                                CircularProgressIndicator(),
-                                SizedBox(
-                                  height: 30,
-                                ),
-                                Text(
-                                  'cargando entrevistas...',
-                                  style: TextStyle(fontSize: 16),
-                                )
-                              ],
-                            ),
-                          );
-                        }
-                      },
+                            );
+                          } else {
+                            return Padding(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal:
+                                      MediaQuery.of(context).size.width / 4),
+                              child: Column(
+                                children: [
+                                  SizedBox(
+                                    height: 100,
+                                  ),
+                                  CircularProgressIndicator(),
+                                  SizedBox(
+                                    height: 30,
+                                  ),
+                                  Text(
+                                    'cargando encuestas...',
+                                    style: TextStyle(fontSize: 16),
+                                  )
+                                ],
+                              ),
+                            );
+                          }
+                        },
+                      ),
                     ),
                   ),
-                ),
-              );
-            },
-          ),
-        ],
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -50,82 +50,87 @@ class _QRReaderPageState extends State<QRReaderPage> {
         ],
       ),
       body: Center(
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment(0.8, 0.0),
-              colors: [
-                const Color(0xffa4b9f3),
-                const Color(0xFF000000)
-              ], // whitish to gray
-              tileMode: TileMode.mirror, // repeats the gradient over the canvas
+        child: SingleChildScrollView(
+          child: Container(
+            height: MediaQuery.of(context).size.height - 130,
+            decoration: BoxDecoration(              
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment(0.8, 0.0),
+                colors: [
+                  const Color(0xffa4b9f3),
+                  const Color(0xFF000000)
+                ], // whitish to gray
+                tileMode:
+                    TileMode.mirror, // repeats the gradient over the canvas
+              ),
             ),
-          ),
-          padding: EdgeInsets.all(20),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              StreamBuilder<String>(
-                  stream: bloc.shopNameStream,
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData) return Text('');
-                    return Text(
-                      'Bienvenido ${capitalizeWord(snapshot.data)}',
-                      style: TextStyle(fontSize: 25, color: Colors.white),
-                    );
-                  }),
-              Divider(
-                height: 50,
-                color: Theme.of(context).secondaryHeaderColor,
-                indent: 30,
-                endIndent: 30,
-                thickness: 3,
-              ),
-              StreamBuilder<ShopBranchModel>(
-                  stream: bloc.shopCurrBranchStream,
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData)
-                      return Text('Sucursal: Seleccione sucursal',
-                          style: TextStyle(fontSize: 15, color: Colors.white));
-                    return Text(
-                      'Sucursal: ${capitalizeWord(snapshot.data.branchName)}',
-                      style: TextStyle(fontSize: 15, color: Colors.white),
-                    );
-                  }),
-              SizedBox(
-                height: 50,
-              ),
-              Text(
-                'Aca puedes leer el codigo QR de tu visitante para obtener la información de su entrevista COVID-19',
-                style: TextStyle(fontSize: 20, color: Colors.white),
-                textAlign: TextAlign.justify,
-              ),
-              SizedBox(
-                height: 50,
-              ),
-              RaisedButton(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(18.0),
-                  ),
-                  padding: EdgeInsets.all(20),
+            padding: EdgeInsets.all(20),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                StreamBuilder<String>(
+                    stream: bloc.shopNameStream,
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) return Text('');
+                      return Text(
+                        'Bienvenido ${capitalizeWord(snapshot.data)}',
+                        style: TextStyle(fontSize: 25, color: Colors.white),
+                      );
+                    }),
+                Divider(
+                  height: 50,
                   color: Theme.of(context).secondaryHeaderColor,
-                  textColor: Colors.white,
-                  onPressed: _getQRinfo,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: <Widget>[
-                      Text(
-                        'Leer Código QR',
-                        style: TextStyle(fontSize: 20),
-                      ),
-                      Icon(
-                        Icons.filter_center_focus,
-                        size: 30,
-                      )
-                    ],
-                  ))
-            ],
+                  indent: 30,
+                  endIndent: 30,
+                  thickness: 3,
+                ),
+                StreamBuilder<ShopBranchModel>(
+                    stream: bloc.shopCurrBranchStream,
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData)
+                        return Text('Sucursal: Seleccione sucursal',
+                            style:
+                                TextStyle(fontSize: 15, color: Colors.white));
+                      return Text(
+                        'Sucursal: ${capitalizeWord(snapshot.data.branchName)}',
+                        style: TextStyle(fontSize: 15, color: Colors.white),
+                      );
+                    }),
+                SizedBox(
+                  height: 50,
+                ),
+                Text(
+                  'Aca puedes leer el codigo QR de tu visitante para obtener la información de su encuesta',
+                  style: TextStyle(fontSize: 20, color: Colors.white),
+                  textAlign: TextAlign.justify,
+                ),
+                SizedBox(
+                  height: 50,
+                ),
+                RaisedButton(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18.0),
+                    ),
+                    padding: EdgeInsets.all(20),
+                    color: Theme.of(context).secondaryHeaderColor,
+                    textColor: Colors.white,
+                    onPressed: _getQRinfo,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        Text(
+                          'Leer Código QR',
+                          style: TextStyle(fontSize: 20),
+                        ),
+                        Icon(
+                          Icons.filter_center_focus,
+                          size: 30,
+                        )
+                      ],
+                    ))
+              ],
+            ),
           ),
         ),
       ),
@@ -141,7 +146,7 @@ class _QRReaderPageState extends State<QRReaderPage> {
                 size: 22,
               )),
           BottomNavigationBarItem(
-            title: Text('Ver Entrevistas'),
+            title: Text('Ver Encuestas'),
             icon: Icon(
               Icons.list,
               color: Theme.of(context).secondaryHeaderColor,

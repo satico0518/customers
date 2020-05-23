@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:customers/src/models/shop-branch.model.dart';
 import 'package:customers/src/providers/form.provider.dart';
 import 'package:customers/src/providers/shopDbProvider.dart';
@@ -12,12 +13,15 @@ class UserBloc {
   final _userIdTypeController = BehaviorSubject<String>();
   final _userIdentificationController = BehaviorSubject<String>();
   final _userNameController = BehaviorSubject<String>();
+  final _userGenreController = BehaviorSubject<String>();
+  final _userBirthDateController = BehaviorSubject<DateTime>();
   final _userLastNameController = BehaviorSubject<String>();
   final _userContactController = BehaviorSubject<String>();
   final _userAddressController = BehaviorSubject<String>();
   final _userEmailController = BehaviorSubject<String>();
   final _userPasswordController = BehaviorSubject<String>();
   final _userIsEditingController = BehaviorSubject<bool>();
+  final _userMaxDateController = BehaviorSubject<Timestamp>();
 
   final _shopIsLoggedController = BehaviorSubject<bool>();
   final _shopFirebaseIdController = BehaviorSubject<String>();
@@ -60,11 +64,14 @@ class UserBloc {
   Stream<String> get userIdTypeStream => _userIdTypeController.stream;
   Stream<String> get userIdentificationStream => _userIdentificationController.stream;
   Stream<String> get userNameStream => _userNameController.stream;
+  Stream<String> get userGenreStream => _userGenreController.stream;
+  Stream<DateTime> get userBirthDateStream => _userBirthDateController.stream;
   Stream<String> get userLastNameStream => _userLastNameController.stream;
   Stream<String> get userContactStream => _userContactController.stream;
   Stream<String> get userAddressStream => _userAddressController.stream;
   Stream<String> get userEmailStream => _userEmailController.stream;
   Stream<String> get userPasswordStream => _userPasswordController.stream;
+  Stream<Timestamp> get userMaxDateStream => _userMaxDateController.stream;
 
   Stream<bool> get shopIsLoggedStream => _shopIsLoggedController.stream;
   Stream<String> get shopFirebaseIdStream => _shopFirebaseIdController.stream;
@@ -107,11 +114,14 @@ class UserBloc {
   Function(String) get changeUserIdType => _userIdTypeController.sink.add;
   Function(String) get changeUserIdentification => _userIdentificationController.sink.add;
   Function(String) get changeUserName => _userNameController.sink.add;
+  Function(String) get changeUserGenre => _userGenreController.sink.add;
+  Function(DateTime) get changeUserBirthDate => _userBirthDateController.sink.add;
   Function(String) get changeUserLastName => _userLastNameController.sink.add;
   Function(String) get changeUserContact => _userContactController.sink.add;
   Function(String) get changeUserAddress => _userAddressController.sink.add;
   Function(String) get changeUserEmail => _userEmailController.sink.add;
   Function(String) get changeUserPassword => _userPasswordController.sink.add;
+  Function(Timestamp) get changeUserMaxDate => _userMaxDateController.sink.add;
 
   Function(bool) get changeShopIsLogged => _shopIsLoggedController.sink.add;
   Function(String) get changeShopFirebaseId => _shopFirebaseIdController.sink.add;
@@ -154,11 +164,14 @@ class UserBloc {
   String get identificationType => _userIdTypeController.value;
   String get identification => _userIdentificationController.value;
   String get userName => _userNameController.value;
+  String get userGenre => _userGenreController.value;
+  DateTime get userBirthDate => _userBirthDateController.value;
   String get lastName => _userLastNameController.value;
   String get contact => _userContactController.value;
   String get userAddress => _userAddressController.value;
   String get email => _userEmailController.value;
   String get password => _userPasswordController.value;
+  Timestamp get userMaxDate => _userMaxDateController.value;
 
   bool get shopIsLogged => _shopIsLoggedController.value;
   String get shopFirebaseId => _shopFirebaseIdController.value;
@@ -197,31 +210,34 @@ class UserBloc {
   UserBloc() {
     UserDBProvider.db.getUser().then((value) {
       if (value != null) {
-        changeUserFirebaseId(value.firebaseId);
-        changeUserDocumentId(value.documentId);
-        changeUserIdType(value.identificationType);
-        changeUserIdentification(value.identification);
-        changeUserName(value.name);
-        changeUserLastName(value.lastName);
-        changeUserContact(value.contact);
-        changeUserAddress(value.address);
-        changeUserEmail(value.email);
-        changeUserPassword(value.password);
+        changeUserFirebaseId(value.firebaseId ?? '');
+        changeUserDocumentId(value.documentId ?? '');
+        changeUserIdType(value.identificationType ?? '');
+        changeUserIdentification(value.identification ?? '');
+        changeUserName(value.name ?? '');
+        changeUserGenre(value.genre ?? '');
+        changeUserBirthDate(value.birthDate ?? new DateTime.now());
+        changeUserLastName(value.lastName ?? '');
+        changeUserContact(value.contact ?? '');
+        changeUserAddress(value.address ?? '');
+        changeUserEmail(value.email ?? '');
+        changeUserPassword(value.password ?? '');
+        changeUserMaxDate(value.maxDate ?? '');
       }
     });
     ShopDBProvider.db.getShop().then((value) {
       if (value != null) {
-        changeShopFirebaseId(value.firebaseId);
-        changeShopDocumentId(value.documentId);
-        changeShopNit(value.nit);
-        changeShopName(value.name);
-        changeShopAddress(value.address);
-        changeShopCity(value.city);
-        changeShopBranchName(value.branchName);
-        changeShopContactName(value.contactName);
-        changeShopPhone(value.phone);
-        changeShopEmail(value.email);
-        changeShopPassword(value.password);
+        changeShopFirebaseId(value.firebaseId ?? '');
+        changeShopDocumentId(value.documentId ?? '');
+        changeShopNit(value.nit ?? '');
+        changeShopName(value.name ?? '');
+        changeShopAddress(value.address ?? '');
+        changeShopCity(value.city ?? '');
+        changeShopBranchName(value.branchName ?? '');
+        changeShopContactName(value.contactName ?? '');
+        changeShopPhone(value.phone ?? '');
+        changeShopEmail(value.email ?? '');
+        changeShopPassword(value.password ?? '');
         changeShopCurrBranch(value.currentBranch);
         ShopDBProvider.db.getShopBranchs().then((value) => changeShopBranches(value))
         ;
@@ -229,23 +245,23 @@ class UserBloc {
     });    
     DBProvider.db.getForm().then((value) {
       if (value != null) {
-        changeYourSymptoms(value.yourSymptoms);
-        changeYourHomeSymptoms(value.yourHomeSymptoms);
-        changeHaveBeenIsolated(value.haveBeenIsolated);
-        changeHaveBeenVisited(value.haveBeenVisited);
-        changeHaveBeenWithPeople(value.haveBeenWithPeople);
-        changeYourSymptomsDesc(value.yourSymptomsDesc);
-        changeHaveBeenIsolatedDesc(value.haveBeenIsolatedDesc);
-        changeHaveBeenVisitedDesc(value.haveBeenVisitedDesc);
-        changeIsEmployee(value.isEmployee);
-        changeVisitorAccept(value.visitorAccept);
-        changeEmployeeAcceptYourSymptoms(value.employeeAcceptYourSymptoms);
-        changeEmployeeAcceptHomeSymptoms(value.employeeAcceptHomeSymptoms);
-        changeEmployeeAcceptVacationSymptoms(value.employeeAcceptVacationSymptoms);
-        changeLastDate(value.lastDate);
-        changeFormShopDocId(value.shopDocumentId);
-        changeFormShopBranchDocId(value.shopBranchDocumentId);
-        changeFormUserDocId(value.userDocumentId);
+        changeYourSymptoms(value.yourSymptoms ?? 0);
+        changeYourHomeSymptoms(value.yourHomeSymptoms ?? 0);
+        changeHaveBeenIsolated(value.haveBeenIsolated ?? 0);
+        changeHaveBeenVisited(value.haveBeenVisited ?? 0);
+        changeHaveBeenWithPeople(value.haveBeenWithPeople ?? 0);
+        changeYourSymptomsDesc(value.yourSymptomsDesc ?? '');
+        changeHaveBeenIsolatedDesc(value.haveBeenIsolatedDesc ?? '');
+        changeHaveBeenVisitedDesc(value.haveBeenVisitedDesc ?? '');
+        changeIsEmployee(value.isEmployee ?? 0);
+        changeVisitorAccept(value.visitorAccept ?? 0);
+        changeEmployeeAcceptYourSymptoms(value.employeeAcceptYourSymptoms ?? 0);
+        changeEmployeeAcceptHomeSymptoms(value.employeeAcceptHomeSymptoms ?? 0);
+        changeEmployeeAcceptVacationSymptoms(value.employeeAcceptVacationSymptoms ?? 0);
+        changeLastDate(value.lastDate ?? '');
+        changeFormShopDocId(value.shopDocumentId ?? '');
+        changeFormShopBranchDocId(value.shopBranchDocumentId ?? '');
+        changeFormUserDocId(value.userDocumentId ?? '');
       }
     });
   }
@@ -258,11 +274,14 @@ class UserBloc {
     _userIdTypeController?.close();
     _userIdentificationController?.close();
     _userNameController?.close();
+    _userGenreController?.close();
+    _userBirthDateController?.close();
     _userLastNameController?.close();
     _userContactController?.close();
     _userAddressController?.close();
     _userEmailController?.close();
     _userPasswordController?.close();
+    _userMaxDateController?.close();
     _shopIsLoggedController?.close();
     _shopFirebaseIdController?.close();
     _shopDocumentIdController?.close();

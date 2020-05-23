@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:customers/src/utils/utils.dart';
+import 'package:intl/intl.dart';
 
 class RegisterPage extends StatefulWidget {
   static final String routeName = 'register';
@@ -19,6 +20,7 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
+  TextEditingController _inputDateCtrl = new TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool _aceptTerms = false;
   bool _showPass = false;
@@ -103,6 +105,14 @@ class _RegisterPageState extends State<RegisterPage> {
                     height: 10,
                   ),
                   _getLastNameField(bloc),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  _createGenreField(bloc),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  _getBirthDateField(context, bloc),
                   SizedBox(
                     height: 10,
                   ),
@@ -260,6 +270,102 @@ class _RegisterPageState extends State<RegisterPage> {
             onChanged: bloc.changeUserName,
           );
         });
+  }
+
+  Widget _createGenreField(UserBloc bloc) {
+    return StreamBuilder<String>(
+      stream: bloc.userGenreStream,
+      builder: (context, snapshot) {
+        return Row(children: <Widget>[
+          Icon(
+            Icons.people,
+            color: Theme.of(context).primaryColor,
+          ),
+          SizedBox(width: 15),
+          Expanded(
+            child: DropdownButtonFormField(
+                hint: Text('Seleccione Género'),
+                value: bloc.userGenre,
+                items: _getOptionsGenreDropdownItems(),
+                validator: (value) {
+                  if (value == null || value == '-- Género --')
+                    return 'Género es obligatorio';
+                  return null;
+                },
+                onChanged: bloc.changeUserGenre),
+          )
+        ]);
+      },
+    );
+  }
+
+  List<DropdownMenuItem<String>> _getOptionsGenreDropdownItems() {
+    List<DropdownMenuItem<String>> list = new List();
+    ['-- Género --', 'Masculino', 'Femenino'].forEach((type) {
+      DropdownMenuItem<String> tempItem = new DropdownMenuItem(
+        child: Text(type),
+        value: type,
+      );
+      list.add(tempItem);
+    });
+    return list;
+  }
+
+  Widget _getBirthDateField(BuildContext context, UserBloc bloc) {
+    return StreamBuilder<DateTime>(
+        stream: bloc.userBirthDateStream,
+        builder: (context, snapshot) {
+          _inputDateCtrl.text = getFormatedDate(bloc.userBirthDate);
+          return TextFormField(
+            keyboardType: TextInputType.datetime,
+            decoration: InputDecoration(
+              hintText: 'Fecha de Nacimiento',
+              labelText: 'Fecha de Nacimiento',
+              helperText: 'Fecha (dd/mm/aaaa)',
+              suffixIcon: Icon(
+                Icons.perm_contact_calendar,
+                color: Theme.of(context).primaryColor,
+              ),
+              icon: GestureDetector(
+                onTap: () {
+                  FocusScope.of(context).requestFocus(new FocusNode());
+                  _selectDate(context, bloc);
+                },
+                child: Icon(
+                  Icons.calendar_today,
+                  color: Theme.of(context).primaryColor,
+                ),
+              ),
+            ),
+            onTap: () {
+              FocusScope.of(context).requestFocus(new FocusNode());
+              _selectDate(context, bloc);
+            },
+            controller: _inputDateCtrl,
+            validator: (value) {
+              if (value.isEmpty) return 'Fecha de nacimiento es Obligatorio';
+              return null;
+            },
+          );
+        });
+  }
+
+  void _selectDate(BuildContext context, UserBloc bloc) async {
+    DateTime datetimePicker = await showDatePicker(
+        context: context,
+        initialDate: bloc.userBirthDate != null
+            ? bloc.userBirthDate
+            : new DateTime(new DateTime.now().year - 10),
+        firstDate: new DateTime(1920),
+        lastDate: new DateTime(new DateTime.now().year - 10),
+        locale: Locale('es', 'ES'));
+
+    if (datetimePicker != null) {
+      setState(() {
+        bloc.changeUserBirthDate(datetimePicker);
+        _inputDateCtrl.text = DateFormat('dd-MM-yyyy').format(datetimePicker);
+      });
+    }
   }
 
   Widget _getLastNameField(UserBloc bloc) {
@@ -454,6 +560,8 @@ class _RegisterPageState extends State<RegisterPage> {
           identificationType: bloc.identificationType.trim(),
           identification: bloc.identification.trim(),
           name: bloc.userName.trim(),
+          genre: bloc.userGenre.trim(),
+          birthDate: bloc.userBirthDate,
           lastName: bloc.lastName.trim(),
           contact: bloc.contact.trim(),
           address: bloc.userAddress.trim(),
@@ -479,13 +587,13 @@ class _RegisterPageState extends State<RegisterPage> {
           textColor: Colors.white,
           fontSize: 18.0,
         );
-        
+
         if (currentPassword != bloc.password) {
           await UserFirebaseProvider.fb.changePassword(bloc.password);
           bloc.changeUserIsLogged(false);
           Navigator.pushNamed(context, LoginPage.routeName);
         } else
-          Navigator.pushNamed(context, HomePage.routeName);          
+          Navigator.pushNamed(context, HomePage.routeName);
       } catch (e) {
         Fluttertoast.showToast(
           msg: 'Error: ${handleMessage(e.toString())}',

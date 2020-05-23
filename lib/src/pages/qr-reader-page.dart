@@ -11,6 +11,7 @@ import 'package:customers/src/pages/login-page.dart';
 import 'package:customers/src/pages/shop-form.page.dart';
 import 'package:customers/src/providers/auth.shared-preferences.dart';
 import 'package:customers/src/providers/shopDbProvider.dart';
+import 'package:customers/src/services/login.service.dart';
 import 'package:customers/src/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -23,6 +24,7 @@ class QRReaderPage extends StatefulWidget {
 }
 
 class _QRReaderPageState extends State<QRReaderPage> {
+  final LoginService logSrvc = new LoginService();
   int _cIndex = 0;
   @override
   Widget build(BuildContext context) {
@@ -53,7 +55,7 @@ class _QRReaderPageState extends State<QRReaderPage> {
         child: SingleChildScrollView(
           child: Container(
             height: MediaQuery.of(context).size.height - 130,
-            decoration: BoxDecoration(              
+            decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment(0.8, 0.0),
@@ -115,7 +117,7 @@ class _QRReaderPageState extends State<QRReaderPage> {
                     padding: EdgeInsets.all(20),
                     color: Theme.of(context).secondaryHeaderColor,
                     textColor: Colors.white,
-                    onPressed: _getQRinfo,
+                    onPressed: () => _getQRinfo(context),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
@@ -139,7 +141,7 @@ class _QRReaderPageState extends State<QRReaderPage> {
         onTap: (index) => goTo(index, bloc),
         items: [
           BottomNavigationBarItem(
-              title: Text('Editar Tienda'),
+              title: Text('Editar Comercio'),
               icon: Icon(
                 Icons.edit,
                 color: Theme.of(context).secondaryHeaderColor,
@@ -164,17 +166,42 @@ class _QRReaderPageState extends State<QRReaderPage> {
     );
   }
 
-  _getQRinfo() async {
-    String qrInfo = '';
-    try {
-      qrInfo = await BarcodeScanner.scan();
-    } catch (e) {
-      qrInfo = e.toString();
-    }
-    Platform.isIOS
-        ? Future.delayed(
-            Duration(milliseconds: 750), () => goToEnterviewInfo(qrInfo))
-        : goToEnterviewInfo(qrInfo);
+  _getQRinfo(BuildContext context) async {
+    logSrvc.isStateOkByBloc(context).then((value) async {
+      if (value) {
+        String qrInfo = '';
+        try {
+          qrInfo = await BarcodeScanner.scan();
+        } catch (e) {
+          qrInfo = e.toString();
+        }
+        Platform.isIOS
+            ? Future.delayed(
+                Duration(milliseconds: 750), () => goToEnterviewInfo(qrInfo))
+            : goToEnterviewInfo(qrInfo);
+      } else {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text("Inactivo!"),
+              content: Text(
+                "Ha caducado su periodo de prueba. Por favor contáctenos para poder ayudarle.",
+                textAlign: TextAlign.justify,
+              ),
+              actions: <Widget>[
+                FlatButton(
+                    child: Text("Ok"),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      return;
+                    }),
+              ],
+            );
+          },
+        );
+      }
+    });
   }
 
   goToEnterviewInfo(String qrInfo) {

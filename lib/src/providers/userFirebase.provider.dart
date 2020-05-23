@@ -1,4 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:customers/src/bloc/provider.dart';
+import 'package:customers/src/bloc/user.bloc.dart';
 import 'package:customers/src/utils/utils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -32,13 +34,26 @@ class UserFirebaseProvider {
         .setData(firebaseUser, merge: true);
   }
 
+  Future<void> updateUserMaxDateToFirebase(BuildContext context, String docId) async {
+    final UserBloc bloc = Provider.of(context);
+    Firestore fb = Firestore.instance;
+    return fb
+        .collection('Users')
+        .document(docId)
+        .updateData({'maxDate': bloc.userMaxDate});
+  }
+
   Future<FirebaseUser> loginUserToFirebase(
       String email, String password) async {
     return (await _auth.signInWithEmailAndPassword(
       email: email,
       password: password,
-    ))
-        .user;
+    )).user;
+  }
+
+  Future<void> sendEmailForVerification() async {
+    final FirebaseUser user = await _auth.currentUser();
+    user.sendEmailVerification();
   }
 
   Future<String> changePassword(String newPassword) async {

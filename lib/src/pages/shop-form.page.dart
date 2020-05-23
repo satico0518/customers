@@ -45,7 +45,7 @@ class _ShopFormState extends State<ShopForm> {
                       visible: snapshot.data,
                       child: Row(
                         children: <Widget>[
-                          Text('Actualizar Tienda'),
+                          Text('Actualizar Comercio'),
                           IconButton(
                             icon: Icon(Icons.save),
                             onPressed: () {
@@ -70,7 +70,7 @@ class _ShopFormState extends State<ShopForm> {
               child: Column(
                 children: <Widget>[
                   Text(
-                    'Ingrese los datos de su Tienda',
+                    'Ingrese los datos de su Comercio',
                     style: TextStyle(fontSize: 18),
                   ),
                   SizedBox(
@@ -149,7 +149,7 @@ class _ShopFormState extends State<ShopForm> {
                                       MainAxisAlignment.spaceAround,
                                   children: <Widget>[
                                     Text(
-                                      'Registrar Tienda',
+                                      'Registrar Comercio',
                                       style: TextStyle(
                                           color: Colors.white, fontSize: 20),
                                     ),
@@ -483,6 +483,7 @@ class _ShopFormState extends State<ShopForm> {
         if (bloc.shopFirebaseId == null || bloc.shopFirebaseId.isEmpty) {
           final FirebaseUser fbShop = await ShopFirebaseProvider.fb
               .signUp(bloc.shopEmail.trim(), bloc.shopPassword.trim());
+          fbShop.sendEmailVerification();
           bloc.changeShopFirebaseId(fbShop.uid);
         }
         shop.firebaseId = bloc.shopFirebaseId;

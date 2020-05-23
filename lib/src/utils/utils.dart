@@ -184,6 +184,11 @@ String getStringDateFromtimestamp(Timestamp time) {
   return DateTime.parse(time.toDate().toString()).toString().split('.')[0];
 }
 
+String getFormatedDate(DateTime dateTime) {
+  if (dateTime == null) return '';
+  return '${dateTime.day}/${dateTime.month}/${dateTime.year}';
+}
+
 Future<void> getInitialRoute() async {
   final _prefs = new PreferenceAuth();
   await _prefs.initPrefs();  

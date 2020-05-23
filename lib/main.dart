@@ -15,6 +15,7 @@ import 'package:customers/src/pages/terms-page.dart';
 import 'package:customers/src/providers/auth.shared-preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:customers/src/utils/utils.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,6 +33,14 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'Clientes Comercio',
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],
+      supportedLocales: [
+        const Locale('en', 'EN'),
+        const Locale('es', 'ES')
+      ],
         theme: ThemeData(
           primaryColor: Color(0xff002d6a),
           secondaryHeaderColor: Color(0xff00a461),

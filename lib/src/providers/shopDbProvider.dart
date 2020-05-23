@@ -1,9 +1,11 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:customers/src/bloc/provider.dart';
 import 'package:customers/src/models/shop-branch.model.dart';
 import 'package:customers/src/models/shop.model.dart';
 import 'package:customers/src/providers/shopFirebase.provider.dart';
+import 'package:customers/src/providers/userFirebase.provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
@@ -11,8 +13,26 @@ import 'package:path_provider/path_provider.dart';
 
 class ShopDBProvider {
   static Database _database;
-
   static final ShopDBProvider db = ShopDBProvider._();
+  final _createShop = 'CREATE TABLE IF NOT EXISTS Shop ('
+      ' firebaseId TEXT,'
+      ' documentId TEXT,'
+      ' currentBranchDocId TEXT,'
+      ' nit TEXT,'
+      ' name TEXT,'
+      ' address TEXT,'
+      ' city TEXT,'
+      ' branchName TEXT,'
+      ' contactName TEXT,'
+      ' phone TEXT,'
+      ' email TEXT,'
+      ' password TEXT)';
+  final _createBranchs = 'CREATE TABLE IF NOT EXISTS ShopBranch ('
+      ' shopDocumentId TEXT,'
+      ' branchDocumentId TEXT,'
+      ' branchName TEXT,'
+      ' branchAddress TEXT,'
+      ' branchMemo TEXT)';
 
   ShopDBProvider._();
 
@@ -27,42 +47,28 @@ class ShopDBProvider {
     final path = join(documentsdirectory.path, 'ShopDB.db');
     return await openDatabase(path, version: 1, onOpen: (db) {},
         onCreate: (Database db, int version) async {
-      await db.execute('CREATE TABLE Shop ('
-          ' firebaseId TEXT,'
-          ' documentId TEXT,'
-          ' currentBranchDocId TEXT,'
-          ' nit TEXT,'
-          ' name TEXT,'
-          ' address TEXT,'
-          ' city TEXT,'
-          ' branchName TEXT,'
-          ' contactName TEXT,'
-          ' phone TEXT,'
-          ' email TEXT,'
-          ' password TEXT)');
-      await db.execute('CREATE TABLE ShopBranch ('
-          ' shopDocumentId TEXT,'
-          ' branchDocumentId TEXT,'
-          ' branchName TEXT,'
-          ' branchAddress TEXT,'
-          ' branchMemo TEXT)');
+      await db.execute(_createShop);
+      await db.execute(_createBranchs);
     });
   }
 
   Future<int> addShop(ShopModel shop) async {
     final db = await database;
+    await db.execute(_createShop);
     final res = await db.insert('Shop', shop.toJson());
     return res;
   }
 
   Future<int> addShopBranch(ShopBranchModel shopBranch) async {
     final db = await database;
+    await db.execute(_createBranchs);
     final res = await db.insert('ShopBranch', shopBranch.toJson());
     return res;
   }
 
   Future<ShopModel> getShop() async {
     final db = await database;
+    await db.execute(_createShop);
     final shop = await db.query('Shop');
     List<ShopModel> shopList =
         shop.isNotEmpty ? shop.map((x) => ShopModel.fromJson(x)).toList() : [];
@@ -71,6 +77,7 @@ class ShopDBProvider {
 
   Future<List<ShopBranchModel>> getShopBranchs() async {
     final db = await database;
+    await db.execute(_createBranchs);
     final branches = await db.query('ShopBranch');
     List<ShopBranchModel> shopBranchList = branches.isNotEmpty
         ? branches.map((x) => ShopBranchModel.fromJson(x)).toList()
@@ -80,38 +87,41 @@ class ShopDBProvider {
 
   Future<ShopBranchModel> getShopBranchByDocId(String docId) async {
     final db = await database;
-    final branches = await db.query('ShopBranch', where: 'branchDocumentId == ?', whereArgs: [docId]);
-    final branch =  branches.length > 0 ? branches.first : {};
+    await db.execute(_createBranchs);
+    final branches = await db.query('ShopBranch',
+        where: 'branchDocumentId == ?', whereArgs: [docId]);
+    final branch = branches.length > 0 ? branches.first : {};
 
-    ShopBranchModel shopBranch = branch.length > 0
-        ? ShopBranchModel.fromJson(branch)
-        : null;
+    ShopBranchModel shopBranch =
+        branch.length > 0 ? ShopBranchModel.fromJson(branch) : null;
     return shopBranch;
   }
 
   // UPDATE
   updateShop(ShopModel shop) async {
     final db = await database;
+    await db.execute(_createShop);
     final res = await db.update('Shop', shop.toJson());
     return res;
   }
 
   updateShopBranch(ShopBranchModel shopBranch) async {
     final db = await database;
-    final res = await db.update('ShopBranch', shopBranch.toJson(), where: 'branchDocumentId == ?', whereArgs: [shopBranch.branchDocumentId]);
+    await db.execute(_createBranchs);
+    final res = await db.update('ShopBranch', shopBranch.toJson(),
+        where: 'branchDocumentId == ?',
+        whereArgs: [shopBranch.branchDocumentId]);
     return res;
   }
 
-  Future<int> deleteShop() async {
+  Future<void> deleteShop() async {
     final db = await database;
-    final res = db.delete('Shop');
-    return res;
+    await db.rawQuery('DROP TABLE IF EXISTS Shop');
   }
 
-  Future<int> deleteShopBranch() async {
+  Future<void> deleteShopBranch() async {
     final db = await database;
-    final res = db.delete('ShopBranch');
-    return res;
+    await db.rawQuery('DROP TABLE IF EXISTS ShopBranch');
   }
 
   saveShopIfNotExists(BuildContext context, String email) async {
@@ -133,6 +143,7 @@ class ShopDBProvider {
       bloc.changeShopNit(shopData['nit']);
       bloc.changeShopPhone(shopData['phone']);
       bloc.changeShopPassword(shopData['password']);
+      bloc.changeUserMaxDate(shopData['maxDate'] ?? Timestamp.fromDate(DateTime.now().add(Duration(days: 7))));
       final shop = new ShopModel(
         firebaseId: bloc.shopFirebaseId.trim(),
         documentId: bloc.shopDocumentId,
@@ -144,22 +155,24 @@ class ShopDBProvider {
         contactName: bloc.contactName.trim(),
         phone: bloc.phone.trim(),
         email: bloc.shopEmail.trim(),
-        password: bloc.shopPassword.trim(),
+        password: bloc.shopPassword.trim()
       );
-      ShopDBProvider.db.addShop(shop);
+      await addShop(shop);
+      UserFirebaseProvider.fb.updateUserMaxDateToFirebase(context, docId);
       // update Shop Branches
       final branchSnapshot =
           await ShopFirebaseProvider.fb.getBranchsFbByShopDocId(docId);
-      final List<ShopBranchModel> branchList =
-        branchSnapshot.documents.map((e) => ShopBranchModel.fromJson(e.data)).toList();
+      final List<ShopBranchModel> branchList = branchSnapshot.documents
+          .map((e) => ShopBranchModel.fromJson(e.data))
+          .toList();
       for (var i = 0; i < branchList.length; i++) {
         branchList[i].branchDocumentId = branchSnapshot.documents[i].documentID;
       }
       bloc.changeShopBranches(branchList);
       bloc.changeShopCurrBranch(branchList[0]);
-      ShopDBProvider.db.deleteShopBranch();
+      await deleteShopBranch();
       branchList.forEach((element) {
-        ShopDBProvider.db.addShopBranch(element);
+        addShopBranch(element);
       });
     }
   }

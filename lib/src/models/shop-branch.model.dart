@@ -22,17 +22,17 @@ class ShopBranchModel {
 
   factory ShopBranchModel.fromJson(Map<String, dynamic> json) =>
       ShopBranchModel(
-          shopDocumentId: json["shopDocumentId"],
-          branchDocumentId: json["branchDocumentId"],
-          branchName: json["branchName"],
-          branchAddress: json["branchAddress"],
-          branchMemo: json["branchMemo"]);
+          shopDocumentId: json["shopDocumentId"] ?? '',
+          branchDocumentId: json["branchDocumentId"] ?? '',
+          branchName: json["branchName"] ?? '',
+          branchAddress: json["branchAddress"] ?? '',
+          branchMemo: json["branchMemo"] ?? '');
 
   Map<String, dynamic> toJson() => {
-        "shopDocumentId": shopDocumentId,
-        "branchDocumentId": branchDocumentId,
-        "branchName": branchName,
-        "branchAddress": branchAddress,
-        "branchMemo": branchMemo
+        "shopDocumentId": shopDocumentId ?? '',
+        "branchDocumentId": branchDocumentId ?? '',
+        "branchName": branchName ?? '',
+        "branchAddress": branchAddress ?? '',
+        "branchMemo": branchMemo ?? ''
       };
 }

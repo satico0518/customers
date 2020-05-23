@@ -15,6 +15,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:customers/src/services/login.service.dart';
 
 class LoginPage extends StatefulWidget {
   static final String routeName = 'login';
@@ -24,6 +25,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final loginSrvc = LoginService();
   final _formKey = GlobalKey<FormState>();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   String _userName = '';
@@ -75,7 +77,7 @@ class _LoginPageState extends State<LoginPage> {
                 Column(
                   children: <Widget>[
                     SizedBox(
-                      height: MediaQuery.of(context).size.height * .2,
+                      height: MediaQuery.of(context).size.height * .15,
                     ),
                     Text(
                       'PaseYa',
@@ -153,19 +155,35 @@ class _LoginPageState extends State<LoginPage> {
                                 height: 40,
                               ),
                               ButtonTheme(
-                                child: RaisedButton(
-                                  elevation: 10,
-                                  padding: EdgeInsets.symmetric(
-                                      vertical: 15, horizontal: 100),
-                                  textColor: Colors.white,
-                                  color: Theme.of(context).secondaryHeaderColor,
-                                  child: Icon(
-                                    Icons.input,
-                                    size: 25,
+                                child: Container(
+                                  height: 80,
+                                  child: Column(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      RaisedButton(
+                                        elevation: 10,
+                                        padding: EdgeInsets.symmetric(
+                                            vertical: 15, horizontal: 100),
+                                        textColor: Colors.white,
+                                        color: Theme.of(context)
+                                            .secondaryHeaderColor,
+                                        child: Icon(
+                                          Icons.input,
+                                          size: 25,
+                                        ),
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(50)),
+                                        onPressed: () => _handleLogin(),
+                                      ),
+                                      Text(
+                                        'V. 1.0.0',
+                                        style: TextStyle(
+                                            color: Colors.white, fontSize: 12),
+                                      )
+                                    ],
                                   ),
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(50)),
-                                  onPressed: () => _handleLogin(),
                                 ),
                               )
                             ],
@@ -174,14 +192,17 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     SizedBox(
-                      height: 50,
+                      height: 30,
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
                         GestureDetector(
                           onTap: () {
-                            bloc.changeShopIsEditing(false);
+                            if (bloc.shopNit == null)
+                              bloc.changeShopIsEditing(false);
+                            else
+                              bloc.changeShopIsEditing(true);
                             Navigator.of(context).pushNamed(ShopForm.routeName);
                           },
                           child: Text(
@@ -193,7 +214,7 @@ class _LoginPageState extends State<LoginPage> {
                           onTap: () {
                             if (bloc.userDocumentId != null)
                               bloc.changeUserIsEditing(true);
-                              else
+                            else
                               bloc.changeUserIsEditing(false);
                             Navigator.of(context)
                                 .pushNamed(RegisterPage.routeName);
@@ -233,12 +254,16 @@ class _LoginPageState extends State<LoginPage> {
               bloc.changeShopIsLogged(false);
               _prefs.isUserLoggedIn = true;
               _prefs.isShopLoggedIn = false;
-              final userData = UserModel.fromJson(userSnapshot.documents[0].data);
+              final userData =
+                  UserModel.fromJson(userSnapshot.documents[0].data);
               bloc.changeUserIdType(userData.identificationType);
               bloc.changeUserIdentification(userData.identification);
               bloc.changeUserName(userData.name);
+              bloc.changeUserGenre(userData.genre);
+              bloc.changeUserBirthDate(userData.birthDate);
               bloc.changeUserLastName(userData.lastName);
               bloc.changeUserContact(userData.contact);
+              bloc.changeUserAddress(userData.address);
               bloc.changeUserEmail(userData.email);
               bloc.changeUserPassword(userData.password);
               bloc.changeUserDocumentId(userData.documentId);
@@ -248,26 +273,79 @@ class _LoginPageState extends State<LoginPage> {
               Navigator.of(context).pushNamedAndRemoveUntil(
                   HomePage.routeName, (route) => false);
             } else {
-              bloc.changeUserIsLogged(false);
-              bloc.changeShopIsLogged(true);
-              _prefs.isUserLoggedIn = false;
-              _prefs.isShopLoggedIn = true;
-              ShopDBProvider.db.saveShopIfNotExists(context, _userName.trim());
-              if (bloc.shopCurrBranch == null) {
-                final DocumentSnapshot shopDocId = await ShopFirebaseProvider.fb
-                    .getShopFirebase(userSnapshot.documents[0].documentID);
-                bloc.changeShopDocumentId(shopDocId.documentID);
-                final QuerySnapshot branches = await ShopFirebaseProvider.fb
-                    .getBranchsFbByShopDocId(shopDocId.documentID);
-                bloc.changeShopBranches(branches.documents
-                    .map((e) => ShopBranchModel.fromJson(e.data))
-                    .toList());
-                bloc.changeShopCurrBranch(bloc.shopBranches[0]);
-                bloc.shopCurrBranch.branchDocumentId = branches.documents[0].documentID;
-                _prefs.currentBranchDocId = branches.documents[0].documentID;
-              } else _prefs.currentBranchDocId = bloc.shopCurrBranch.branchDocumentId;
-              Navigator.of(context).pushNamedAndRemoveUntil(
-                  QRReaderPage.routeName, (route) => false);
+              if (!user.isEmailVerified) {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: Text("Inactivo!"),
+                      content: Text(
+                        "Debe revisar su correo electrónico para verificar el email suministrado en el registro.",
+                        textAlign: TextAlign.justify,
+                      ),
+                      actions: <Widget>[
+                        FlatButton(
+                            child: Text("Ok"),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                              return;
+                            }),
+                      ],
+                    );
+                  },
+                );
+                UserFirebaseProvider.fb.sendEmailForVerification();
+                return;
+              }
+              if (!loginSrvc.isStateOk(userSnapshot)) {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: Text("Inactivo!"),
+                      content: Text(
+                        "Ha caducado su periodo de prueba. Por favor contáctenos para poder ayudarle.",
+                        textAlign: TextAlign.justify,
+                      ),
+                      actions: <Widget>[
+                        FlatButton(
+                            child: Text("Ok"),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                              return;
+                            }),
+                      ],
+                    );
+                  },
+                );
+                bloc.changeShopIsEditing(true);
+              } else {
+                bloc.changeUserIsLogged(false);
+                bloc.changeShopIsLogged(true);
+                _prefs.isUserLoggedIn = false;
+                _prefs.isShopLoggedIn = true;
+                ShopDBProvider.db
+                    .saveShopIfNotExists(context, _userName.trim());
+                if (bloc.shopCurrBranch == null) {
+                  final DocumentSnapshot shopSnapshot =
+                      await ShopFirebaseProvider.fb.getShopFirebase(
+                          userSnapshot.documents[0].documentID);
+                  bloc.changeShopDocumentId(shopSnapshot.documentID);
+                  final QuerySnapshot branches = await ShopFirebaseProvider.fb
+                      .getBranchsFbByShopDocId(shopSnapshot.documentID);
+                  bloc.changeShopBranches(branches.documents
+                      .map((e) => ShopBranchModel.fromJson(e.data))
+                      .toList());
+                  bloc.changeShopCurrBranch(bloc.shopBranches[0]);
+                  bloc.shopCurrBranch.branchDocumentId =
+                      branches.documents[0].documentID;
+                  _prefs.currentBranchDocId = branches.documents[0].documentID;
+                } else
+                  _prefs.currentBranchDocId =
+                      bloc.shopCurrBranch.branchDocumentId;
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                    QRReaderPage.routeName, (route) => false);
+              }
             }
           } else {
             throw ErrorDescription('Usuario no registrado!');

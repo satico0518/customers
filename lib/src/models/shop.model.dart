@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:customers/src/models/shop-branch.model.dart';
 
 ShopModel shopModelFromJson(String str) => ShopModel.fromJson(json.decode(str));
@@ -36,30 +35,30 @@ class ShopModel {
     });
 
     factory ShopModel.fromJson(Map<String, dynamic> json) => ShopModel(
-        firebaseId: json["firebaseId"],
-        documentId: json["documentId"],
-        nit: json["nit"],
-        name: json["name"],
-        address: json["address"],
-        city: json["city"],
-        branchName: json["branchName"],
-        contactName: json["contactName"],
-        phone: json["phone"],
-        email: json["email"],
-        password: json["password"]
+        firebaseId: json["firebaseId"] ?? '',
+        documentId: json["documentId"] ?? '',
+        nit: json["nit"] ?? '',
+        name: json["name"] ?? '',
+        address: json["address"] ?? '',
+        city: json["city"] ?? '',
+        branchName: json["branchName"] ?? '',
+        contactName: json["contactName"] ?? '',
+        phone: json["phone"] ?? '',
+        email: json["email"] ?? '',
+        password: json["password" ?? ''],
     );
 
     Map<String, dynamic> toJson() => {
-        "firebaseId": firebaseId,
-        "documentId": documentId,
-        "nit": nit,
-        "name": name,
-        "address": address,
-        "city": city,
-        "branchName": branchName,
-        "contactName": contactName,
-        "phone": phone,
-        "email": email,
-        "password": password
+        "firebaseId": firebaseId ?? '',
+        "documentId": documentId ?? '',
+        "nit": nit ?? '',
+        "name": name ?? '',
+        "address": address ?? '',
+        "city": city ?? '',
+        "branchName": branchName ?? '',
+        "contactName": contactName ?? '',
+        "phone": phone ?? '',
+        "email": email ?? '',
+        "password": password ?? ''
     };
 }

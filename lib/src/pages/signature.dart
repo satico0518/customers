@@ -37,14 +37,13 @@ class _SignaturePageState extends State<SignaturePage> {
               ),
               _createVisitor(bloc),
               StreamBuilder<int>(
-                stream: bloc.isEmployeeStream,
-                builder: (context, snapshot) {
-                  return Visibility(
-                    visible: bloc.isEmployee == 1 ? true : false,
-                    child: _createEmployee(bloc),
-                  );
-                }
-              ),
+                  stream: bloc.isEmployeeStream,
+                  builder: (context, snapshot) {
+                    return Visibility(
+                      visible: bloc.isEmployee == 1 ? true : false,
+                      child: _createEmployee(bloc),
+                    );
+                  }),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
@@ -118,19 +117,19 @@ class _SignaturePageState extends State<SignaturePage> {
         Wrap(
           children: <Widget>[
             StreamBuilder<int>(
-              stream: bloc.visitorAcceptStream,
-              builder: (context, snapshot) {
-                return CheckboxListTile(
-                  activeColor: Theme.of(context).primaryColor,
-                  value: bloc.visitorAccept == 1 ? true : false,
-                  onChanged: (value) => bloc.changeVisitorAccept(value ? 1 : 0),
-                  title: Text(
-                    getQuestion(6),
-                    textAlign: TextAlign.justify,
-                  ),
-                );
-              }
-            ),
+                stream: bloc.visitorAcceptStream,
+                builder: (context, snapshot) {
+                  return CheckboxListTile(
+                    activeColor: Theme.of(context).primaryColor,
+                    value: bloc.visitorAccept == 1 ? true : false,
+                    onChanged: (value) =>
+                        bloc.changeVisitorAccept(value ? 1 : 0),
+                    title: Text(
+                      getQuestion(6),
+                      textAlign: TextAlign.justify,
+                    ),
+                  );
+                }),
           ],
         )
       ],
@@ -143,54 +142,54 @@ class _SignaturePageState extends State<SignaturePage> {
         Wrap(
           children: <Widget>[
             StreamBuilder<int>(
-              stream: bloc.employeeAcceptYourSymptomsStream,
-              builder: (context, snapshot) {
-                return CheckboxListTile(
-                  activeColor: Theme.of(context).primaryColor,
-                  value: bloc.employeeAcceptYourSymptoms == 1 ? true : false,
-                  onChanged: (value) =>
-                      bloc.changeEmployeeAcceptYourSymptoms(value ? 1 : 0),
-                  title: Text(
-                    getQuestion(7),
-                    textAlign: TextAlign.justify,
-                  ),
-                );
-              }
-            ),
+                stream: bloc.employeeAcceptYourSymptomsStream,
+                builder: (context, snapshot) {
+                  return CheckboxListTile(
+                    activeColor: Theme.of(context).primaryColor,
+                    value: bloc.employeeAcceptYourSymptoms == 1 ? true : false,
+                    onChanged: (value) =>
+                        bloc.changeEmployeeAcceptYourSymptoms(value ? 1 : 0),
+                    title: Text(
+                      getQuestion(7),
+                      textAlign: TextAlign.justify,
+                    ),
+                  );
+                }),
             SizedBox(
               height: 30,
             ),
             StreamBuilder<int>(
-              stream: bloc.employeeAcceptHomeSymptomsStream,
-              builder: (context, snapshot) {
-                return CheckboxListTile(
-                    activeColor: Theme.of(context).primaryColor,
-                    value: bloc.employeeAcceptHomeSymptoms == 1 ? true : false,
-                    onChanged: (value) =>
-                        bloc.changeEmployeeAcceptHomeSymptoms(value ? 1 : 0),
-                    title: Text(
-                      getQuestion(8),
-                      textAlign: TextAlign.justify,
-                    ));
-              }
-            ),
+                stream: bloc.employeeAcceptHomeSymptomsStream,
+                builder: (context, snapshot) {
+                  return CheckboxListTile(
+                      activeColor: Theme.of(context).primaryColor,
+                      value:
+                          bloc.employeeAcceptHomeSymptoms == 1 ? true : false,
+                      onChanged: (value) =>
+                          bloc.changeEmployeeAcceptHomeSymptoms(value ? 1 : 0),
+                      title: Text(
+                        getQuestion(8),
+                        textAlign: TextAlign.justify,
+                      ));
+                }),
             SizedBox(
               height: 30,
             ),
             StreamBuilder<int>(
-              stream: bloc.employeeAcceptVacationSymptomsStream,
-              builder: (context, snapshot) {
-                return CheckboxListTile(
-                    activeColor: Theme.of(context).primaryColor,
-                    value: bloc.employeeAcceptVacationSymptoms == 1 ? true : false,
-                    onChanged: (value) =>
-                        bloc.changeEmployeeAcceptVacationSymptoms(value ? 1 : 0),
-                    title: Text(
-                      getQuestion(9),
-                      textAlign: TextAlign.justify,
-                    ));
-              }
-            ),
+                stream: bloc.employeeAcceptVacationSymptomsStream,
+                builder: (context, snapshot) {
+                  return CheckboxListTile(
+                      activeColor: Theme.of(context).primaryColor,
+                      value: bloc.employeeAcceptVacationSymptoms == 1
+                          ? true
+                          : false,
+                      onChanged: (value) => bloc
+                          .changeEmployeeAcceptVacationSymptoms(value ? 1 : 0),
+                      title: Text(
+                        getQuestion(9),
+                        textAlign: TextAlign.justify,
+                      ));
+                }),
           ],
         )
       ],
@@ -198,21 +197,22 @@ class _SignaturePageState extends State<SignaturePage> {
   }
 
   onFormSubmit(UserBloc bloc) async {
-    final String errorMessage = validateForm(bloc);
-    if (errorMessage.isNotEmpty) {
-      Fluttertoast.showToast(
-        msg: errorMessage,
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.CENTER,
-        timeInSecForIosWeb: 1,
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-        fontSize: 16.0,
-      );
-      return;
-    }
-    bloc.changeLastDate(new DateTime.now().toString().split('.')[0]);
-    final form = new FormModel(
+    try {
+      final String errorMessage = validateForm(bloc);
+      if (errorMessage.isNotEmpty) {
+        Fluttertoast.showToast(
+          msg: errorMessage,
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0,
+        );
+        return;
+      }
+      bloc.changeLastDate(new DateTime.now().toString().split('.')[0]);
+      final form = new FormModel(
         yourSymptoms: bloc.yourSymptoms,
         yourHomeSymptoms: bloc.yourHomeSymptoms,
         haveBeenIsolated: bloc.haveBeenIsolated,
@@ -227,20 +227,28 @@ class _SignaturePageState extends State<SignaturePage> {
         employeeAcceptHomeSymptoms: bloc.employeeAcceptHomeSymptoms,
         employeeAcceptVacationSymptoms: bloc.employeeAcceptVacationSymptoms,
         lastDate: bloc.lastDate,
-        userDocumentId: bloc.userDocumentId);
-    final user = new UserModel(
+        userDocumentId: bloc.userDocumentId,
+      );
+      final user = new UserModel(
         name: bloc.userName,
         lastName: bloc.lastName,
         identificationType: bloc.identificationType,
         identification: bloc.identification,
         contact: bloc.contact,
-        email: bloc.email);
-    final formJson = form.toJson();
-    formJson.addAll(user.toJson());
-    await setQr(jsonEncode(formJson));
-    DBProvider.db.deleteForm();
-    DBProvider.db.addForm(form);
-    Navigator.pushNamed(context, QRCodePage.routeName);
+        email: bloc.email,
+        birthDate: bloc.userBirthDate ?? DateTime(DateTime.now().year - 10),
+      );      
+      final formJson = form.toJson();
+      formJson.addAll(user.toJson());
+      formJson['birthDate'] = formJson['birthDate'].toString();
+      formJson['maxDate'] = null;
+      await setQr(jsonEncode(formJson));
+      DBProvider.db.deleteForm();
+      DBProvider.db.addForm(form);
+      Navigator.pushNamed(context, QRCodePage.routeName);
+    } catch (e) {
+      print('Error guardo QR: ${e.toString()}');
+    }
   }
 
   String validateForm(UserBloc bloc) {

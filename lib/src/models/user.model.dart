@@ -75,6 +75,6 @@ class UserModel {
         "address": address ?? '',
         "email": email ?? '',
         "password": password ?? '',
-        "maxDate": maxDate ?? DateTime.now().add(Duration(days: 7))
+        "maxDate": maxDate ?? Timestamp.fromDate(DateTime.now().add(Duration(days: 7)))
       };
 }

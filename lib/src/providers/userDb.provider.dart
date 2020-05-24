@@ -48,7 +48,9 @@ class UserDBProvider {
     if (userJson.keys.any((element) => element == 'birthDate'))
       userJson['birthDate'] = userJson['birthDate'].toString();
     if (userJson.keys.any((element) => element == 'maxDate'))
-      userJson['maxDate'] = (userJson['maxDate'] as Timestamp).millisecondsSinceEpoch;
+      userJson['maxDate'] = userJson['maxDate'] is DateTime ?
+        Timestamp.fromDate(userJson['maxDate']).millisecondsSinceEpoch :
+        (userJson['maxDate'] as Timestamp).millisecondsSinceEpoch;
     return await db.insert('User', userJson);
   }
 

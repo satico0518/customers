@@ -49,22 +49,25 @@ class _RegisterPageState extends State<RegisterPage> {
             StreamBuilder<bool>(
                 stream: bloc.userIsEditingStream,
                 builder: (context, snapshot) {
-                  return Visibility(
-                    visible: snapshot.data,
-                    child: Row(
-                      children: <Widget>[
-                        Text('Actualizar Usuario'),
-                        IconButton(
-                          icon: Icon(Icons.save),
-                          onPressed: () {
-                            _aceptTerms = true;
-                            _saveUserData(
-                                _scaffoldKey.currentState.showSnackBar, bloc);
-                          },
-                        ),
-                      ],
-                    ),
-                  );
+                  if (snapshot.hasData) {
+                    return Visibility(
+                      visible: snapshot.data,
+                      child: Row(
+                        children: <Widget>[
+                          Text('Actualizar Usuario'),
+                          IconButton(
+                            icon: Icon(Icons.save),
+                            onPressed: () {
+                              _aceptTerms = true;
+                              _saveUserData(
+                                  _scaffoldKey.currentState.showSnackBar, bloc);
+                            },
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+                  return Text('');
                 })
           ],
         ),
@@ -80,25 +83,28 @@ class _RegisterPageState extends State<RegisterPage> {
                   StreamBuilder<bool>(
                       stream: bloc.userIsEditingStream,
                       builder: (context, snapshot) {
-                        return Visibility(
-                          visible: !snapshot.data,
-                          child: Column(
-                            children: [
-                              _createIdentificationTypeField(bloc),
-                              SizedBox(
-                                height: 10,
-                              ),
-                              _getIdentificationField(bloc),
-                              SizedBox(
-                                height: 10,
-                              ),
-                              _getEmailField(bloc),
-                              SizedBox(
-                                height: 10,
-                              ),
-                            ],
-                          ),
-                        );
+                        if (snapshot.hasData) {
+                          return Visibility(
+                            visible: !snapshot.data,
+                            child: Column(
+                              children: [
+                                _createIdentificationTypeField(bloc),
+                                SizedBox(
+                                  height: 10,
+                                ),
+                                _getIdentificationField(bloc),
+                                SizedBox(
+                                  height: 10,
+                                ),
+                                _getEmailField(bloc),
+                                SizedBox(
+                                  height: 10,
+                                ),
+                              ],
+                            ),
+                          );
+                        }
+                        return Text('');
                       }),
                   _getNameField(bloc),
                   SizedBox(
@@ -131,44 +137,47 @@ class _RegisterPageState extends State<RegisterPage> {
                   StreamBuilder<bool>(
                     stream: bloc.userIsEditingStream,
                     builder: (context, snapshot) {
-                      return Visibility(
-                        visible: !snapshot.data,
-                        child: Column(
-                          children: [
-                            _getTermsAndConditions(),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            ButtonTheme(
-                              minWidth: double.infinity,
-                              buttonColor:
-                                  Theme.of(context).secondaryHeaderColor,
-                              child: RaisedButton(
-                                padding: EdgeInsets.symmetric(
-                                    vertical: 20, horizontal: 20),
-                                onPressed: () => _saveUserData(
-                                  _scaffoldKey.currentState.showSnackBar,
-                                  bloc,
-                                ),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceAround,
-                                  children: <Widget>[
-                                    Text(
-                                      'Registrarme',
-                                      style: TextStyle(
-                                          color: Colors.white, fontSize: 20),
-                                    )
-                                  ],
-                                ),
-                                shape: RoundedRectangleBorder(
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(5))),
+                      if (snapshot.hasData) {
+                        return Visibility(
+                          visible: !snapshot.data,
+                          child: Column(
+                            children: [
+                              _getTermsAndConditions(),
+                              SizedBox(
+                                height: 10,
                               ),
-                            ),
-                          ],
-                        ),
-                      );
+                              ButtonTheme(
+                                minWidth: double.infinity,
+                                buttonColor:
+                                    Theme.of(context).secondaryHeaderColor,
+                                child: RaisedButton(
+                                  padding: EdgeInsets.symmetric(
+                                      vertical: 20, horizontal: 20),
+                                  onPressed: () => _saveUserData(
+                                    _scaffoldKey.currentState.showSnackBar,
+                                    bloc,
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceAround,
+                                    children: <Widget>[
+                                      Text(
+                                        'Registrarme',
+                                        style: TextStyle(
+                                            color: Colors.white, fontSize: 20),
+                                      )
+                                    ],
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius:
+                                          BorderRadius.all(Radius.circular(5))),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      } else
+                        return Text('');
                     },
                   ),
                 ],

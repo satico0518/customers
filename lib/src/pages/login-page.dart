@@ -332,7 +332,7 @@ class _LoginPageState extends State<LoginPage> {
                           userSnapshot.documents[0].documentID);
                   bloc.changeShopDocumentId(shopSnapshot.documentID);
                   final QuerySnapshot branches = await ShopFirebaseProvider.fb
-                      .getBranchsFbByShopDocId(shopSnapshot.documentID);
+                      .getBranchesFbByShopDocId(shopSnapshot.documentID);
                   bloc.changeShopBranches(branches.documents
                       .map((e) => ShopBranchModel.fromJson(e.data))
                       .toList());

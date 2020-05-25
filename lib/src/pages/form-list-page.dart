@@ -60,7 +60,7 @@ class _FormListState extends State<FormList> {
                     .collection('Forms')
                     .where('shopBranchDocumentId',
                         isEqualTo: bloc.shopCurrBranch.branchDocumentId)
-                    // .orderBy('insertDate', descending: true)
+                    .orderBy('insertDate', descending: true)
                     .snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {

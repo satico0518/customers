@@ -32,6 +32,7 @@ class ShopDBProvider {
       ' branchDocumentId TEXT,'
       ' branchName TEXT,'
       ' branchAddress TEXT,'
+      ' capacity INTEGER'
       ' branchMemo TEXT)';
 
   ShopDBProvider._();
@@ -161,7 +162,7 @@ class ShopDBProvider {
       UserFirebaseProvider.fb.updateUserMaxDateToFirebase(context, docId);
       // update Shop Branches
       final branchSnapshot =
-          await ShopFirebaseProvider.fb.getBranchsFbByShopDocId(docId);
+          await ShopFirebaseProvider.fb.getBranchesFbByShopDocId(docId);
       final List<ShopBranchModel> branchList = branchSnapshot.documents
           .map((e) => ShopBranchModel.fromJson(e.data))
           .toList();

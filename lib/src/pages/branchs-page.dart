@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:customers/src/bloc/provider.dart';
 import 'package:customers/src/bloc/user.bloc.dart';
 import 'package:customers/src/models/shop-branch.model.dart';
@@ -106,8 +107,12 @@ class _BranchPageState extends State<BranchPage> {
                     color: Colors.grey[200],
                     width: double.infinity,
                     child: Expanded(
-                      child: FutureBuilder<List<ShopBranchModel>>(
-                        future: ShopDBProvider.db.getShopBranchs(),
+                      child: StreamBuilder<QuerySnapshot>(
+                        stream: Firestore.instance
+                            .collection('Branches')
+                            .where('shopDocumentId',
+                                isEqualTo: bloc.shopDocumentId)
+                            .snapshots(),
                         builder: (context, snapshot) {
                           if (snapshot.hasData) {
                             return SingleChildScrollView(
@@ -120,11 +125,12 @@ class _BranchPageState extends State<BranchPage> {
                                   columns: [
                                     DataColumn(label: Text('Nombre')),
                                     DataColumn(label: Text('Dirección')),
+                                    DataColumn(label: Text('Aforo')),
                                     DataColumn(label: Text('')),
                                   ],
-                                  rows: snapshot.data
+                                  rows: snapshot.data.documents
                                       .map<DataRow>(
-                                        (ShopBranchModel item) => DataRow(
+                                        (DocumentSnapshot item) => DataRow(
                                           cells: <DataCell>[
                                             DataCell(
                                               Row(
@@ -137,11 +143,15 @@ class _BranchPageState extends State<BranchPage> {
                                                           PreferenceAuth();
                                                       _prefs.initPrefs();
                                                       bloc.changeShopCurrBranch(
-                                                          item);
+                                                          ShopBranchModel
+                                                              .fromJson(
+                                                                  item.data));
                                                       bloc.changeShopBranchName(
-                                                          item.branchName);
+                                                          item.data[
+                                                              'branchName']);
                                                       _prefs.currentBranchDocId =
-                                                          item.branchDocumentId;
+                                                          item.data[
+                                                              'branchDocumentId'];
                                                     },
                                                     child: Icon(
                                                       Icons.adjust,
@@ -153,23 +163,35 @@ class _BranchPageState extends State<BranchPage> {
                                                     width: 10,
                                                   ),
                                                   Text(capitalizeWord(
-                                                      item.branchName ?? ''))
+                                                      item.data['branchName'] ??
+                                                          ''))
                                                 ],
                                               ),
                                             ),
-                                            DataCell(
-                                                Text(item.branchAddress ?? '')),
+                                            DataCell(Text(
+                                                item.data['branchAddress'] ??
+                                                    '')),
+                                            DataCell(Text(
+                                                item.data['capacity'] != null
+                                                    ? (item.data['capacity']
+                                                            .toString() ??
+                                                        '0')
+                                                    : '0')),
                                             DataCell(
                                               GestureDetector(
                                                 onTap: () {
                                                   setState(() {
                                                     _branchName =
-                                                        capitalizeWord(
-                                                            item.branchName ??
-                                                                '');
-                                                    _branchAddress =
-                                                        item.branchAddress;
-                                                    _currentBranch = item;
+                                                        capitalizeWord(item
+                                                                    .data[
+                                                                'branchName'] ??
+                                                            '');
+                                                    _branchAddress = item
+                                                        .data['branchAddress'];
+                                                    _currentBranch =
+                                                        ShopBranchModel
+                                                            .fromJson(
+                                                                item.data);
                                                     _addBranch(
                                                         context, bloc, true);
                                                   });
@@ -321,17 +343,17 @@ class _BranchPageState extends State<BranchPage> {
 
   void _saveNewBranch(UserBloc bloc) async {
     final branch = ShopBranchModel(
-      branchName: _branchName,
-      branchAddress: _branchAddress,
-      shopDocumentId: bloc.shopDocumentId,
-    );
+        branchName: _branchName,
+        branchAddress: _branchAddress,
+        shopDocumentId: bloc.shopDocumentId,
+        capacity: 0);
     branch.branchDocumentId =
         (await ShopFirebaseProvider.fb.addShopBranchToFirebase(branch))
             .documentID;
     await ShopFirebaseProvider.fb.updateShopBranchFirebase(branch);
     await ShopDBProvider.db.addShopBranch(branch);
     final branchesFb = await ShopFirebaseProvider.fb
-        .getBranchsFbByShopDocId(bloc.shopDocumentId);
+        .getBranchesFbByShopDocId(bloc.shopDocumentId);
     final List<ShopBranchModel> branches = branchesFb.documents
         .map((e) => ShopBranchModel.fromJson(e.data))
         .toList();
@@ -342,7 +364,7 @@ class _BranchPageState extends State<BranchPage> {
   void _updateBranch(UserBloc bloc) async {
     _currentBranch.branchName = _branchName;
     _currentBranch.branchAddress = _branchAddress;
-    await ShopDBProvider.db.updateShopBranch(_currentBranch);
+    // await ShopDBProvider.db.updateShopBranch(_currentBranch);
     await ShopFirebaseProvider.fb.updateShopBranchFirebase(_currentBranch);
     bloc.changeShopBranches(await ShopDBProvider.db.getShopBranchs());
     if (bloc.shopCurrBranch.branchDocumentId == _currentBranch.branchDocumentId)

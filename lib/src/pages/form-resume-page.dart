@@ -8,6 +8,8 @@ import 'package:customers/src/models/form.model.dart';
 import 'package:customers/src/models/user.model.dart';
 import 'package:customers/src/pages/qr-reader-page.dart';
 import 'package:customers/src/providers/form-questions.provider.dart';
+import 'package:customers/src/providers/shopDbProvider.dart';
+import 'package:customers/src/providers/shopFirebase.provider.dart';
 import 'package:customers/src/providers/userFirebase.provider.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -309,6 +311,7 @@ class _FormResumePageState extends State<FormResumePage> {
       formJson["temperature"] = _temperature;
       formJson["insertDate"] = DateTime.now();
       formJson["gettingIn"] = isGettingIn;
+      _updateCapacity(bloc, isGettingIn);
       final user = UserModel(
           identificationType: formDataMap['identificationType'],
           identification: formDataMap['identification'],
@@ -340,5 +343,15 @@ class _FormResumePageState extends State<FormResumePage> {
         fontSize: 16.0,
       );
     }
+  }
+
+  void _updateCapacity(UserBloc bloc, bool isGettingIn) async {
+      var currCapacity = await ShopFirebaseProvider.fb.getBranchCapacity(bloc.shopCurrBranch.branchDocumentId);
+      isGettingIn ? ++currCapacity : --currCapacity;
+      var currentBranch = bloc.shopCurrBranch;
+      currentBranch.capacity = currCapacity;
+      bloc.changeShopCurrBranch(currentBranch);      
+      ShopFirebaseProvider.fb.updateBranchCapacity(isGettingIn, currentBranch);
+      // ShopDBProvider.db.updateShopBranch(currBranch);
   }
 }

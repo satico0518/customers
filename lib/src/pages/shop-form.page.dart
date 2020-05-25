@@ -502,7 +502,9 @@ class _ShopFormState extends State<ShopForm> {
               shopDocumentId: bloc.shopDocumentId,
               branchName: bloc.shopBranchName,
               branchAddress: bloc.shopAddress,
-              branchMemo: 'Sucursal Inicial');
+              branchMemo: 'Sucursal Inicial',
+              capacity: 0,
+          );
           final branchRef =
               await ShopFirebaseProvider.fb.addShopBranchToFirebase(branch);
           branch.branchDocumentId = branchRef.documentID;

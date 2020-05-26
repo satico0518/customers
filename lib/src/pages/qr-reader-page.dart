@@ -33,7 +33,7 @@ class _QRReaderPageState extends State<QRReaderPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Lectura de Codigo QR'),
+        title: Text('Lectura QR'),
         actions: [
           Row(
             children: [

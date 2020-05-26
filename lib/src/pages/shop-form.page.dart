@@ -45,7 +45,7 @@ class _ShopFormState extends State<ShopForm> {
                       visible: snapshot.data,
                       child: Row(
                         children: <Widget>[
-                          Text('Actualizar Comercio'),
+                          Text('Guardar'),
                           IconButton(
                             icon: Icon(Icons.save),
                             onPressed: () {

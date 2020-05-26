@@ -54,7 +54,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       visible: snapshot.data,
                       child: Row(
                         children: <Widget>[
-                          Text('Actualizar Usuario'),
+                          Text('Guardar'),
                           IconButton(
                             icon: Icon(Icons.save),
                             onPressed: () {

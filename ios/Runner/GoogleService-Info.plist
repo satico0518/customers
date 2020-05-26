@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>471936252808-sm3g1t40n0v7f3mv44tdqhimdrs8j2va.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.471936252808-sm3g1t40n0v7f3mv44tdqhimdrs8j2va</string>
+	<key>API_KEY</key>
+	<string>AIzaSyAaj_IyveQLdQhHBA_h0lt2t0hsj0qmX0o</string>
+	<key>GCM_SENDER_ID</key>
+	<string>471936252808</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.cutomers2020.App.customers2020</string>
+	<key>PROJECT_ID</key>
+	<string>customers-7debf</string>
+	<key>STORAGE_BUCKET</key>
+	<string>customers-7debf.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:471936252808:ios:c4ce4081728b876159d83d</string>
+	<key>DATABASE_URL</key>
+	<string>https://customers-7debf.firebaseio.com</string>
+</dict>
+</plist>

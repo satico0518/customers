@@ -497,7 +497,7 @@ class _ShopFormState extends State<ShopForm> {
         UserFirebaseProvider.fb.updateUserToFirebase(shop, bloc.shopDocumentId);
         await ShopDBProvider.db.deleteShop();
         await ShopDBProvider.db.addShop(shop);
-        if (bloc.shopBranches == null || bloc.shopBranches.length == 0) {
+        if (bloc.shopCurrBranch == null) {
           final branch = ShopBranchModel(
               shopDocumentId: bloc.shopDocumentId,
               branchName: bloc.shopBranchName,
@@ -509,9 +509,7 @@ class _ShopFormState extends State<ShopForm> {
               await ShopFirebaseProvider.fb.addShopBranchToFirebase(branch);
           branch.branchDocumentId = branchRef.documentID;
           await ShopFirebaseProvider.fb.updateShopBranchFirebase(branch);
-          ShopDBProvider.db.addShopBranch(branch);
           bloc.changeShopCurrBranch(branch);
-          bloc.changeShopBranches([branch]);
         }
         Fluttertoast.showToast(
           msg: 'Registro exitoso!',

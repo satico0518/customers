@@ -8,7 +8,6 @@ import 'package:customers/src/models/form.model.dart';
 import 'package:customers/src/models/user.model.dart';
 import 'package:customers/src/pages/qr-reader-page.dart';
 import 'package:customers/src/providers/form-questions.provider.dart';
-import 'package:customers/src/providers/shopDbProvider.dart';
 import 'package:customers/src/providers/shopFirebase.provider.dart';
 import 'package:customers/src/providers/userFirebase.provider.dart';
 import 'package:flutter/material.dart';

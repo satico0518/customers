@@ -60,11 +60,12 @@ class _FormListState extends State<FormList> {
                     .collection('Forms')
                     .where('shopBranchDocumentId',
                         isEqualTo: bloc.shopCurrBranch.branchDocumentId)
-                    .orderBy('insertDate', descending: true)
                     .snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     _listData = snapshot.data.documents;
+                    _listData.sort((item1, item2) =>
+                        item2["insertDate"].compareTo(item1["insertDate"]));
                     return Container(
                       height: MediaQuery.of(context).size.height * .75,
                       color: Colors.grey[200],

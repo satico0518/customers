@@ -31,7 +31,8 @@ class ShopBranchModel {
           branchAddress: json["branchAddress"] ?? '',
           branchMemo: json["branchMemo"] ?? '',
           capacity: json["capacity"] != null ?
-            (int.tryParse(json["capacity"]) != null ? int.tryParse(json["capacity"]) : 0) : 0
+            (int.tryParse(json["capacity"].toString()) != null ?
+            int.tryParse(json["capacity"].toString()) : 0) : 0
           );
 
   Map<String, dynamic> toJson() => {

@@ -36,7 +36,6 @@ class UserBloc {
   final _shopEmailController = BehaviorSubject<String>();
   final _shopPasswordController = BehaviorSubject<String>();
   final _shopCurrentBranchDocIdController = BehaviorSubject<ShopBranchModel>();
-  final _shopBranchesController = BehaviorSubject<List<ShopBranchModel>>();
   final _shopIsEditingController = BehaviorSubject<bool>();
 
   final _yourSymptomsController = BehaviorSubject<int>();
@@ -86,7 +85,6 @@ class UserBloc {
   Stream<String> get shopEmailStream => _shopEmailController.stream;
   Stream<String> get shopPasswordStream => _shopPasswordController.stream;
   Stream<ShopBranchModel> get shopCurrBranchStream => _shopCurrentBranchDocIdController.stream;
-  Stream<List<ShopBranchModel>> get shopBranchesStream => _shopBranchesController.stream;
   Stream<bool> get shopIsEditingStream => _shopIsEditingController.stream;
 
   Stream<int> get yourSymptomsStream => _yourSymptomsController.stream;
@@ -136,7 +134,6 @@ class UserBloc {
   Function(String) get changeShopEmail => _shopEmailController.sink.add;
   Function(String) get changeShopPassword => _shopPasswordController.sink.add;
   Function(ShopBranchModel) get changeShopCurrBranch => _shopCurrentBranchDocIdController.sink.add;
-  Function(List<ShopBranchModel>) get changeShopBranches => _shopBranchesController.sink.add;
   Function(bool) get changeShopIsEditing => _shopIsEditingController.sink.add;
 
   Function(int) get changeYourSymptoms => _yourSymptomsController.sink.add;
@@ -186,7 +183,6 @@ class UserBloc {
   String get shopEmail => _shopEmailController.value;
   String get shopPassword => _shopPasswordController.value;
   ShopBranchModel get shopCurrBranch => _shopCurrentBranchDocIdController.value;
-  List<ShopBranchModel> get shopBranches => _shopBranchesController.value;
   bool get shopIsEditing => _shopIsEditingController.value;
 
   int get yourSymptoms => _yourSymptomsController.value ?? 0;
@@ -239,8 +235,6 @@ class UserBloc {
         changeShopEmail(value.email ?? '');
         changeShopPassword(value.password ?? '');
         changeShopCurrBranch(value.currentBranch);
-        ShopDBProvider.db.getShopBranchs().then((value) => changeShopBranches(value))
-        ;
       }
     });    
     DBProvider.db.getForm().then((value) {
@@ -294,7 +288,6 @@ class UserBloc {
     _shopEmailController?.close();
     _shopPasswordController?.close();
     _shopPhoneController?.close();
-    _shopBranchesController?.close();
     _shopCurrentBranchDocIdController?.close();
     _shopIsEditingController?.close();
     _yourSymptomsController?.close();

@@ -27,13 +27,6 @@ class ShopDBProvider {
       ' phone TEXT,'
       ' email TEXT,'
       ' password TEXT)';
-  final _createBranchs = 'CREATE TABLE IF NOT EXISTS ShopBranch ('
-      ' shopDocumentId TEXT,'
-      ' branchDocumentId TEXT,'
-      ' branchName TEXT,'
-      ' branchAddress TEXT,'
-      ' capacity INTEGER'
-      ' branchMemo TEXT)';
 
   ShopDBProvider._();
 
@@ -49,7 +42,6 @@ class ShopDBProvider {
     return await openDatabase(path, version: 1, onOpen: (db) {},
         onCreate: (Database db, int version) async {
       await db.execute(_createShop);
-      await db.execute(_createBranchs);
     });
   }
 
@@ -57,13 +49,6 @@ class ShopDBProvider {
     final db = await database;
     await db.execute(_createShop);
     final res = await db.insert('Shop', shop.toJson());
-    return res;
-  }
-
-  Future<int> addShopBranch(ShopBranchModel shopBranch) async {
-    final db = await database;
-    await db.execute(_createBranchs);
-    final res = await db.insert('ShopBranch', shopBranch.toJson());
     return res;
   }
 
@@ -76,28 +61,6 @@ class ShopDBProvider {
     return shopList.length > 0 ? shopList.first : null;
   }
 
-  Future<List<ShopBranchModel>> getShopBranchs() async {
-    final db = await database;
-    await db.execute(_createBranchs);
-    final branches = await db.query('ShopBranch');
-    List<ShopBranchModel> shopBranchList = branches.isNotEmpty
-        ? branches.map((x) => ShopBranchModel.fromJson(x)).toList()
-        : [];
-    return shopBranchList.length > 0 ? shopBranchList : null;
-  }
-
-  Future<ShopBranchModel> getShopBranchByDocId(String docId) async {
-    final db = await database;
-    await db.execute(_createBranchs);
-    final branches = await db.query('ShopBranch',
-        where: 'branchDocumentId == ?', whereArgs: [docId]);
-    final branch = branches.length > 0 ? branches.first : {};
-
-    ShopBranchModel shopBranch =
-        branch.length > 0 ? ShopBranchModel.fromJson(branch) : null;
-    return shopBranch;
-  }
-
   // UPDATE
   updateShop(ShopModel shop) async {
     final db = await database;
@@ -106,23 +69,9 @@ class ShopDBProvider {
     return res;
   }
 
-  updateShopBranch(ShopBranchModel shopBranch) async {
-    final db = await database;
-    await db.execute(_createBranchs);
-    final res = await db.update('ShopBranch', shopBranch.toJson(),
-        where: 'branchDocumentId == ?',
-        whereArgs: [shopBranch.branchDocumentId]);
-    return res;
-  }
-
   Future<void> deleteShop() async {
     final db = await database;
     await db.rawQuery('DROP TABLE IF EXISTS Shop');
-  }
-
-  Future<void> deleteShopBranch() async {
-    final db = await database;
-    await db.rawQuery('DROP TABLE IF EXISTS ShopBranch');
   }
 
   saveShopIfNotExists(BuildContext context, String email) async {
@@ -169,12 +118,7 @@ class ShopDBProvider {
       for (var i = 0; i < branchList.length; i++) {
         branchList[i].branchDocumentId = branchSnapshot.documents[i].documentID;
       }
-      bloc.changeShopBranches(branchList);
       bloc.changeShopCurrBranch(branchList[0]);
-      await deleteShopBranch();
-      branchList.forEach((element) {
-        addShopBranch(element);
-      });
     }
   }
 }

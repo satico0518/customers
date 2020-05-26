@@ -5,7 +5,6 @@ import 'package:customers/src/bloc/provider.dart';
 import 'package:customers/src/bloc/user.bloc.dart';
 import 'package:customers/src/models/shop-branch.model.dart';
 import 'package:customers/src/providers/auth.shared-preferences.dart';
-import 'package:customers/src/providers/shopDbProvider.dart';
 import 'package:customers/src/providers/shopFirebase.provider.dart';
 import 'package:customers/src/utils/utils.dart';
 import 'package:flutter/material.dart';
@@ -80,27 +79,7 @@ class _BranchPageState extends State<BranchPage> {
                 ],
               ),
             ),
-            StreamBuilder<List<ShopBranchModel>>(
-              stream: bloc.shopBranchesStream,
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return Container(
-                    width: double.infinity,
-                    height: MediaQuery.of(context).size.height * .8,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        CircularProgressIndicator(),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        Text('cargando sucursales...'),
-                      ],
-                    ),
-                  );
-                }
-                return SingleChildScrollView(
+            SingleChildScrollView(
                   scrollDirection: Axis.vertical,
                   child: Container(
                     height: MediaQuery.of(context).size.height * .6,
@@ -147,11 +126,9 @@ class _BranchPageState extends State<BranchPage> {
                                                               .fromJson(
                                                                   item.data));
                                                       bloc.changeShopBranchName(
-                                                          item.data[
-                                                              'branchName']);
+                                                          item.data['branchName']);
                                                       _prefs.currentBranchDocId =
-                                                          item.data[
-                                                              'branchDocumentId'];
+                                                          item.data['branchDocumentId'];
                                                     },
                                                     child: Icon(
                                                       Icons.adjust,
@@ -236,9 +213,7 @@ class _BranchPageState extends State<BranchPage> {
                       ),
                     ),
                   ),
-                );
-              },
-            ),
+                ),
           ],
         ),
       ),
@@ -351,13 +326,6 @@ class _BranchPageState extends State<BranchPage> {
         (await ShopFirebaseProvider.fb.addShopBranchToFirebase(branch))
             .documentID;
     await ShopFirebaseProvider.fb.updateShopBranchFirebase(branch);
-    await ShopDBProvider.db.addShopBranch(branch);
-    final branchesFb = await ShopFirebaseProvider.fb
-        .getBranchesFbByShopDocId(bloc.shopDocumentId);
-    final List<ShopBranchModel> branches = branchesFb.documents
-        .map((e) => ShopBranchModel.fromJson(e.data))
-        .toList();
-    bloc.changeShopBranches(branches);
     Navigator.of(context).pop();
   }
 
@@ -366,7 +334,6 @@ class _BranchPageState extends State<BranchPage> {
     _currentBranch.branchAddress = _branchAddress;
     // await ShopDBProvider.db.updateShopBranch(_currentBranch);
     await ShopFirebaseProvider.fb.updateShopBranchFirebase(_currentBranch);
-    bloc.changeShopBranches(await ShopDBProvider.db.getShopBranchs());
     if (bloc.shopCurrBranch.branchDocumentId == _currentBranch.branchDocumentId)
       bloc.changeShopCurrBranch(_currentBranch);
     Navigator.of(context).pop();

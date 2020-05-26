@@ -10,7 +10,6 @@ import 'package:customers/src/pages/form-resume-page.dart';
 import 'package:customers/src/pages/login-page.dart';
 import 'package:customers/src/pages/shop-form.page.dart';
 import 'package:customers/src/providers/auth.shared-preferences.dart';
-import 'package:customers/src/providers/shopDbProvider.dart';
 import 'package:customers/src/services/login.service.dart';
 import 'package:customers/src/utils/utils.dart';
 import 'package:flutter/material.dart';
@@ -31,9 +30,6 @@ class _QRReaderPageState extends State<QRReaderPage> {
     final _prefs = PreferenceAuth();
     _prefs.initPrefs();
     final bloc = Provider.of(context);
-    ShopDBProvider.db
-        .getShopBranchByDocId(_prefs.currentBranchDocId)
-        .then((value) => bloc.changeShopCurrBranch(value));
 
     return Scaffold(
       appBar: AppBar(

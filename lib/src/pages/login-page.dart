@@ -31,6 +31,7 @@ class _LoginPageState extends State<LoginPage> {
   String _userName = '';
   String _password = '';
   bool _showPass = false;
+  bool _isLoging = false;
 
   @override
   Widget build(BuildContext context) {
@@ -156,7 +157,7 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                               ButtonTheme(
                                 child: Container(
-                                  height: 80,
+                                  height: 90,
                                   child: Column(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
@@ -168,14 +169,17 @@ class _LoginPageState extends State<LoginPage> {
                                         textColor: Colors.white,
                                         color: Theme.of(context)
                                             .secondaryHeaderColor,
-                                        child: Icon(
-                                          Icons.input,
-                                          size: 25,
-                                        ),
+                                        child: _isLoging
+                                            ? CircularProgressIndicator(
+                                                valueColor:
+                                                    AlwaysStoppedAnimation<
+                                                        Color>(Colors.white))
+                                            : Icon(Icons.input, size: 25),
                                         shape: RoundedRectangleBorder(
                                             borderRadius:
                                                 BorderRadius.circular(50)),
-                                        onPressed: () => _handleLogin(),
+                                        onPressed: () =>
+                                            _isLoging ? null : _handleLogin(),
                                       ),
                                       Text(
                                         'V. 1.0.0',
@@ -244,6 +248,7 @@ class _LoginPageState extends State<LoginPage> {
         final FirebaseUser user = await UserFirebaseProvider.fb
             .loginUserToFirebase(_userName.trim(), _password.trim());
         if (user.uid.isNotEmpty) {
+          setState(() => _isLoging = true);
           final QuerySnapshot userSnapshot = await UserFirebaseProvider.fb
               .getUserFirebaseByEmail(_userName.trim());
           if (userSnapshot.documents.length > 0) {
@@ -270,6 +275,7 @@ class _LoginPageState extends State<LoginPage> {
               bloc.changeUserFirebaseId(userData.firebaseId);
               UserDBProvider.db.deleteUser();
               UserDBProvider.db.addUser(userData);
+              setState(() => _isLoging = false);
               Navigator.of(context).pushNamedAndRemoveUntil(
                   HomePage.routeName, (route) => false);
             } else {
@@ -295,6 +301,7 @@ class _LoginPageState extends State<LoginPage> {
                   },
                 );
                 UserFirebaseProvider.fb.sendEmailForVerification();
+                setState(() => _isLoging = false);
                 return;
               }
               if (!loginSrvc.isStateOk(userSnapshot)) {
@@ -311,6 +318,7 @@ class _LoginPageState extends State<LoginPage> {
                         FlatButton(
                             child: Text("Ok"),
                             onPressed: () {
+                              setState(() => _isLoging = false);
                               Navigator.of(context).pop();
                               return;
                             }),
@@ -333,15 +341,18 @@ class _LoginPageState extends State<LoginPage> {
                   bloc.changeShopDocumentId(shopSnapshot.documentID);
                   final QuerySnapshot branches = await ShopFirebaseProvider.fb
                       .getBranchesFbByShopDocId(shopSnapshot.documentID);
-                  bloc.changeShopCurrBranch(ShopBranchModel.fromJson(branches.documents.first.data));
+                  bloc.changeShopCurrBranch(
+                      ShopBranchModel.fromJson(branches.documents.first.data));
                   bloc.shopCurrBranch.branchDocumentId =
                       branches.documents[0].documentID;
-                  _prefs.currentBranchDocId = branches.documents[0].documentID;
+                  _prefs.currentBranch = ShopBranchModel.fromJson(branches.documents[0].data);
                 } else
-                  _prefs.currentBranchDocId =
-                      bloc.shopCurrBranch.branchDocumentId;
-                Navigator.of(context).pushNamedAndRemoveUntil(
-                    QRReaderPage.routeName, (route) => false);
+                  _prefs.currentBranch = bloc.shopCurrBranch;
+                  setState(() {
+                    _isLoging = false;
+                  });
+                  Navigator.of(context).pushNamedAndRemoveUntil(
+                    QRReaderPage.routeName, (Route<dynamic>route) => false);
               }
             }
           } else {
@@ -358,6 +369,7 @@ class _LoginPageState extends State<LoginPage> {
           textColor: Colors.white,
           fontSize: 18.0,
         );
+        setState(() => _isLoging = false);
       }
     }
   }

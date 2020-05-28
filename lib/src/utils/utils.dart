@@ -1,12 +1,12 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:customers/src/bloc/user.bloc.dart';
 import 'package:customers/src/pages/home-page.dart';
 import 'package:customers/src/pages/login-page.dart';
 import 'package:customers/src/pages/qr-reader-page.dart';
 import 'package:customers/src/providers/auth.shared-preferences.dart';
 import 'package:customers/src/providers/form-questions.provider.dart';
-import 'package:customers/src/providers/shopDbProvider.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -52,8 +52,7 @@ String returnIdTypeCode(String text) {
   return code;
 }
 
-Future<String> sendFormListEmail(String fileUrl) async {
-  final shop = await ShopDBProvider.db.getShop();
+Future<String> sendFormListEmail(String fileUrl, UserBloc bloc) async {
   String platformResponse;
   final Email email = Email(
     body: '''
@@ -63,7 +62,7 @@ Future<String> sendFormListEmail(String fileUrl) async {
         <p>Recuerde que el archivo estará disponible por 2 días</p>
     ''',
     subject: 'PaseYa - Link Descarga de Archivo CSV',
-    recipients: [shop.email],
+    recipients: [bloc.shopEmail],
     isHTML: true,
   );
 
@@ -76,8 +75,7 @@ Future<String> sendFormListEmail(String fileUrl) async {
   return platformResponse;
 }
 
-Future<String> sendSingleFormEmail(Map<String, dynamic> form) async {
-  final shop = await ShopDBProvider.db.getShop();
+Future<String> sendSingleFormEmail(Map<String, dynamic> form, UserBloc bloc) async {
   String platformResponse;
   String employeeSection = '''
     <div>
@@ -137,7 +135,7 @@ Future<String> sendSingleFormEmail(Map<String, dynamic> form) async {
       ${form['isEmployee'] == 1 ? employeeSection : ''}
     ''',
     subject: 'PaseYa - Encuesta Individual',
-    recipients: [shop.email],
+    recipients: [bloc.shopEmail],
     isHTML: true,
   );
 
@@ -186,7 +184,8 @@ String getStringDateFromtimestamp(Timestamp time) {
 
 String getFormatedDate(DateTime dateTime) {
   if (dateTime == null) return '';
-  return '${dateTime.day}/${dateTime.month}/${dateTime.year}';
+  final month = dateTime.month < 10 ? '0' + dateTime.month.toString() : dateTime.month;
+  return '${dateTime.day}/$month/${dateTime.year}';
 }
 
 Future<void> getInitialRoute() async {

@@ -345,7 +345,7 @@ class _FormResumePageState extends State<FormResumePage> {
   }
 
   void _updateCapacity(UserBloc bloc, bool isGettingIn) async {
-      var currCapacity = await ShopFirebaseProvider.fb.getBranchCapacity(bloc.shopCurrBranch.branchDocumentId);
+      var currCapacity = (await ShopFirebaseProvider.fb.getBranchCapacity(bloc.shopCurrBranch.branchDocumentId)) ?? 0;
       isGettingIn ? ++currCapacity : --currCapacity;
       var currentBranch = bloc.shopCurrBranch;
       currentBranch.capacity = currCapacity;

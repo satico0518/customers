@@ -76,7 +76,7 @@ class ShopDBProvider {
 
   saveShopIfNotExists(BuildContext context, String email) async {
     final bloc = Provider.of(context);
-    if (bloc.shopEmail == null || bloc.shopEmail.isEmpty) {
+    if (bloc.shopEmail == null || bloc.shopEmail.isEmpty || bloc.shopEmail != email) {
       // update Shop
       final shopSnapshot =
           await ShopFirebaseProvider.fb.getShopFbByEmail(email);
@@ -107,6 +107,7 @@ class ShopDBProvider {
         email: bloc.shopEmail.trim(),
         password: bloc.shopPassword.trim()
       );
+      await deleteShop();
       await addShop(shop);
       UserFirebaseProvider.fb.updateUserMaxDateToFirebase(context, docId);
       // update Shop Branches

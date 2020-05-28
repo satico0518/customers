@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:customers/src/bloc/user.bloc.dart';
 import 'package:customers/src/models/shop-branch.model.dart';
 import 'package:customers/src/models/shop.model.dart';
+import 'package:customers/src/providers/auth.shared-preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class ShopFirebaseProvider {
@@ -24,24 +25,45 @@ class ShopFirebaseProvider {
     return fbi.collection('Shops').add(firebaseShop);
   }
 
-  Future<DocumentReference> addShopBranchToFirebase(ShopBranchModel branch) async {
+  Future<DocumentReference> addShopBranchToFirebase(
+      ShopBranchModel branch) async {
     final firebaseShopBranch = branch.toJson();
     return fbi.collection('Branches').add(firebaseShopBranch);
   }
 
   Future<void> updateShopBranchFirebase(ShopBranchModel branch) async {
     final firebaseShopBranch = branch.toJson();
-    return fbi.collection('Branches').document(branch.branchDocumentId).setData(firebaseShopBranch, merge: true);
+    return fbi
+        .collection('Branches')
+        .document(branch.branchDocumentId)
+        .setData(firebaseShopBranch, merge: true);
   }
 
   Future<FirebaseUser> loginShopToFirebase(
       String email, String password) async {
     return (await _auth.signInWithEmailAndPassword(
-            email: email, password: password,)).user;
+      email: email,
+      password: password,
+    ))
+        .user;
   }
 
   Future<FirebaseUser> getCurrentUser() async {
     return _auth.currentUser();
+  }
+
+  Stream<QuerySnapshot> getBranchForms(Timestamp startDate, Timestamp endDate) {
+    final _prefs = PreferenceAuth();
+    _prefs.initPrefs();
+    final branchID = _prefs.currentBranch.branchDocumentId;
+    final collection = Firestore.instance.collection('Forms');
+    Query query = collection.where('shopBranchDocumentId', isEqualTo: branchID);
+    if (startDate != null)
+      query = query.where('insertDate', isGreaterThan: startDate);
+    if (startDate != null)
+      query = query.where('insertDate', isLessThan: endDate);
+    
+    return query.snapshots();        
   }
 
   Future<DocumentSnapshot> getShopFirebase(String documentId) {
@@ -49,21 +71,31 @@ class ShopFirebaseProvider {
   }
 
   Stream<QuerySnapshot> getShopByAuthID(String authID) {
-    return fbi.collection('Users').where('firebaseId', isEqualTo: authID).snapshots();
+    return fbi
+        .collection('Users')
+        .where('firebaseId', isEqualTo: authID)
+        .snapshots();
   }
 
   Future<QuerySnapshot> getShopFbByEmail(String email) {
-    return fbi.collection('Users').where('email', isEqualTo: email).getDocuments();
+    return fbi
+        .collection('Users')
+        .where('email', isEqualTo: email)
+        .getDocuments();
   }
 
   Future<QuerySnapshot> getBranchesFbByShopDocId(String shopDocId) {
-    return fbi.collection('Branches').where('shopDocumentId', isEqualTo: shopDocId).getDocuments();
+    return fbi
+        .collection('Branches')
+        .where('shopDocumentId', isEqualTo: shopDocId)
+        .getDocuments();
   }
 
   updateBranchCapacity(bool isGettingIn, ShopBranchModel branch) {
-    fbi.collection('Branches').document(branch.branchDocumentId).updateData({
-      'capacity': branch.capacity
-    });
+    fbi
+        .collection('Branches')
+        .document(branch.branchDocumentId)
+        .updateData({'capacity': branch.capacity});
   }
 
   Future<int> getBranchCapacity(String docID) async {
@@ -72,9 +104,10 @@ class ShopFirebaseProvider {
   }
 
   resetBranchCapacity(ShopBranchModel branch, UserBloc bloc) {
-    fbi.collection('Branches').document(branch.branchDocumentId).updateData({
-      'capacity': 0
-    });
+    fbi
+        .collection('Branches')
+        .document(branch.branchDocumentId)
+        .updateData({'capacity': 0});
     final currentBranch = bloc.shopCurrBranch;
     currentBranch.capacity = 0;
     bloc.changeShopCurrBranch(currentBranch);

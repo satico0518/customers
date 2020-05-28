@@ -25,6 +25,7 @@ class QRReaderPage extends StatefulWidget {
 class _QRReaderPageState extends State<QRReaderPage> {
   final LoginService logSrvc = new LoginService();
   int _cIndex = 0;
+
   @override
   Widget build(BuildContext context) {
     final _prefs = PreferenceAuth();
@@ -86,10 +87,16 @@ class _QRReaderPageState extends State<QRReaderPage> {
                 StreamBuilder<ShopBranchModel>(
                     stream: bloc.shopCurrBranchStream,
                     builder: (context, snapshot) {
-                      if (!snapshot.hasData)
-                        return Text('Sucursal: Seleccione sucursal',
-                            style:
-                                TextStyle(fontSize: 15, color: Colors.white));
+                      if (!snapshot.hasData) {
+                        if (!snapshot.hasData) {
+                          if (_prefs.currentBranch.branchDocumentId != null) {
+                            bloc.changeShopCurrBranch(_prefs.currentBranch);
+                          }
+                          return Text('Sucursal: Seleccione sucursal',
+                              style:
+                                  TextStyle(fontSize: 15, color: Colors.white));
+                        }
+                      }
                       return Text(
                         'Sucursal: ${capitalizeWord(snapshot.data.branchName)}',
                         style: TextStyle(fontSize: 15, color: Colors.white),
@@ -113,7 +120,7 @@ class _QRReaderPageState extends State<QRReaderPage> {
                     padding: EdgeInsets.all(20),
                     color: Theme.of(context).secondaryHeaderColor,
                     textColor: Colors.white,
-                    onPressed: () => _getQRinfo(context),
+                    onPressed: () => _getQRinfo(context, bloc),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
@@ -162,42 +169,54 @@ class _QRReaderPageState extends State<QRReaderPage> {
     );
   }
 
-  _getQRinfo(BuildContext context) async {
-    logSrvc.isStateOkByBloc(context).then((value) async {
-      if (value) {
-        String qrInfo = '';
-        try {
-          qrInfo = await BarcodeScanner.scan();
-        } catch (e) {
-          qrInfo = e.toString();
+  _getQRinfo(BuildContext context, UserBloc bloc) async {
+    if (bloc.shopCurrBranch == null) {
+      Fluttertoast.showToast(
+        msg: 'Debe seleccionar una sucursal!',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0,
+      ).then((value) => Navigator.of(context).pushNamed(BranchPage.routeName));
+    } else {
+      logSrvc.isStateOkByBloc(context).then((value) async {
+        if (value) {
+          String qrInfo = '';
+          try {
+            qrInfo = await BarcodeScanner.scan();
+          } catch (e) {
+            qrInfo = e.toString();
+          }
+          Platform.isIOS
+              ? Future.delayed(
+                  Duration(milliseconds: 750), () => goToEnterviewInfo(qrInfo))
+              : goToEnterviewInfo(qrInfo);
+        } else {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text("Inactivo!"),
+                content: Text(
+                  "Ha caducado su periodo de prueba. Por favor contáctenos para poder ayudarle.",
+                  textAlign: TextAlign.justify,
+                ),
+                actions: <Widget>[
+                  FlatButton(
+                      child: Text("Ok"),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        return;
+                      }),
+                ],
+              );
+            },
+          );
         }
-        Platform.isIOS
-            ? Future.delayed(
-                Duration(milliseconds: 750), () => goToEnterviewInfo(qrInfo))
-            : goToEnterviewInfo(qrInfo);
-      } else {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text("Inactivo!"),
-              content: Text(
-                "Ha caducado su periodo de prueba. Por favor contáctenos para poder ayudarle.",
-                textAlign: TextAlign.justify,
-              ),
-              actions: <Widget>[
-                FlatButton(
-                    child: Text("Ok"),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                      return;
-                    }),
-              ],
-            );
-          },
-        );
-      }
-    });
+      });
+    }
   }
 
   goToEnterviewInfo(String qrInfo) {

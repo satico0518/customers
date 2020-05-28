@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:customers/src/bloc/provider.dart';
 import 'package:customers/src/bloc/user.bloc.dart';
 import 'package:customers/src/models/shop-branch.model.dart';
+import 'package:customers/src/pages/branch-detail-page.dart';
 import 'package:customers/src/providers/auth.shared-preferences.dart';
 import 'package:customers/src/providers/shopFirebase.provider.dart';
 import 'package:customers/src/utils/utils.dart';
@@ -20,11 +21,15 @@ class _BranchPageState extends State<BranchPage> {
   final _formKey = GlobalKey<FormState>();
   String _branchName = '';
   String _branchAddress = '';
+  int _branchMaxcapacity = 0;
   ShopBranchModel _currentBranch;
 
   @override
   Widget build(BuildContext context) {
     final bloc = Provider.of(context);
+    final _prefs = PreferenceAuth();
+    _prefs.initPrefs();
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Sucursales'),
@@ -80,81 +85,117 @@ class _BranchPageState extends State<BranchPage> {
               ),
             ),
             SingleChildScrollView(
-                  scrollDirection: Axis.vertical,
-                  child: Container(
-                    height: MediaQuery.of(context).size.height * .6,
-                    color: Colors.grey[200],
-                    width: double.infinity,
-                    child: Expanded(
-                      child: StreamBuilder<QuerySnapshot>(
-                        stream: Firestore.instance
-                            .collection('Branches')
-                            .where('shopDocumentId',
-                                isEqualTo: bloc.shopDocumentId)
-                            .snapshots(),
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData) {
-                            return SingleChildScrollView(
-                              scrollDirection: Axis.vertical,
-                              child: SingleChildScrollView(
-                                scrollDirection: Axis.horizontal,
-                                child: DataTable(
-                                  showCheckboxColumn: true,
-                                  dataRowHeight: 30,
-                                  columns: [
-                                    DataColumn(label: Text('Nombre')),
-                                    DataColumn(label: Text('Dirección')),
-                                    DataColumn(label: Text('Aforo')),
-                                    DataColumn(label: Text('')),
-                                  ],
-                                  rows: snapshot.data.documents
-                                      .map<DataRow>(
-                                        (DocumentSnapshot item) => DataRow(
-                                          cells: <DataCell>[
-                                            DataCell(
-                                              Row(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.center,
-                                                children: [
-                                                  GestureDetector(
-                                                    onTap: () {
-                                                      final _prefs =
-                                                          PreferenceAuth();
-                                                      _prefs.initPrefs();
-                                                      bloc.changeShopCurrBranch(
-                                                          ShopBranchModel
-                                                              .fromJson(
-                                                                  item.data));
-                                                      bloc.changeShopBranchName(
-                                                          item.data['branchName']);
-                                                      _prefs.currentBranchDocId =
-                                                          item.data['branchDocumentId'];
-                                                    },
-                                                    child: Icon(
-                                                      Icons.adjust,
-                                                      color: Theme.of(context)
-                                                          .primaryColor,
-                                                    ),
-                                                  ),
-                                                  SizedBox(
-                                                    width: 10,
-                                                  ),
-                                                  Text(capitalizeWord(
-                                                      item.data['branchName'] ??
-                                                          ''))
-                                                ],
+              scrollDirection: Axis.vertical,
+              child: Container(
+                height: MediaQuery.of(context).size.height * .6,
+                color: Colors.grey[200],
+                width: double.infinity,
+                child: Expanded(
+                  child: StreamBuilder<QuerySnapshot>(
+                    stream: Firestore.instance
+                        .collection('Branches')
+                        .where('shopDocumentId', isEqualTo: bloc.shopDocumentId)
+                        .snapshots(),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        return SingleChildScrollView(
+                          scrollDirection: Axis.vertical,
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: DataTable(
+                              showCheckboxColumn: true,
+                              dataRowHeight: 40,
+                              columns: [
+                                DataColumn(label: Text('Nombre')),
+                                DataColumn(label: Text('Aforo')),
+                                DataColumn(label: Text('Dirección')),
+                                DataColumn(label: Text('')),
+                              ],
+                              rows: snapshot.data.documents
+                                  .map<DataRow>(
+                                    (DocumentSnapshot item) => DataRow(
+                                      cells: <DataCell>[
+                                        DataCell(
+                                          Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            children: [
+                                              GestureDetector(
+                                                onTap: () {
+                                                  bloc.changeShopCurrBranch(
+                                                      ShopBranchModel.fromJson(
+                                                          item.data));
+                                                  bloc.changeShopBranchName(
+                                                      item.data['branchName']);
+                                                  _prefs.currentBranch =
+                                                      ShopBranchModel.fromJson(
+                                                          item.data);
+                                                },
+                                                child: Icon(
+                                                  Icons.adjust,
+                                                  color: Theme.of(context)
+                                                      .primaryColor,
+                                                  size: 35,
+                                                ),
                                               ),
-                                            ),
-                                            DataCell(Text(
-                                                item.data['branchAddress'] ??
-                                                    '')),
-                                            DataCell(Text(
-                                                item.data['capacity'] != null
-                                                    ? (item.data['capacity']
-                                                            .toString() ??
-                                                        '0')
-                                                    : '0')),
-                                            DataCell(
+                                              SizedBox(
+                                                width: 10,
+                                              ),
+                                              Text(
+                                                capitalizeWord(
+                                                    item.data['branchName'] ??
+                                                        ''),
+                                                style: TextStyle(fontSize: 18),
+                                              ),
+                                              Text(
+                                                ' - Max(${item.data['maxCapacity'] != null ? (item.data['maxCapacity'].toString() ?? '0') : '0'})',
+                                                style: TextStyle(
+                                                  fontSize: 18,
+                                                  color: Theme.of(context)
+                                                      .secondaryHeaderColor,
+                                                  fontStyle: FontStyle.italic,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        DataCell(Text(
+                                          item.data['capacity'] != null
+                                              ? (item.data['capacity']
+                                                      .toString() ??
+                                                  '0')
+                                              : '0',
+                                          style: TextStyle(fontSize: 20),
+                                        )),
+                                        DataCell(Text(
+                                          item.data['branchAddress'] ?? '',
+                                          style: TextStyle(fontSize: 18),
+                                        )),
+                                        DataCell(
+                                          Row(
+                                            children: [
+                                              GestureDetector(
+                                                child: Icon(
+                                                  Icons.open_with,
+                                                  color: Theme.of(context)
+                                                      .primaryColor,
+                                                ),
+                                                onTap: () {
+                                                  bloc.changeShopCurrBranch(
+                                                      ShopBranchModel.fromJson(
+                                                          item.data));
+                                                  bloc.changeShopBranchName(
+                                                      item.data['branchName']);
+                                                  _prefs.currentBranch =
+                                                      ShopBranchModel.fromJson(
+                                                          item.data);
+                                                  Navigator.of(context).pushNamed(BranchDetail.routeName);
+                                                },
+                                              ),
+                                              SizedBox(
+                                                width: 20,
+                                              ),
                                               GestureDetector(
                                                 onTap: () {
                                                   setState(() {
@@ -165,6 +206,10 @@ class _BranchPageState extends State<BranchPage> {
                                                             '');
                                                     _branchAddress = item
                                                         .data['branchAddress'];
+                                                    _branchMaxcapacity = item
+                                                                .data[
+                                                            'maxCapacity'] ??
+                                                        0;
                                                     _currentBranch =
                                                         ShopBranchModel
                                                             .fromJson(
@@ -179,41 +224,43 @@ class _BranchPageState extends State<BranchPage> {
                                                       .secondaryHeaderColor,
                                                 ),
                                               ),
-                                            ),
-                                          ],
+                                            ],
+                                          ),
                                         ),
-                                      )
-                                      .toList(),
-                                ),
-                              ),
-                            );
-                          } else {
-                            return Padding(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal:
-                                      MediaQuery.of(context).size.width / 4),
-                              child: Column(
-                                children: [
-                                  SizedBox(
-                                    height: 100,
-                                  ),
-                                  CircularProgressIndicator(),
-                                  SizedBox(
-                                    height: 30,
-                                  ),
-                                  Text(
-                                    'cargando encuestas...',
-                                    style: TextStyle(fontSize: 16),
+                                      ],
+                                    ),
                                   )
-                                ],
+                                  .toList(),
+                            ),
+                          ),
+                        );
+                      } else {
+                        return Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal:
+                                  MediaQuery.of(context).size.width / 4),
+                          child: Column(
+                            children: [
+                              SizedBox(
+                                height: 100,
                               ),
-                            );
-                          }
-                        },
-                      ),
-                    ),
+                              CircularProgressIndicator(),
+                              SizedBox(
+                                height: 30,
+                              ),
+                              Text(
+                                'cargando encuestas...',
+                                style: TextStyle(fontSize: 16),
+                              )
+                            ],
+                          ),
+                        );
+                      }
+                    },
                   ),
                 ),
+              ),
+            ),
           ],
         ),
       ),
@@ -270,6 +317,23 @@ class _BranchPageState extends State<BranchPage> {
                         ),
                       ),
                       Padding(
+                        padding: EdgeInsets.all(8.0).copyWith(top: 0),
+                        child: TextFormField(
+                          keyboardType: TextInputType.number,
+                          textCapitalization: TextCapitalization.words,
+                          initialValue: _branchMaxcapacity.toString(),
+                          decoration: InputDecoration(
+                            labelText: 'Aforo Máximo',
+                          ),
+                          validator: (value) {
+                            if (value.isEmpty) return 'Aforo es obligatorio';
+                            return null;
+                          },
+                          onChanged: (value) => setState(
+                              () => _branchMaxcapacity = int.parse(value)),
+                        ),
+                      ),
+                      Padding(
                         padding: EdgeInsets.all(8.0).copyWith(top: 3),
                         child: TextFormField(
                           textCapitalization: TextCapitalization.words,
@@ -318,22 +382,24 @@ class _BranchPageState extends State<BranchPage> {
 
   void _saveNewBranch(UserBloc bloc) async {
     final branch = ShopBranchModel(
-        branchName: _branchName,
-        branchAddress: _branchAddress,
-        shopDocumentId: bloc.shopDocumentId,
-        capacity: 0);
+      branchName: _branchName,
+      branchAddress: _branchAddress,
+      shopDocumentId: bloc.shopDocumentId,
+      capacity: 0,
+      maxCapacity: _branchMaxcapacity,
+    );
     branch.branchDocumentId =
         (await ShopFirebaseProvider.fb.addShopBranchToFirebase(branch))
             .documentID;
-    await ShopFirebaseProvider.fb.updateShopBranchFirebase(branch);
+    ShopFirebaseProvider.fb.updateShopBranchFirebase(branch);
     Navigator.of(context).pop();
   }
 
   void _updateBranch(UserBloc bloc) async {
     _currentBranch.branchName = _branchName;
     _currentBranch.branchAddress = _branchAddress;
-    // await ShopDBProvider.db.updateShopBranch(_currentBranch);
-    await ShopFirebaseProvider.fb.updateShopBranchFirebase(_currentBranch);
+    _currentBranch.maxCapacity = _branchMaxcapacity;
+    ShopFirebaseProvider.fb.updateShopBranchFirebase(_currentBranch);
     if (bloc.shopCurrBranch.branchDocumentId == _currentBranch.branchDocumentId)
       bloc.changeShopCurrBranch(_currentBranch);
     Navigator.of(context).pop();

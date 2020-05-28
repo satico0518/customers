@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:customers/src/bloc/provider.dart';
 import 'package:customers/src/bloc/user.bloc.dart';
 import 'package:customers/src/pages/form-detail-page.dart';
+import 'package:customers/src/providers/shopFirebase.provider.dart';
 import 'package:customers/src/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:csv/csv.dart';
@@ -21,10 +22,22 @@ class _FormListState extends State<FormList> {
   bool _sortDateDesc = true;
   bool _sortAsc = true;
   int _sortColumnIndex;
+  Timestamp _startDate;
+  Timestamp _endDate;
+
+  @override
+  void initState() {
+    super.initState();
+    final _now = DateTime.now();
+    _startDate =
+        Timestamp.fromDate(DateTime(_now.year, _now.month, _now.day, 0, 0, 0));
+    _endDate = Timestamp.fromDate(
+        DateTime(_now.year, _now.month, _now.day, 23, 59, 59));
+  }
 
   @override
   Widget build(BuildContext context) {
-    final bloc = Provider.of(context);
+    final _bloc = Provider.of(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -38,115 +51,119 @@ class _FormListState extends State<FormList> {
               Text('CSV'),
               IconButton(
                 icon: Icon(Icons.file_download),
-                onPressed: () => _downloadCsv(bloc),
+                onPressed: () => _downloadCsv(_bloc),
               ),
             ],
           )
         ],
       ),
       body: SingleChildScrollView(
+        scrollDirection: Axis.vertical,
         child: Container(
           child: Column(
+            mainAxisSize: MainAxisSize.max,
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
                 padding: const EdgeInsets.all(15.0),
                 child: Text(
-                    'Listado de encuestas - ${capitalizeWord(bloc.shopCurrBranch.branchName)}.'),
+                    'Listado de encuestas - ${capitalizeWord(_bloc.shopCurrBranch.branchName)}.'),
               ),
               StreamBuilder<QuerySnapshot>(
-                stream: Firestore.instance
-                    .collection('Forms')
-                    .where('shopBranchDocumentId',
-                        isEqualTo: bloc.shopCurrBranch.branchDocumentId)
-                    .snapshots(),
+                stream: ShopFirebaseProvider.fb
+                    .getBranchForms(_startDate, _endDate),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     _listData = snapshot.data.documents;
                     _listData.sort((item1, item2) =>
                         item2["insertDate"].compareTo(item1["insertDate"]));
                     return Container(
-                      height: MediaQuery.of(context).size.height * .75,
+                      height: MediaQuery.of(context).size.height * .70,
                       color: Colors.grey[200],
                       width: double.infinity,
                       child: Expanded(
                         child: SingleChildScrollView(
                           scrollDirection: Axis.vertical,
-                          child: DataTable(
-                            sortColumnIndex: _sortColumnIndex,
-                            sortAscending: _sortAsc,
-                            dataRowHeight: 25,
-                            columns: [
-                              DataColumn(
-                                  label: Text('Fecha'),
-                                  onSort: (colInx, sortAsc) {
-                                    setState(() {
-                                      if (colInx == _sortColumnIndex) {
-                                        _sortAsc = _sortDateDesc = sortAsc;
-                                      } else {
-                                        _sortColumnIndex = colInx;
-                                        _sortAsc = _sortDateDesc;
-                                      }
-                                      _listData.sort((a, b) => a
-                                          .data['insertDate']
-                                          .compareTo(b.data['insertDate']));
-                                      if (!sortAsc)
-                                        _listData = _listData.reversed.toList();
-                                    });
-                                  }),
-                              DataColumn(label: Text('Temp.')),
-                              DataColumn(label: Text('Ver')),
-                            ],
-                            rows: _listData.map((item) {
-                              Icon gettingInIcon;
-                              if (item.data['gettingIn'] != null) {
-                                if (item.data['gettingIn'])
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: DataTable(
+                              sortColumnIndex: _sortColumnIndex,
+                              sortAscending: _sortAsc,
+                              dataRowHeight: 25,
+                              columns: [
+                                DataColumn(
+                                    label: Text('Fecha'),
+                                    onSort: (colInx, sortAsc) {
+                                      setState(() {
+                                        if (colInx == _sortColumnIndex) {
+                                          _sortAsc = _sortDateDesc = sortAsc;
+                                        } else {
+                                          _sortColumnIndex = colInx;
+                                          _sortAsc = _sortDateDesc;
+                                        }
+                                        _listData.sort((a, b) => a
+                                            .data['insertDate']
+                                            .compareTo(b.data['insertDate']));
+                                        if (!sortAsc)
+                                          _listData =
+                                              _listData.reversed.toList();
+                                      });
+                                    }),
+                                DataColumn(label: Text('Temp.')),
+                                DataColumn(label: Text('Ver')),
+                              ],
+                              rows: _listData.map((item) {
+                                Icon gettingInIcon;
+                                if (item.data['gettingIn'] != null) {
+                                  if (item.data['gettingIn'])
+                                    gettingInIcon = Icon(
+                                      Icons.arrow_downward,
+                                      color: Colors.green,
+                                      size: 15,
+                                    );
+                                  else
+                                    gettingInIcon = Icon(
+                                      Icons.arrow_upward,
+                                      color: Colors.red,
+                                      size: 15,
+                                    );
+                                } else
                                   gettingInIcon = Icon(
-                                    Icons.arrow_downward,
-                                    color: Colors.green,
-                                    size: 15,
+                                    Icons.block,
+                                    color: Colors.white,
+                                    size: 1,
                                   );
-                                else
-                                  gettingInIcon = Icon(
-                                    Icons.arrow_upward,
-                                    color: Colors.red,
-                                    size: 15,
-                                  );
-                              } else
-                                gettingInIcon = Icon(
-                                  Icons.block,
-                                  color: Colors.white,
-                                  size: 1,
-                                );
-                              return DataRow(
-                                cells: <DataCell>[
-                                  DataCell(Row(
-                                    children: [
-                                      gettingInIcon,
-                                      Text(getStringDateFromtimestamp(
-                                          item.data['insertDate'])),
-                                    ],
-                                  )),
-                                  DataCell(
-                                      Text(item.data['temperature'] ?? '')),
-                                  DataCell(
-                                    GestureDetector(
-                                      onTap: () => _details(context, item.data),
-                                      child: Container(
-                                        width: 20,
-                                        child: Icon(
-                                          Icons.search,
-                                          size: 20,
-                                          color: Theme.of(context)
-                                              .secondaryHeaderColor,
+                                return DataRow(
+                                  cells: <DataCell>[
+                                    DataCell(Row(
+                                      children: [
+                                        gettingInIcon,
+                                        Text(getStringDateFromtimestamp(
+                                            item.data['insertDate'])),
+                                      ],
+                                    )),
+                                    DataCell(
+                                        Text(item.data['temperature'] ?? '')),
+                                    DataCell(
+                                      GestureDetector(
+                                        onTap: () =>
+                                            _details(context, item.data),
+                                        child: Container(
+                                          width: 20,
+                                          child: Icon(
+                                            Icons.search,
+                                            size: 20,
+                                            color: Theme.of(context)
+                                                .secondaryHeaderColor,
+                                          ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                ],
-                              );
-                            }).toList(),
+                                  ],
+                                );
+                              }).toList(),
+                            ),
                           ),
                         ),
                       ),
@@ -174,6 +191,49 @@ class _FormListState extends State<FormList> {
                   }
                 },
               ),
+              Row(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  IconButton(
+                    icon: Icon(
+                      Icons.arrow_back_ios,
+                      color: Theme.of(context).secondaryHeaderColor,
+                      size: 30,
+                    ),
+                    onPressed: () => setState(
+                      () {
+                        _listData = [];
+                        _startDate = Timestamp.fromDate(
+                            _startDate.toDate().subtract(Duration(days: 1)));
+                        _endDate = Timestamp.fromDate(
+                            _endDate.toDate().subtract(Duration(days: 1)));
+                      },
+                    ),
+                  ),
+                  Text(getFormatedDate(_startDate.toDate()),
+                      style: TextStyle(
+                          color: Theme.of(context).primaryColor,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold)),
+                  IconButton(
+                    icon: Icon(
+                      Icons.arrow_forward_ios,
+                      color: Theme.of(context).secondaryHeaderColor,
+                      size: 30,
+                    ),
+                    onPressed: () => setState(
+                      () {
+                        _listData = [];
+                        _startDate = Timestamp.fromDate(
+                            _startDate.toDate().add(Duration(days: 1)));
+                        _endDate = Timestamp.fromDate(
+                            _endDate.toDate().add(Duration(days: 1)));
+                      },
+                    ),
+                  ),
+                ],
+              )
             ],
           ),
         ),
@@ -253,7 +313,7 @@ class _FormListState extends State<FormList> {
     final File txtfile = await writeFileContent(csv);
     final fileUrl = await uploadFile(txtfile,
         'encuestas_${DateTime.now().millisecondsSinceEpoch.toString()}.txt');
-    final response = await sendFormListEmail(fileUrl);
+    final response = await sendFormListEmail(fileUrl, bloc);
     Fluttertoast.showToast(
       msg: response,
       toastLength: Toast.LENGTH_SHORT,

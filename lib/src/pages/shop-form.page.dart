@@ -25,6 +25,7 @@ class _ShopFormState extends State<ShopForm> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   bool _aceptTerms = false;
   bool _showPass = false;
+  bool _isRegistering = false;
   String _currentPassword;
 
   @override
@@ -46,14 +47,20 @@ class _ShopFormState extends State<ShopForm> {
                       child: Row(
                         children: <Widget>[
                           Text('Guardar'),
-                          IconButton(
-                            icon: Icon(Icons.save),
-                            onPressed: () {
-                              _aceptTerms = true;
-                              _saveShopData(
-                                  _scaffoldKey.currentState.showSnackBar, bloc);
-                            },
-                          ),
+                          _isRegistering
+                              ? CircularProgressIndicator(
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white),
+                                )
+                              : IconButton(
+                                  icon: Icon(Icons.save),
+                                  onPressed: () {
+                                    _aceptTerms = true;
+                                    _saveShopData(
+                                        _scaffoldKey.currentState.showSnackBar,
+                                        bloc);
+                                  },
+                                ),
                         ],
                       ),
                     );
@@ -141,20 +148,22 @@ class _ShopFormState extends State<ShopForm> {
                               child: RaisedButton(
                                 padding: EdgeInsets.symmetric(
                                     vertical: 20, horizontal: 20),
-                                onPressed: () => _saveShopData(
-                                    _scaffoldKey.currentState.showSnackBar,
-                                    bloc),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceAround,
-                                  children: <Widget>[
-                                    Text(
-                                      'Registrar Comercio',
-                                      style: TextStyle(
-                                          color: Colors.white, fontSize: 20),
-                                    ),
-                                  ],
-                                ),
+                                onPressed: () => _isRegistering
+                                    ? null
+                                    : _saveShopData(
+                                        _scaffoldKey.currentState.showSnackBar,
+                                        bloc),
+                                child: _isRegistering
+                                    ? CircularProgressIndicator(
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                                Colors.white),
+                                      )
+                                    : Text(
+                                        'Registrar Comercio',
+                                        style: TextStyle(
+                                            color: Colors.white, fontSize: 20),
+                                      ),
                                 shape: RoundedRectangleBorder(
                                     borderRadius:
                                         BorderRadius.all(Radius.circular(10))),
@@ -467,7 +476,7 @@ class _ShopFormState extends State<ShopForm> {
   _saveShopData(showSnackBar, UserBloc bloc) async {
     if (_formKey.currentState.validate() && _areTermsAccepted()) {
       _formKey.currentState.save();
-
+      setState(() => _isRegistering = true);
       try {
         final shop = new ShopModel(
           nit: bloc.shopNit.trim(),
@@ -499,11 +508,12 @@ class _ShopFormState extends State<ShopForm> {
         await ShopDBProvider.db.addShop(shop);
         if (bloc.shopCurrBranch == null) {
           final branch = ShopBranchModel(
-              shopDocumentId: bloc.shopDocumentId,
-              branchName: bloc.shopBranchName,
-              branchAddress: bloc.shopAddress,
-              branchMemo: 'Sucursal Inicial',
-              capacity: 0,
+            shopDocumentId: bloc.shopDocumentId,
+            branchName: bloc.shopBranchName,
+            branchAddress: bloc.shopAddress,
+            branchMemo: 'Sucursal Inicial',
+            capacity: 0,
+            maxCapacity: 10,
           );
           final branchRef =
               await ShopFirebaseProvider.fb.addShopBranchToFirebase(branch);
@@ -519,18 +529,22 @@ class _ShopFormState extends State<ShopForm> {
           backgroundColor: Colors.green,
           textColor: Colors.white,
           fontSize: 18.0,
-        );        
+        );
+
         if (_currentPassword != bloc.shopPassword) {
-          await UserFirebaseProvider.fb.changePassword(bloc.shopPassword);
+          UserFirebaseProvider.fb.changePassword(bloc.shopPassword);
           bloc.changeShopIsLogged(false);
           Navigator.pushNamed(context, LoginPage.routeName);
+          setState(() => _isRegistering = false);
           return;
         }
-          
+
         if (bloc.shopIsLogged != null && bloc.shopIsLogged)
           Navigator.pushNamed(context, QRReaderPage.routeName);
         else
           Navigator.pushNamed(context, LoginPage.routeName);
+
+        setState(() => _isRegistering = false);
       } catch (e) {
         Fluttertoast.showToast(
           msg: 'Error: ${handleMessage(e.toString())}',
@@ -541,6 +555,8 @@ class _ShopFormState extends State<ShopForm> {
           textColor: Colors.white,
           fontSize: 18.0,
         );
+
+        setState(() => _isRegistering = false);
       }
     } else {
       final snackBar =

@@ -1,3 +1,5 @@
+import 'package:customers/src/bloc/provider.dart';
+import 'package:customers/src/bloc/user.bloc.dart';
 import 'package:customers/src/providers/form-questions.provider.dart';
 import 'package:customers/src/providers/userFirebase.provider.dart';
 import 'package:customers/src/utils/utils.dart';
@@ -8,6 +10,7 @@ class FormDetail extends StatelessWidget {
   static final String routeName = 'formdetail';
   @override
   Widget build(BuildContext context) {
+    final bloc = Provider.of(context);
     final Map<String, dynamic> formDataMap =
         ModalRoute.of(context).settings.arguments;
     return Scaffold(
@@ -19,7 +22,8 @@ class FormDetail extends StatelessWidget {
               Text('enviar email'),
               IconButton(
                   icon: Icon(Icons.send),
-                  onPressed: () => _sendDetailEmail(context, formDataMap)),
+                  onPressed: () =>
+                      _sendDetailEmail(context, formDataMap, bloc)),
             ],
           )
         ],
@@ -123,8 +127,9 @@ class FormDetail extends StatelessWidget {
     );
   }
 
-  _sendDetailEmail(BuildContext context, Map<String, dynamic> formDataMap) async {
-    final response = await sendSingleFormEmail(formDataMap);
+  _sendDetailEmail(BuildContext context, Map<String, dynamic> formDataMap,
+      UserBloc bloc) async {
+    final response = await sendSingleFormEmail(formDataMap, bloc);
     Fluttertoast.showToast(
       msg: response,
       toastLength: Toast.LENGTH_SHORT,

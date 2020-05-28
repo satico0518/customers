@@ -13,6 +13,7 @@ class ShopBranchModel {
   String branchAddress;
   String branchMemo;
   int capacity;
+  int maxCapacity;
 
   ShopBranchModel({
     this.shopDocumentId,
@@ -21,19 +22,27 @@ class ShopBranchModel {
     this.branchAddress,
     this.branchMemo,
     this.capacity,
+    this.maxCapacity,
   });
 
   factory ShopBranchModel.fromJson(Map<String, dynamic> json) =>
       ShopBranchModel(
-          shopDocumentId: json["shopDocumentId"] ?? '',
-          branchDocumentId: json["branchDocumentId"] ?? '',
-          branchName: json["branchName"] ?? '',
-          branchAddress: json["branchAddress"] ?? '',
-          branchMemo: json["branchMemo"] ?? '',
-          capacity: json["capacity"] != null ?
-            (int.tryParse(json["capacity"].toString()) != null ?
-            int.tryParse(json["capacity"].toString()) : 0) : 0
-          );
+        shopDocumentId: json["shopDocumentId"] ?? '',
+        branchDocumentId: json["branchDocumentId"] ?? '',
+        branchName: json["branchName"] ?? '',
+        branchAddress: json["branchAddress"] ?? '',
+        branchMemo: json["branchMemo"] ?? '',
+        capacity: json["capacity"] != null
+            ? (int.tryParse(json["capacity"].toString()) != null
+                ? int.tryParse(json["capacity"].toString())
+                : 0)
+            : 0,
+        maxCapacity: json["maxCapacity"] != null
+            ? (int.tryParse(json["maxCapacity"].toString()) != null
+                ? int.tryParse(json["maxCapacity"].toString())
+                : 0)
+            : 0,
+      );
 
   Map<String, dynamic> toJson() => {
         "shopDocumentId": shopDocumentId ?? '',
@@ -42,5 +51,6 @@ class ShopBranchModel {
         "branchAddress": branchAddress ?? '',
         "branchMemo": branchMemo ?? '',
         "capacity": capacity ?? 0,
+        "maxCapacity": maxCapacity ?? 0,
       };
 }

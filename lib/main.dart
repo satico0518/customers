@@ -1,4 +1,5 @@
 import 'package:customers/src/bloc/provider.dart';
+import 'package:customers/src/pages/branch-detail-page.dart';
 import 'package:customers/src/pages/branchs-page.dart';
 import 'package:customers/src/pages/form-detail-page.dart';
 import 'package:customers/src/pages/form-list-page.dart';
@@ -55,6 +56,7 @@ class MyApp extends StatelessWidget {
           FormDetail.routeName: (BuildContext context) => FormDetail(),
           ShopForm.routeName: (BuildContext context) => ShopForm(),
           BranchPage.routeName: (BuildContext context) => BranchPage(),
+          BranchDetail.routeName: (BuildContext context) => BranchDetail(),
           FormResumePage.routeName: (BuildContext context) => FormResumePage(),
           SignaturePage.routeName: (BuildContext context) => SignaturePage(),
           QRCodePage.routeName: (BuildContext context) => QRCodePage(),

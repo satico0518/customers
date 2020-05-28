@@ -5,6 +5,7 @@ import 'package:customers/src/models/user.model.dart';
 import 'package:customers/src/pages/home-page.dart';
 import 'package:customers/src/pages/login-page.dart';
 import 'package:customers/src/pages/terms-page.dart';
+import 'package:customers/src/providers/auth.shared-preferences.dart';
 import 'package:customers/src/providers/userDb.provider.dart';
 import 'package:customers/src/providers/userFirebase.provider.dart';
 import 'package:flutter/material.dart';
@@ -24,6 +25,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final _formKey = GlobalKey<FormState>();
   bool _aceptTerms = false;
   bool _showPass = false;
+  bool _isRegistering = false;
   List<String> _identificationTypes = [
     '-- Tipo Documento --',
     'Cedula Ciudadanía',
@@ -36,6 +38,8 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
+    final _prefs = PreferenceAuth();
+    _prefs.initPrefs();
     final bloc = Provider.of(context);
     final _scaffoldKey = GlobalKey<ScaffoldState>();
     currentPassword = bloc.password ?? '';
@@ -56,12 +60,20 @@ class _RegisterPageState extends State<RegisterPage> {
                         children: <Widget>[
                           Text('Guardar'),
                           IconButton(
-                            icon: Icon(Icons.save),
-                            onPressed: () {
-                              _aceptTerms = true;
-                              _saveUserData(
-                                  _scaffoldKey.currentState.showSnackBar, bloc);
-                            },
+                            icon: _isRegistering
+                                ? CircularProgressIndicator(
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.white),
+                                  )
+                                : Icon(Icons.save),
+                            onPressed: _isRegistering
+                                ? null
+                                : () {
+                                    _aceptTerms = true;
+                                    _saveUserData(
+                                        _scaffoldKey.currentState.showSnackBar,
+                                        bloc);
+                                  },
                           ),
                         ],
                       ),
@@ -138,7 +150,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     stream: bloc.userIsEditingStream,
                     builder: (context, snapshot) {
                       if (snapshot.hasData) {
-                        return Visibility(
+                        return !snapshot.data ? Visibility(
                           visible: !snapshot.data,
                           child: Column(
                             children: [
@@ -153,21 +165,25 @@ class _RegisterPageState extends State<RegisterPage> {
                                 child: RaisedButton(
                                   padding: EdgeInsets.symmetric(
                                       vertical: 20, horizontal: 20),
-                                  onPressed: () => _saveUserData(
-                                    _scaffoldKey.currentState.showSnackBar,
-                                    bloc,
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceAround,
-                                    children: <Widget>[
-                                      Text(
-                                        'Registrarme',
-                                        style: TextStyle(
-                                            color: Colors.white, fontSize: 20),
-                                      )
-                                    ],
-                                  ),
+                                  onPressed: _isRegistering
+                                      ? null
+                                      : () => _saveUserData(
+                                            _scaffoldKey
+                                                .currentState.showSnackBar,
+                                            bloc,
+                                          ),
+                                  child: _isRegistering
+                                      ? CircularProgressIndicator(
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                  Colors.white),
+                                        )
+                                      : Text(
+                                          'Registrarme',
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 20),
+                                        ),
                                   shape: RoundedRectangleBorder(
                                       borderRadius:
                                           BorderRadius.all(Radius.circular(5))),
@@ -175,7 +191,29 @@ class _RegisterPageState extends State<RegisterPage> {
                               ),
                             ],
                           ),
-                        );
+                        ) :
+                        Visibility(child: RaisedButton(
+                          color: Colors.redAccent,
+                          child: Text('Eliminar Usuario', style: TextStyle(color: Colors.white),),
+                          onPressed: () {
+                            UserDBProvider.db.deleteUser();
+                            bloc.changeUserFirebaseId(null);
+                            bloc.changeUserDocumentId(null);
+                            bloc.changeUserIdType(null);
+                            bloc.changeUserIdentification(null);
+                            bloc.changeUserName(null);
+                            bloc.changeUserGenre('-- Género --');
+                            bloc.changeUserBirthDate(null);
+                            bloc.changeUserLastName(null);
+                            bloc.changeUserContact(null);
+                            bloc.changeUserAddress(null);
+                            bloc.changeUserEmail(null);
+                            bloc.changeUserPassword(null);
+                            bloc.changeUserIsEditing(false);
+                            bloc.changeUserIsLogged(false);
+                            _prefs.initialRoute = LoginPage.routeName;
+                            Navigator.of(context).pushNamedAndRemoveUntil(LoginPage.routeName, (route) => false);
+                          }));
                       } else
                         return Text('');
                     },
@@ -556,6 +594,7 @@ class _RegisterPageState extends State<RegisterPage> {
   _saveUserData(showSnackBar, UserBloc bloc) async {
     if (_formKey.currentState.validate() && _areTermsAccepted()) {
       _formKey.currentState.save();
+      setState(() => _isRegistering = true);
       try {
         // todo
         if (bloc.userFirebaseId == null || bloc.userFirebaseId.isEmpty) {
@@ -583,10 +622,9 @@ class _RegisterPageState extends State<RegisterPage> {
           bloc.changeUserDocumentId(fbUser.documentID);
         }
         user.documentId = bloc.userDocumentId;
-        await UserFirebaseProvider.fb
-            .updateUserToFirebase(user, bloc.userDocumentId);
+        UserFirebaseProvider.fb.updateUserToFirebase(user, bloc.userDocumentId);
         await UserDBProvider.db.deleteUser();
-        await UserDBProvider.db.addUser(user);
+        UserDBProvider.db.addUser(user);
         Fluttertoast.showToast(
           msg: 'Registro exitoso!',
           toastLength: Toast.LENGTH_SHORT,
@@ -598,11 +636,13 @@ class _RegisterPageState extends State<RegisterPage> {
         );
 
         if (currentPassword != bloc.password) {
-          await UserFirebaseProvider.fb.changePassword(bloc.password);
+          UserFirebaseProvider.fb.changePassword(bloc.password);
           bloc.changeUserIsLogged(false);
           Navigator.pushNamed(context, LoginPage.routeName);
         } else
           Navigator.pushNamed(context, HomePage.routeName);
+
+        setState(() => _isRegistering = false);
       } catch (e) {
         Fluttertoast.showToast(
           msg: 'Error: ${handleMessage(e.toString())}',
@@ -613,6 +653,7 @@ class _RegisterPageState extends State<RegisterPage> {
           textColor: Colors.white,
           fontSize: 18.0,
         );
+        setState(() => _isRegistering = false);
       }
     } else {
       final snackBar = SnackBar(

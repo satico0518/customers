@@ -52,18 +52,21 @@ class ShopFirebaseProvider {
     return _auth.currentUser();
   }
 
-  Stream<QuerySnapshot> getBranchForms(Timestamp startDate, Timestamp endDate) {
-    final _prefs = PreferenceAuth();
+  Future<QuerySnapshot> getBranchForms(Timestamp startDate, Timestamp endDate) {
+    try {
+      final _prefs = PreferenceAuth();
     _prefs.initPrefs();
     final branchID = _prefs.currentBranch.branchDocumentId;
-    final collection = Firestore.instance.collection('Forms');
-    Query query = collection.where('shopBranchDocumentId', isEqualTo: branchID);
-    if (startDate != null)
-      query = query.where('insertDate', isGreaterThan: startDate);
-    if (startDate != null)
-      query = query.where('insertDate', isLessThan: endDate);
-    
-    return query.snapshots();        
+    return Firestore.instance
+        .collection('Forms')
+        .where('shopBranchDocumentId', isEqualTo: branchID)
+        .where('insertDate', isGreaterThan: startDate)
+        .where('insertDate', isLessThan: endDate)
+        .getDocuments();
+    } catch (e) {
+      print('Error: ${e.toString()}');
+      return null;
+    }    
   }
 
   Future<DocumentSnapshot> getShopFirebase(String documentId) {

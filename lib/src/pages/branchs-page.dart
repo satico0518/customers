@@ -35,7 +35,11 @@ class _BranchPageState extends State<BranchPage> {
         title: Text('Sucursales'),
         actions: [
           IconButton(
-              icon: Icon(Icons.add_circle),
+              icon: Icon(
+                Icons.add_circle,
+                color: Theme.of(context).secondaryHeaderColor,
+                size: 30,
+              ),
               onPressed: () {
                 _branchName = '';
                 _branchAddress = '';
@@ -43,226 +47,195 @@ class _BranchPageState extends State<BranchPage> {
               })
         ],
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            Padding(
-              padding: EdgeInsets.all(20),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  StreamBuilder<ShopBranchModel>(
-                      stream: bloc.shopCurrBranchStream,
-                      builder: (context, snapshot) {
-                        return RichText(
-                          text: TextSpan(
+      body: Column(
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Padding(
+            padding: EdgeInsets.all(20).copyWith(bottom: 0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                StreamBuilder<ShopBranchModel>(
+                  stream: bloc.shopCurrBranchStream,
+                  builder: (context, snapshot) {
+                    return RichText(
+                      text: TextSpan(
+                        text:
+                            'Usted está actualmente registrando sobre la sucursal ',
+                        style: TextStyle(color: Colors.black, fontSize: 18),
+                        children: <TextSpan>[
+                          TextSpan(
                             text:
-                                'Usted está actualmente registrando sobre la sucursal ',
-                            style: TextStyle(color: Colors.black, fontSize: 18),
-                            children: <TextSpan>[
-                              TextSpan(
-                                text:
-                                    ' ${snapshot.hasData ? capitalizeWord(snapshot.data.branchName) : ''}',
-                                style: TextStyle(
-                                    letterSpacing: 5,
-                                    backgroundColor:
-                                        Theme.of(context).secondaryHeaderColor,
-                                    color: Colors.white,
-                                    fontSize: 22),
-                              ),
-                              TextSpan(
-                                text:
-                                    ', si desea cambiar de Sucursal seleccione alguna de la lista inferior.',
-                                style: TextStyle(
-                                    color: Colors.black, fontSize: 18),
-                              )
-                            ],
+                                ' ${snapshot.hasData ? capitalizeWord(snapshot.data.branchName) : ''}',
+                            style: TextStyle(
+                                letterSpacing: 5,
+                                backgroundColor:
+                                    Theme.of(context).secondaryHeaderColor,
+                                color: Colors.white,
+                                fontSize: 22),
                           ),
-                        );
-                      }),
-                ],
-              ),
+                          TextSpan(
+                            text:
+                                ', si desea cambiar de Sucursal seleccione alguna de la lista inferior.',
+                            style:
+                                TextStyle(color: Colors.black, fontSize: 18),
+                          )
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ],
             ),
-            SingleChildScrollView(
-              scrollDirection: Axis.vertical,
-              child: Container(
-                height: MediaQuery.of(context).size.height * .6,
-                color: Colors.grey[200],
-                width: double.infinity,
-                child: Expanded(
-                  child: StreamBuilder<QuerySnapshot>(
-                    stream: Firestore.instance
-                        .collection('Branches')
-                        .where('shopDocumentId', isEqualTo: bloc.shopDocumentId)
-                        .snapshots(),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData) {
-                        return SingleChildScrollView(
-                          scrollDirection: Axis.vertical,
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: DataTable(
-                              showCheckboxColumn: true,
-                              dataRowHeight: 40,
-                              columns: [
-                                DataColumn(label: Text('Nombre')),
-                                DataColumn(label: Text('Aforo')),
-                                DataColumn(label: Text('Dirección')),
-                                DataColumn(label: Text('')),
-                              ],
-                              rows: snapshot.data.documents
-                                  .map<DataRow>(
-                                    (DocumentSnapshot item) => DataRow(
-                                      cells: <DataCell>[
-                                        DataCell(
-                                          Row(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
-                                            children: [
-                                              GestureDetector(
-                                                onTap: () {
-                                                  bloc.changeShopCurrBranch(
-                                                      ShopBranchModel.fromJson(
-                                                          item.data));
-                                                  bloc.changeShopBranchName(
-                                                      item.data['branchName']);
-                                                  _prefs.currentBranch =
-                                                      ShopBranchModel.fromJson(
-                                                          item.data);
-                                                },
-                                                child: Icon(
-                                                  Icons.adjust,
-                                                  color: Theme.of(context)
-                                                      .primaryColor,
-                                                  size: 35,
-                                                ),
-                                              ),
-                                              SizedBox(
-                                                width: 10,
-                                              ),
-                                              Text(
-                                                capitalizeWord(
-                                                    item.data['branchName'] ??
-                                                        ''),
-                                                style: TextStyle(fontSize: 18),
-                                              ),
-                                              Text(
-                                                ' - Max(${item.data['maxCapacity'] != null ? (item.data['maxCapacity'].toString() ?? '0') : '0'})',
-                                                style: TextStyle(
-                                                  fontSize: 18,
-                                                  color: Theme.of(context)
-                                                      .secondaryHeaderColor,
-                                                  fontStyle: FontStyle.italic,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        DataCell(Text(
-                                          item.data['capacity'] != null
-                                              ? (item.data['capacity']
-                                                      .toString() ??
-                                                  '0')
-                                              : '0',
-                                          style: TextStyle(fontSize: 20),
-                                        )),
-                                        DataCell(Text(
-                                          item.data['branchAddress'] ?? '',
-                                          style: TextStyle(fontSize: 18),
-                                        )),
-                                        DataCell(
-                                          Row(
-                                            children: [
-                                              GestureDetector(
-                                                child: Icon(
-                                                  Icons.open_with,
-                                                  color: Theme.of(context)
-                                                      .primaryColor,
-                                                ),
-                                                onTap: () {
-                                                  bloc.changeShopCurrBranch(
-                                                      ShopBranchModel.fromJson(
-                                                          item.data));
-                                                  bloc.changeShopBranchName(
-                                                      item.data['branchName']);
-                                                  _prefs.currentBranch =
-                                                      ShopBranchModel.fromJson(
-                                                          item.data);
-                                                  Navigator.of(context).pushNamed(BranchDetail.routeName);
-                                                },
-                                              ),
-                                              SizedBox(
-                                                width: 20,
-                                              ),
-                                              GestureDetector(
-                                                onTap: () {
-                                                  setState(() {
-                                                    _branchName =
-                                                        capitalizeWord(item
-                                                                    .data[
-                                                                'branchName'] ??
-                                                            '');
-                                                    _branchAddress = item
-                                                        .data['branchAddress'];
-                                                    _branchMaxcapacity = item
-                                                                .data[
-                                                            'maxCapacity'] ??
-                                                        0;
-                                                    _currentBranch =
-                                                        ShopBranchModel
-                                                            .fromJson(
-                                                                item.data);
-                                                    _addBranch(
-                                                        context, bloc, true);
-                                                  });
-                                                },
-                                                child: Icon(
-                                                  Icons.edit,
-                                                  color: Theme.of(context)
-                                                      .secondaryHeaderColor,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  )
-                                  .toList(),
+          ),
+          SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child: Container(
+              height: MediaQuery.of(context).size.height * .65,
+              color: Colors.grey[200],
+              width: double.infinity,
+              child: StreamBuilder<QuerySnapshot>(
+                stream: Firestore.instance
+                    .collection('Branches')
+                    .where('shopDocumentId', isEqualTo: bloc.shopDocumentId)
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    final items = snapshot.data.documents;
+                    return ListView.separated(
+                      separatorBuilder: (context, index) {
+                        return Divider(
+                          color: Theme.of(context).primaryColor,
+                          thickness: 3,
+                        );
+                      },
+                      itemCount: items.length,
+                      itemBuilder: (context, index) {
+                        return ListTile(
+                          contentPadding: EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 0),
+                          leading: GestureDetector(
+                            onTap: () {
+                              bloc.changeShopCurrBranch(
+                                  ShopBranchModel.fromJson(
+                                      items[index].data));
+                              bloc.changeShopBranchName(
+                                  items[index].data['branchName']);
+                              _prefs.currentBranch =
+                                  ShopBranchModel.fromJson(items[index].data);
+                            },
+                            child: CircleAvatar(
+                              backgroundColor:
+                                  _setBackColor(context, items[index].data),
+                              child: Text(
+                                items[index].data['capacity'] != null
+                                    ? items[index].data['capacity'].toString()
+                                    : '0',
+                                style: TextStyle(
+                                    fontSize: 17,
+                                    fontWeight: FontWeight.bold),
+                              ),
                             ),
                           ),
-                        );
-                      } else {
-                        return Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal:
-                                  MediaQuery.of(context).size.width / 4),
-                          child: Column(
-                            children: [
-                              SizedBox(
-                                height: 100,
-                              ),
-                              CircularProgressIndicator(),
-                              SizedBox(
-                                height: 30,
-                              ),
-                              Text(
-                                'cargando encuestas...',
-                                style: TextStyle(fontSize: 16),
-                              )
-                            ],
+                          title: RichText(
+                            text: TextSpan(
+                                text: items[index]['branchName'],
+                                style: TextStyle(
+                                    color: Theme.of(context).primaryColor,
+                                    fontSize: 15),
+                                children: [
+                                  TextSpan(
+                                      text:
+                                          ' - Max (${items[index].data['maxCapacity'] != null ? items[index].data['maxCapacity'].toString() : '0'})',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                      ))
+                                ]),
                           ),
+                          subtitle: Text(items[index]['branchAddress']),
+                          trailing: SizedBox(
+                            width: 60,
+                            child: Row(
+                              children: [
+                                GestureDetector(
+                                  child: Icon(
+                                    Icons.open_with,
+                                    color: Theme.of(context).primaryColor,
+                                  ),
+                                  onTap: () {
+                                    bloc.changeShopCurrBranch(
+                                        ShopBranchModel.fromJson(
+                                            items[index].data));
+                                    bloc.changeShopBranchName(
+                                        items[index].data['branchName']);
+                                    _prefs.currentBranch =
+                                        ShopBranchModel.fromJson(
+                                            items[index].data);
+                                    Navigator.of(context)
+                                        .pushNamed(BranchDetail.routeName);
+                                  },
+                                ),
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      _branchName = capitalizeWord(
+                                          items[index].data['branchName'] ??
+                                              '');
+                                      _branchAddress =
+                                          items[index].data['branchAddress'];
+                                      _branchMaxcapacity =
+                                          items[index].data['maxCapacity'] ??
+                                              0;
+                                      _currentBranch =
+                                          ShopBranchModel.fromJson(
+                                              items[index].data);
+                                      _addBranch(context, bloc, true);
+                                    });
+                                  },
+                                  child: Icon(
+                                    Icons.edit,
+                                    color: Theme.of(context)
+                                        .secondaryHeaderColor,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          visualDensity:
+                              VisualDensity.adaptivePlatformDensity,
                         );
-                      }
-                    },
-                  ),
-                ),
+                      },
+                    );
+                  } else {
+                    return Padding(
+                      padding: EdgeInsets.symmetric(
+                          horizontal: MediaQuery.of(context).size.width / 4),
+                      child: Column(
+                        children: [
+                          SizedBox(
+                            height: 100,
+                          ),
+                          CircularProgressIndicator(),
+                          SizedBox(
+                            height: 30,
+                          ),
+                          Text(
+                            'cargando encuestas...',
+                            style: TextStyle(fontSize: 16),
+                          )
+                        ],
+                      ),
+                    );
+                  }
+                },
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -403,5 +376,20 @@ class _BranchPageState extends State<BranchPage> {
     if (bloc.shopCurrBranch.branchDocumentId == _currentBranch.branchDocumentId)
       bloc.changeShopCurrBranch(_currentBranch);
     Navigator.of(context).pop();
+  }
+
+  Color _setBackColor(BuildContext context, Map<String, dynamic> data) {
+    if (data['maxCapacity'] == null || data['maxCapacity'] == 0) {
+      return Theme.of(context).primaryColor;
+    }
+    final maxCapacity = data['maxCapacity'];
+    final capacity = data['capacity'] ?? 0;
+    final currentPercentage = (capacity * 100) / maxCapacity;
+    if (currentPercentage < 80) {
+      return Theme.of(context).secondaryHeaderColor;
+    } else if (currentPercentage >= 80 && currentPercentage < 99) {
+      return Colors.orangeAccent;
+    } else
+      return Colors.redAccent;
   }
 }

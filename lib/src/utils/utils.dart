@@ -233,3 +233,4 @@ en cualquier nivel (municipal, distrital, departamental y/o nacional).
 ACEPTACIÓN: Haciendo Click en “Sí Acepto”, el Usuario/Titular otorga la autorización de uso y protección de Datos
 Personales y Datos Personales Sensibles de conformidad con los Términos y Condiciones anteriormente establecidos.''';
 }
+

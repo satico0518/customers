@@ -3,6 +3,7 @@ import 'package:customers/src/bloc/provider.dart';
 import 'package:customers/src/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class BranchDetail extends StatefulWidget {
@@ -97,8 +98,7 @@ class _BranchDetailState extends State<BranchDetail> {
                                 style: GoogleFonts.acme(
                                     color: Theme.of(context).primaryColor,
                                     fontSize: 30,
-                                    fontWeight: FontWeight.bold
-                                    ),
+                                    fontWeight: FontWeight.bold),
                               )
                             ],
                           ),
@@ -118,9 +118,20 @@ class _BranchDetailState extends State<BranchDetail> {
   }
 
   void _setBackColor(BuildContext context, Map<String, dynamic> data) {
+    if (data['maxCapacity'] == null || data['maxCapacity'] == 0) {
+      Fluttertoast.showToast(
+        msg: 'Debe asignar el aforo máximo a la sucursal ${data['branchName']}',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIosWeb: 3,
+        backgroundColor: Colors.green,
+        textColor: Colors.white,
+        fontSize: 18.0,
+      ).then((value) => Navigator.of(context).pop());
+    }
     var finalColor;
     final maxCapacity = data['maxCapacity'];
-    final capacity = data['capacity'];
+    final capacity = data['capacity'] ?? 0;
     final currentPercentage = (capacity * 100) / maxCapacity;
     if (currentPercentage < 80) {
       finalColor = Theme.of(context).secondaryHeaderColor;

@@ -19,16 +19,13 @@ class FormList extends StatefulWidget {
 
 class _FormListState extends State<FormList> {
   List<DocumentSnapshot> _listData = [];
-  bool _sortDateDesc = true;
-  bool _sortAsc = true;
-  int _sortColumnIndex;
   Timestamp _startDate;
   Timestamp _endDate;
+  DateTime _now = DateTime.now();
 
   @override
   void initState() {
     super.initState();
-    final _now = DateTime.now();
     _startDate =
         Timestamp.fromDate(DateTime(_now.year, _now.month, _now.day, 0, 0, 0));
     _endDate = Timestamp.fromDate(
@@ -67,103 +64,109 @@ class _FormListState extends State<FormList> {
             children: [
               Padding(
                 padding: const EdgeInsets.all(15.0),
-                child: Text(
-                    'Listado de encuestas - ${capitalizeWord(_bloc.shopCurrBranch.branchName)}.'),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        '${capitalizeWord(_bloc.shopCurrBranch.branchName)}',
+                        style: TextStyle(
+                            fontSize: 18,
+                            color: Theme.of(context).primaryColor,
+                            fontWeight: FontWeight.bold),
+                      ),
+                      Text(' - Total: ${_listData.length}',
+                          style: TextStyle(
+                              fontSize: 18,
+                              color: Theme.of(context).primaryColor,
+                              fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                ),
               ),
-              StreamBuilder<QuerySnapshot>(
-                stream: ShopFirebaseProvider.fb
+              FutureBuilder<QuerySnapshot>(
+                future: ShopFirebaseProvider.fb
                     .getBranchForms(_startDate, _endDate),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     _listData = snapshot.data.documents;
+                    if (snapshot.data.documents.length == 0)
+                      return Container(
+                          height: MediaQuery.of(context).size.height * .70,
+                          padding: EdgeInsets.all(20),
+                          child: Text(
+                              'No hay encuestas registradas para este día!'));
                     _listData.sort((item1, item2) =>
                         item2["insertDate"].compareTo(item1["insertDate"]));
+                    
                     return Container(
                       height: MediaQuery.of(context).size.height * .70,
                       color: Colors.grey[200],
                       width: double.infinity,
-                      child: Expanded(
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.vertical,
                         child: SingleChildScrollView(
-                          scrollDirection: Axis.vertical,
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: DataTable(
-                              sortColumnIndex: _sortColumnIndex,
-                              sortAscending: _sortAsc,
-                              dataRowHeight: 25,
-                              columns: [
-                                DataColumn(
-                                    label: Text('Fecha'),
-                                    onSort: (colInx, sortAsc) {
-                                      setState(() {
-                                        if (colInx == _sortColumnIndex) {
-                                          _sortAsc = _sortDateDesc = sortAsc;
-                                        } else {
-                                          _sortColumnIndex = colInx;
-                                          _sortAsc = _sortDateDesc;
-                                        }
-                                        _listData.sort((a, b) => a
-                                            .data['insertDate']
-                                            .compareTo(b.data['insertDate']));
-                                        if (!sortAsc)
-                                          _listData =
-                                              _listData.reversed.toList();
-                                      });
-                                    }),
-                                DataColumn(label: Text('Temp.')),
-                                DataColumn(label: Text('Ver')),
-                              ],
-                              rows: _listData.map((item) {
-                                Icon gettingInIcon;
-                                if (item.data['gettingIn'] != null) {
-                                  if (item.data['gettingIn'])
-                                    gettingInIcon = Icon(
-                                      Icons.arrow_downward,
-                                      color: Colors.green,
-                                      size: 15,
-                                    );
-                                  else
-                                    gettingInIcon = Icon(
-                                      Icons.arrow_upward,
-                                      color: Colors.red,
-                                      size: 15,
-                                    );
-                                } else
+                          scrollDirection: Axis.horizontal,
+                          child: DataTable(
+                            dataRowHeight: 25,
+                            columns: [
+                              DataColumn(
+                                label: Text('Fecha'),
+                              ),
+                              DataColumn(label: Text('Temp.')),
+                              DataColumn(label: Text('Ver')),
+                            ],
+                            rows: _listData.map((item) {
+                              Icon gettingInIcon;
+                              if (item.data['gettingIn'] != null) {
+                                if (item.data['gettingIn'])
                                   gettingInIcon = Icon(
-                                    Icons.block,
-                                    color: Colors.white,
-                                    size: 1,
+                                    Icons.arrow_downward,
+                                    color: Colors.green,
+                                    size: 15,
                                   );
-                                return DataRow(
-                                  cells: <DataCell>[
-                                    DataCell(Row(
-                                      children: [
-                                        gettingInIcon,
-                                        Text(getStringDateFromtimestamp(
-                                            item.data['insertDate'])),
-                                      ],
-                                    )),
-                                    DataCell(
-                                        Text(item.data['temperature'] ?? '')),
-                                    DataCell(
-                                      GestureDetector(
-                                        onTap: () =>
-                                            _details(context, item.data),
-                                        child: Container(
-                                          width: 20,
-                                          child: Icon(
-                                            Icons.search,
-                                            size: 20,
-                                            color: Theme.of(context)
-                                                .secondaryHeaderColor,
-                                          ),
+                                else
+                                  gettingInIcon = Icon(
+                                    Icons.arrow_upward,
+                                    color: Colors.red,
+                                    size: 15,
+                                  );
+                              } else
+                                gettingInIcon = Icon(
+                                  Icons.block,
+                                  color: Colors.white,
+                                  size: 1,
+                                );
+                              return DataRow(
+                                cells: <DataCell>[
+                                  DataCell(Row(
+                                    children: [
+                                      gettingInIcon,
+                                      Text(getStringDateFromtimestamp(
+                                          item.data['insertDate'])),
+                                    ],
+                                  )),
+                                  DataCell(
+                                      Text(item.data['temperature'] ?? '')),
+                                  DataCell(
+                                    GestureDetector(
+                                      onTap: () => _details(context, item.data),
+                                      child: Container(
+                                        width: 20,
+                                        child: Icon(
+                                          Icons.search,
+                                          size: 20,
+                                          color: Theme.of(context)
+                                              .secondaryHeaderColor,
                                         ),
                                       ),
                                     ),
-                                  ],
-                                );
-                              }).toList(),
-                            ),
+                                  ),
+                                ],
+                              );
+                            }).toList(),
                           ),
                         ),
                       ),
@@ -224,6 +227,10 @@ class _FormListState extends State<FormList> {
                     ),
                     onPressed: () => setState(
                       () {
+                        if (_startDate.toDate() ==
+                            Timestamp.fromDate(DateTime(
+                                    _now.year, _now.month, _now.day, 0, 0, 0))
+                                .toDate()) return;
                         _listData = [];
                         _startDate = Timestamp.fromDate(
                             _startDate.toDate().add(Duration(days: 1)));

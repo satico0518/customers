@@ -19,6 +19,7 @@ class BranchPage extends StatefulWidget {
 
 class _BranchPageState extends State<BranchPage> {
   final _formKey = GlobalKey<FormState>();
+  UserBloc _bloc;
   String _branchName = '';
   String _branchAddress = '';
   int _branchMaxcapacity = 0;
@@ -26,7 +27,7 @@ class _BranchPageState extends State<BranchPage> {
 
   @override
   Widget build(BuildContext context) {
-    final bloc = Provider.of(context);
+    _bloc = Provider.of(context);
     final _prefs = PreferenceAuth();
     _prefs.initPrefs();
 
@@ -43,199 +44,206 @@ class _BranchPageState extends State<BranchPage> {
               onPressed: () {
                 _branchName = '';
                 _branchAddress = '';
-                _addBranch(context, bloc, false);
+                _branchMaxcapacity = 0;
+                _addBranch(context, _bloc, false);
               })
         ],
       ),
-      body: Column(
-        mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Padding(
-            padding: EdgeInsets.all(20).copyWith(bottom: 0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                StreamBuilder<ShopBranchModel>(
-                  stream: bloc.shopCurrBranchStream,
-                  builder: (context, snapshot) {
-                    return RichText(
-                      text: TextSpan(
-                        text:
-                            'Usted está actualmente registrando sobre la sucursal ',
-                        style: TextStyle(color: Colors.black, fontSize: 18),
-                        children: <TextSpan>[
-                          TextSpan(
+      body: SingleChildScrollView(
+        scrollDirection: Axis.vertical,
+        child: Column(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Padding(
+              padding: EdgeInsets.all(20).copyWith(bottom: 0),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    StreamBuilder<ShopBranchModel>(
+                      stream: _bloc.shopCurrBranchStream,
+                      builder: (context, snapshot) {
+                        return RichText(
+                          text: TextSpan(
                             text:
-                                ' ${snapshot.hasData ? capitalizeWord(snapshot.data.branchName) : ''}',
-                            style: TextStyle(
-                                letterSpacing: 5,
-                                backgroundColor:
-                                    Theme.of(context).secondaryHeaderColor,
-                                color: Colors.white,
-                                fontSize: 22),
-                          ),
-                          TextSpan(
-                            text:
-                                ', si desea cambiar de Sucursal seleccione alguna de la lista inferior.',
-                            style:
-                                TextStyle(color: Colors.black, fontSize: 18),
-                          )
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ),
-          ),
-          SingleChildScrollView(
-            scrollDirection: Axis.vertical,
-            child: Container(
-              height: MediaQuery.of(context).size.height * .65,
-              color: Colors.grey[200],
-              width: double.infinity,
-              child: StreamBuilder<QuerySnapshot>(
-                stream: Firestore.instance
-                    .collection('Branches')
-                    .where('shopDocumentId', isEqualTo: bloc.shopDocumentId)
-                    .snapshots(),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    final items = snapshot.data.documents;
-                    return ListView.separated(
-                      separatorBuilder: (context, index) {
-                        return Divider(
-                          color: Theme.of(context).primaryColor,
-                          thickness: 3,
-                        );
-                      },
-                      itemCount: items.length,
-                      itemBuilder: (context, index) {
-                        return ListTile(
-                          contentPadding: EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 0),
-                          leading: GestureDetector(
-                            onTap: () {
-                              bloc.changeShopCurrBranch(
-                                  ShopBranchModel.fromJson(
-                                      items[index].data));
-                              bloc.changeShopBranchName(
-                                  items[index].data['branchName']);
-                              _prefs.currentBranch =
-                                  ShopBranchModel.fromJson(items[index].data);
-                            },
-                            child: CircleAvatar(
-                              backgroundColor:
-                                  _setBackColor(context, items[index].data),
-                              child: Text(
-                                items[index].data['capacity'] != null
-                                    ? items[index].data['capacity'].toString()
-                                    : '0',
+                                'Usted está actualmente registrando sobre la sucursal ',
+                            style: TextStyle(color: Colors.black, fontSize: 18),
+                            children: <TextSpan>[
+                              TextSpan(
+                                text:
+                                    ' ${snapshot.hasData ? capitalizeWord(snapshot.data.branchName) : ''}',
                                 style: TextStyle(
-                                    fontSize: 17,
-                                    fontWeight: FontWeight.bold),
+                                    letterSpacing: 5,
+                                    backgroundColor:
+                                        Theme.of(context).secondaryHeaderColor,
+                                    color: Colors.white,
+                                    fontSize: 22),
                               ),
-                            ),
-                          ),
-                          title: RichText(
-                            text: TextSpan(
-                                text: items[index]['branchName'],
+                              TextSpan(
+                                text:
+                                    ', si desea cambiar de Sucursal seleccione alguna de la lista inferior.',
                                 style: TextStyle(
-                                    color: Theme.of(context).primaryColor,
-                                    fontSize: 15),
-                                children: [
-                                  TextSpan(
-                                      text:
-                                          ' - Max (${items[index].data['maxCapacity'] != null ? items[index].data['maxCapacity'].toString() : '0'})',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                      ))
-                                ]),
+                                    color: Colors.black, fontSize: 18),
+                              )
+                            ],
                           ),
-                          subtitle: Text(items[index]['branchAddress']),
-                          trailing: SizedBox(
-                            width: 60,
-                            child: Row(
-                              children: [
-                                GestureDetector(
-                                  child: Icon(
-                                    Icons.open_with,
-                                    color: Theme.of(context).primaryColor,
-                                  ),
-                                  onTap: () {
-                                    bloc.changeShopCurrBranch(
-                                        ShopBranchModel.fromJson(
-                                            items[index].data));
-                                    bloc.changeShopBranchName(
-                                        items[index].data['branchName']);
-                                    _prefs.currentBranch =
-                                        ShopBranchModel.fromJson(
-                                            items[index].data);
-                                    Navigator.of(context)
-                                        .pushNamed(BranchDetail.routeName);
-                                  },
-                                ),
-                                SizedBox(
-                                  width: 10,
-                                ),
-                                GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      _branchName = capitalizeWord(
-                                          items[index].data['branchName'] ??
-                                              '');
-                                      _branchAddress =
-                                          items[index].data['branchAddress'];
-                                      _branchMaxcapacity =
-                                          items[index].data['maxCapacity'] ??
-                                              0;
-                                      _currentBranch =
-                                          ShopBranchModel.fromJson(
-                                              items[index].data);
-                                      _addBranch(context, bloc, true);
-                                    });
-                                  },
-                                  child: Icon(
-                                    Icons.edit,
-                                    color: Theme.of(context)
-                                        .secondaryHeaderColor,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          visualDensity:
-                              VisualDensity.adaptivePlatformDensity,
                         );
                       },
-                    );
-                  } else {
-                    return Padding(
-                      padding: EdgeInsets.symmetric(
-                          horizontal: MediaQuery.of(context).size.width / 4),
-                      child: Column(
-                        children: [
-                          SizedBox(
-                            height: 100,
-                          ),
-                          CircularProgressIndicator(),
-                          SizedBox(
-                            height: 30,
-                          ),
-                          Text(
-                            'cargando encuestas...',
-                            style: TextStyle(fontSize: 16),
-                          )
-                        ],
-                      ),
-                    );
-                  }
-                },
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+            SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+              child: Container(
+                height: MediaQuery.of(context).size.height * .65,
+                color: Colors.grey[200],
+                width: double.infinity,
+                child: StreamBuilder<QuerySnapshot>(
+                  stream: Firestore.instance
+                      .collection('Branches')
+                      .where('shopDocumentId', isEqualTo: _bloc.shopDocumentId)
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      final items = snapshot.data.documents;
+                      return ListView.separated(
+                        separatorBuilder: (context, index) {
+                          return Divider(
+                            color: Theme.of(context).primaryColor,
+                            thickness: 3,
+                          );
+                        },
+                        itemCount: items.length,
+                        itemBuilder: (context, index) {
+                          return ListTile(
+                            contentPadding: EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 0),
+                            leading: GestureDetector(
+                              onTap: () {
+                                _bloc.changeShopCurrBranch(
+                                    ShopBranchModel.fromJson(
+                                        items[index].data));
+                                _bloc.changeShopBranchName(
+                                    items[index].data['branchName']);
+                                _prefs.currentBranch =
+                                    ShopBranchModel.fromJson(items[index].data);
+                              },
+                              child: CircleAvatar(
+                                backgroundColor:
+                                    _setBackColor(context, items[index].data),
+                                child: Text(
+                                  items[index].data['capacity'] != null
+                                      ? items[index].data['capacity'].toString()
+                                      : '0',
+                                  style: TextStyle(
+                                      fontSize: 17,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ),
+                            title: RichText(
+                              text: TextSpan(
+                                  text: items[index]['branchName'],
+                                  style: TextStyle(
+                                      color: Theme.of(context).primaryColor,
+                                      fontSize: 15),
+                                  children: [
+                                    TextSpan(
+                                        text:
+                                            ' - Max (${items[index].data['maxCapacity'] != null ? items[index].data['maxCapacity'].toString() : '0'})',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                        ))
+                                  ]),
+                            ),
+                            subtitle: Text(items[index]['branchAddress']),
+                            trailing: SizedBox(
+                              width: 60,
+                              child: Row(
+                                children: [
+                                  GestureDetector(
+                                    child: Icon(
+                                      Icons.open_with,
+                                      color: Theme.of(context).primaryColor,
+                                    ),
+                                    onTap: () {
+                                      _bloc.changeShopCurrBranch(
+                                          ShopBranchModel.fromJson(
+                                              items[index].data));
+                                      _bloc.changeShopBranchName(
+                                          items[index].data['branchName']);
+                                      _prefs.currentBranch =
+                                          ShopBranchModel.fromJson(
+                                              items[index].data);
+                                      Navigator.of(context)
+                                          .pushNamed(BranchDetail.routeName);
+                                    },
+                                  ),
+                                  SizedBox(
+                                    width: 10,
+                                  ),
+                                  GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        _branchName = capitalizeWord(
+                                            items[index].data['branchName'] ??
+                                                '');
+                                        _branchAddress =
+                                            items[index].data['branchAddress'];
+                                        _branchMaxcapacity =
+                                            items[index].data['maxCapacity'] ??
+                                                0;
+                                        _currentBranch =
+                                            ShopBranchModel.fromJson(
+                                                items[index].data);
+                                        _addBranch(context, _bloc, true);
+                                      });
+                                    },
+                                    child: Icon(
+                                      Icons.edit,
+                                      color: Theme.of(context)
+                                          .secondaryHeaderColor,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            visualDensity:
+                                VisualDensity.adaptivePlatformDensity,
+                          );
+                        },
+                      );
+                    } else {
+                      return Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: MediaQuery.of(context).size.width / 4),
+                        child: Column(
+                          children: [
+                            SizedBox(
+                              height: 100,
+                            ),
+                            CircularProgressIndicator(),
+                            SizedBox(
+                              height: 30,
+                            ),
+                            Text(
+                              'cargando encuestas...',
+                              style: TextStyle(fontSize: 16),
+                            )
+                          ],
+                        ),
+                      );
+                    }
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -299,7 +307,7 @@ class _BranchPageState extends State<BranchPage> {
                             labelText: 'Aforo Máximo',
                           ),
                           validator: (value) {
-                            if (value.isEmpty) return 'Aforo es obligatorio';
+                            if (value == '0') return 'Aforo es obligatorio';
                             return null;
                           },
                           onChanged: (value) => setState(

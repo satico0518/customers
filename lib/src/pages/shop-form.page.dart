@@ -86,6 +86,7 @@ class _ShopFormState extends State<ShopForm> {
                   StreamBuilder<bool>(
                       stream: bloc.shopIsEditingStream,
                       builder: (context, snapshot) {
+                        if (!snapshot.hasData) return Text('');
                         return Visibility(
                             visible: !snapshot.data, child: _getNitField(bloc));
                       }),
@@ -97,12 +98,14 @@ class _ShopFormState extends State<ShopForm> {
                     height: 10,
                   ),
                   StreamBuilder<bool>(
-                      stream: bloc.shopIsEditingStream,
-                      builder: (context, snapshot) {
-                        return Visibility(
-                            visible: !snapshot.data,
-                            child: _getShopBranchNameField(bloc));
-                      }),
+                    stream: bloc.shopIsEditingStream,
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) return Text('');
+                      return Visibility(
+                          visible: !snapshot.data,
+                          child: _getShopBranchNameField(bloc));
+                    },
+                  ),
                   SizedBox(
                     height: 10,
                   ),
@@ -129,6 +132,7 @@ class _ShopFormState extends State<ShopForm> {
                   StreamBuilder<bool>(
                     stream: bloc.shopIsEditingStream,
                     builder: (context, snapshot) {
+                      if (!snapshot.hasData) return Text('');
                       return Visibility(
                         visible: !snapshot.data,
                         child: Column(

@@ -55,6 +55,7 @@ class UserBloc {
   final _formShopDocIdController = BehaviorSubject<String>();
   final _formShopBranchDocIdController = BehaviorSubject<String>();
   final _formUserDocIdController = BehaviorSubject<String>();
+  final _formListCount = BehaviorSubject<int>();
 
   Stream<bool> get userIsLoggedStream => _userIsLoggedController.stream;
   Stream<bool> get userIsEditingStream => _userIsEditingController.stream;
@@ -104,6 +105,7 @@ class UserBloc {
   Stream<String> get formShopDocIdStream => _formShopDocIdController.stream;
   Stream<String> get formShopBranchDocIdStream => _formShopBranchDocIdController.stream;
   Stream<String> get formUserDocIdStream => _formUserDocIdController.stream;
+  Stream<int> get formListCountStream => _formListCount.stream;
 
   Function(bool) get changeUserIsLogged => _userIsLoggedController.sink.add;
   Function(bool) get changeUserIsEditing => _userIsEditingController.sink.add;
@@ -153,6 +155,7 @@ class UserBloc {
   Function(String) get changeFormShopDocId => _formShopDocIdController.sink.add;
   Function(String) get changeFormShopBranchDocId => _formShopBranchDocIdController.sink.add;
   Function(String) get changeFormUserDocId => _formUserDocIdController.sink.add;
+  Function(int) get changeFormListCount => _formListCount.sink.add;
 
   bool get userIsLogged => _userIsLoggedController.value;
   bool get userIsEditing => _userIsEditingController.value;
@@ -202,6 +205,7 @@ class UserBloc {
   String get formShopDocId => _formShopDocIdController.value ?? '';
   String get formShopBranchDocId => _formShopBranchDocIdController.value ?? '';
   String get formUserDocId => _formUserDocIdController.value ?? '';
+  int get formListCount => _formListCount.value ?? '';
 
   UserBloc() {
     UserDBProvider.db.getUser().then((value) {
@@ -307,5 +311,6 @@ class UserBloc {
     _formShopDocIdController?.close();
     _formShopBranchDocIdController?.close();
     _formUserDocIdController?.close();
+    _formListCount?.close();
   }
 }

@@ -77,11 +77,16 @@ class _FormListState extends State<FormList> {
                             color: Theme.of(context).primaryColor,
                             fontWeight: FontWeight.bold),
                       ),
-                      Text(' - Total: ${_listData.length}',
-                          style: TextStyle(
-                              fontSize: 18,
-                              color: Theme.of(context).primaryColor,
-                              fontWeight: FontWeight.bold)),
+                      StreamBuilder<int>(
+                        stream: _bloc.formListCountStream,
+                        builder: (context, snapshot) {
+                          return Text(' - Total: ${snapshot.data ?? 0}',
+                              style: TextStyle(
+                                  fontSize: 18,
+                                  color: Theme.of(context).primaryColor,
+                                  fontWeight: FontWeight.bold));
+                        }
+                      ),
                     ],
                   ),
                 ),
@@ -92,15 +97,16 @@ class _FormListState extends State<FormList> {
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     _listData = snapshot.data.documents;
+                    _bloc.changeFormListCount(_listData.length); 
                     if (snapshot.data.documents.length == 0)
                       return Container(
                           height: MediaQuery.of(context).size.height * .70,
                           padding: EdgeInsets.all(20),
                           child: Text(
                               'No hay encuestas registradas para este día!'));
+
                     _listData.sort((item1, item2) =>
                         item2["insertDate"].compareTo(item1["insertDate"]));
-                    
                     return Container(
                       height: MediaQuery.of(context).size.height * .70,
                       color: Colors.grey[200],
@@ -206,7 +212,6 @@ class _FormListState extends State<FormList> {
                     ),
                     onPressed: () => setState(
                       () {
-                        _listData = [];
                         _startDate = Timestamp.fromDate(
                             _startDate.toDate().subtract(Duration(days: 1)));
                         _endDate = Timestamp.fromDate(
@@ -231,7 +236,6 @@ class _FormListState extends State<FormList> {
                             Timestamp.fromDate(DateTime(
                                     _now.year, _now.month, _now.day, 0, 0, 0))
                                 .toDate()) return;
-                        _listData = [];
                         _startDate = Timestamp.fromDate(
                             _startDate.toDate().add(Duration(days: 1)));
                         _endDate = Timestamp.fromDate(

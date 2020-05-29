@@ -123,6 +123,8 @@ class _BranchPageState extends State<BranchPage> {
                             contentPadding: EdgeInsets.symmetric(
                                 horizontal: 10, vertical: 0),
                             leading: GestureDetector(
+                              onLongPress: () =>
+                                  _resetCounter(items[index].data),
                               onTap: () {
                                 _bloc.changeShopCurrBranch(
                                     ShopBranchModel.fromJson(
@@ -162,13 +164,14 @@ class _BranchPageState extends State<BranchPage> {
                             ),
                             subtitle: Text(items[index]['branchAddress']),
                             trailing: SizedBox(
-                              width: 60,
+                              width: 70,
                               child: Row(
                                 children: [
                                   GestureDetector(
                                     child: Icon(
                                       Icons.open_with,
                                       color: Theme.of(context).primaryColor,
+                                      size: 30,
                                     ),
                                     onTap: () {
                                       _bloc.changeShopCurrBranch(
@@ -399,5 +402,54 @@ class _BranchPageState extends State<BranchPage> {
       return Colors.orangeAccent;
     } else
       return Colors.redAccent;
+  }
+
+  _resetCounter(Map<String, dynamic> branch) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: Color.fromRGBO(255, 0, 0, 0.5),
+          titleTextStyle: TextStyle(color: Colors.white),
+          contentTextStyle: TextStyle(color: Colors.white),
+          title: Text(
+            'Atención!',
+            style: TextStyle(fontSize: 30),
+          ),
+          content: Text(
+            'Esta a punto de reiniciar el conteo del aforo actual para la sucursal ${branch['branchName']}. Está seguro de reiniciar el contador?',
+            style: TextStyle(fontSize: 20),
+          ),
+          actions: <Widget>[
+            FlatButton(
+              color: Colors.white,
+              child: Text(
+                "Reiniciar",
+                style: TextStyle(color: Colors.redAccent),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+                ShopFirebaseProvider.fb.resetBranchCapacity(branch['branchDocumentId']);
+                return;
+              },
+            ),
+            SizedBox(
+              width: 20,
+            ),
+            FlatButton(
+              color: Colors.white,
+              child: Text(
+                "Cancelar",
+                style: TextStyle(color: Theme.of(context).primaryColor),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+                return;
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 }

@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:customers/src/bloc/user.bloc.dart';
 import 'package:customers/src/models/shop-branch.model.dart';
 import 'package:customers/src/models/shop.model.dart';
 import 'package:customers/src/providers/auth.shared-preferences.dart';
@@ -55,18 +54,18 @@ class ShopFirebaseProvider {
   Future<QuerySnapshot> getBranchForms(Timestamp startDate, Timestamp endDate) {
     try {
       final _prefs = PreferenceAuth();
-    _prefs.initPrefs();
-    final branchID = _prefs.currentBranch.branchDocumentId;
-    return Firestore.instance
-        .collection('Forms')
-        .where('shopBranchDocumentId', isEqualTo: branchID)
-        .where('insertDate', isGreaterThan: startDate)
-        .where('insertDate', isLessThan: endDate)
-        .getDocuments();
+      _prefs.initPrefs();
+      final branchID = _prefs.currentBranch.branchDocumentId;
+      return Firestore.instance
+          .collection('Forms')
+          .where('shopBranchDocumentId', isEqualTo: branchID)
+          .where('insertDate', isGreaterThan: startDate)
+          .where('insertDate', isLessThan: endDate)
+          .getDocuments();
     } catch (e) {
       print('Error: ${e.toString()}');
       return null;
-    }    
+    }
   }
 
   Future<DocumentSnapshot> getShopFirebase(String documentId) {
@@ -106,13 +105,10 @@ class ShopFirebaseProvider {
     return branch.data['capacity'];
   }
 
-  resetBranchCapacity(ShopBranchModel branch, UserBloc bloc) {
+  resetBranchCapacity(String branchDocumentId) {
     fbi
         .collection('Branches')
-        .document(branch.branchDocumentId)
+        .document(branchDocumentId)
         .updateData({'capacity': 0});
-    final currentBranch = bloc.shopCurrBranch;
-    currentBranch.capacity = 0;
-    bloc.changeShopCurrBranch(currentBranch);
   }
 }

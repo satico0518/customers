@@ -215,8 +215,6 @@ class _BranchPageState extends State<BranchPage> {
                                 ],
                               ),
                             ),
-                            visualDensity:
-                                VisualDensity.adaptivePlatformDensity,
                           );
                         },
                       );

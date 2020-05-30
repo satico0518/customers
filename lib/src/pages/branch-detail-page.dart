@@ -34,14 +34,26 @@ class _BranchDetailState extends State<BranchDetail> {
                 return Stack(
                   children: [
                     Center(
-                        child: Opacity(
-                            child: Image(
-                              image: AssetImage(
-                                'assets/img/icon.png',
-                              ),
-                              height: MediaQuery.of(context).size.height * 0.4,
+                      child: Opacity(
+                          child: Image(
+                            image: AssetImage(
+                              'assets/img/icon.png',
                             ),
-                            opacity: 0.3)),
+                            height: MediaQuery.of(context).size.height * 0.4,
+                          ),
+                          opacity: 0.3),
+                    ),
+                    Positioned(
+                      top: 20,
+                      left: 10,
+                      child: CircleAvatar(
+                        backgroundColor: Theme.of(context).primaryColor,
+                        child: IconButton(
+                          icon: Icon(Icons.arrow_back_ios),
+                          onPressed: () => Navigator.of(context).pop(),
+                        ),
+                      ),
+                    ),
                     Container(
                       width: double.infinity,
                       child: Column(

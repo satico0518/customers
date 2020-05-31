@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:customers/src/bloc/provider.dart';
+import 'package:customers/src/bloc/shop.bloc.dart';
+import 'package:customers/src/bloc/user.bloc.dart';
 import 'package:customers/src/models/shop-branch.model.dart';
 import 'package:customers/src/models/user.model.dart';
 import 'package:customers/src/pages/home-page.dart';
@@ -25,6 +27,8 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  ShopBloc _shopBloc;
+  UserBloc _userBloc;
   final loginSrvc = LoginService();
   final _formKey = GlobalKey<FormState>();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -35,7 +39,8 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    final bloc = Provider.of(context);
+    _shopBloc = Provider.shopBloc(context);
+    _userBloc = Provider.of(context);
     final screenSize = MediaQuery.of(context).size;
     return SafeArea(
       child: Scaffold(
@@ -203,10 +208,10 @@ class _LoginPageState extends State<LoginPage> {
                       children: [
                         GestureDetector(
                           onTap: () {
-                            if (bloc.shopNit == null)
-                              bloc.changeShopIsEditing(false);
+                            if (_shopBloc.shopNit == null)
+                              _shopBloc.changeShopIsEditing(false);
                             else
-                              bloc.changeShopIsEditing(true);
+                              _shopBloc.changeShopIsEditing(true);
                             Navigator.of(context).pushNamed(ShopForm.routeName);
                           },
                           child: Text(
@@ -216,10 +221,10 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         GestureDetector(
                           onTap: () {
-                            if (bloc.userDocumentId != null)
-                              bloc.changeUserIsEditing(true);
+                            if (_userBloc.userDocumentId != null)
+                              _userBloc.changeUserIsEditing(true);
                             else
-                              bloc.changeUserIsEditing(false);
+                              _userBloc.changeUserIsEditing(false);
                             Navigator.of(context)
                                 .pushNamed(RegisterPage.routeName);
                           },
@@ -241,7 +246,6 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   _handleLogin() async {
-    final bloc = Provider.of(context);
     if (_formKey.currentState.validate()) {
       _formKey.currentState.save();
       try {
@@ -255,24 +259,24 @@ class _LoginPageState extends State<LoginPage> {
             final _prefs = PreferenceAuth();
             _prefs.initPrefs();
             if (userSnapshot.documents[0].data['type'] == 'CUSTOMER') {
-              bloc.changeUserIsLogged(true);
-              bloc.changeShopIsLogged(false);
+              _userBloc.changeUserIsLogged(true);
+              _shopBloc.changeShopIsLogged(false);
               _prefs.isUserLoggedIn = true;
               _prefs.isShopLoggedIn = false;
               final userData =
                   UserModel.fromJson(userSnapshot.documents[0].data);
-              bloc.changeUserIdType(userData.identificationType);
-              bloc.changeUserIdentification(userData.identification);
-              bloc.changeUserName(userData.name);
-              bloc.changeUserGenre(userData.genre);
-              bloc.changeUserBirthDate(userData.birthDate);
-              bloc.changeUserLastName(userData.lastName);
-              bloc.changeUserContact(userData.contact);
-              bloc.changeUserAddress(userData.address);
-              bloc.changeUserEmail(userData.email);
-              bloc.changeUserPassword(userData.password);
-              bloc.changeUserDocumentId(userData.documentId);
-              bloc.changeUserFirebaseId(userData.firebaseId);
+              _userBloc.changeUserIdType(userData.identificationType);
+              _userBloc.changeUserIdentification(userData.identification);
+              _userBloc.changeUserName(userData.name);
+              _userBloc.changeUserGenre(userData.genre);
+              _userBloc.changeUserBirthDate(userData.birthDate);
+              _userBloc.changeUserLastName(userData.lastName);
+              _userBloc.changeUserContact(userData.contact);
+              _userBloc.changeUserAddress(userData.address);
+              _userBloc.changeUserEmail(userData.email);
+              _userBloc.changeUserPassword(userData.password);
+              _userBloc.changeUserDocumentId(userData.documentId);
+              _userBloc.changeUserFirebaseId(userData.firebaseId);
               UserDBProvider.db.deleteUser();
               UserDBProvider.db.addUser(userData);
               setState(() => _isLoging = false);
@@ -326,33 +330,34 @@ class _LoginPageState extends State<LoginPage> {
                     );
                   },
                 );
-                bloc.changeShopIsEditing(true);
+                _shopBloc.changeShopIsEditing(true);
               } else {
-                bloc.changeUserIsLogged(false);
-                bloc.changeShopIsLogged(true);
+                _userBloc.changeUserIsLogged(false);
+                _shopBloc.changeShopIsLogged(true);
                 _prefs.isUserLoggedIn = false;
                 _prefs.isShopLoggedIn = true;
                 ShopDBProvider.db
                     .saveShopIfNotExists(context, _userName.trim());
-                if (bloc.shopCurrBranch == null) {
+                if (_shopBloc.shopCurrBranch == null) {
                   final DocumentSnapshot shopSnapshot =
                       await ShopFirebaseProvider.fb.getShopFirebase(
                           userSnapshot.documents[0].documentID);
-                  bloc.changeShopDocumentId(shopSnapshot.documentID);
+                  _shopBloc.changeShopDocumentId(shopSnapshot.documentID);
                   final QuerySnapshot branches = await ShopFirebaseProvider.fb
                       .getBranchesFbByShopDocId(shopSnapshot.documentID);
-                  bloc.changeShopCurrBranch(
+                  _shopBloc.changeShopCurrBranch(
                       ShopBranchModel.fromJson(branches.documents.first.data));
-                  bloc.shopCurrBranch.branchDocumentId =
+                  _shopBloc.shopCurrBranch.branchDocumentId =
                       branches.documents[0].documentID;
-                  _prefs.currentBranch = ShopBranchModel.fromJson(branches.documents[0].data);
+                  _prefs.currentBranch =
+                      ShopBranchModel.fromJson(branches.documents[0].data);
                 } else
-                  _prefs.currentBranch = bloc.shopCurrBranch;
-                  setState(() {
-                    _isLoging = false;
-                  });
-                  Navigator.of(context).pushNamedAndRemoveUntil(
-                    QRReaderPage.routeName, (Route<dynamic>route) => false);
+                  _prefs.currentBranch = _shopBloc.shopCurrBranch;
+                setState(() {
+                  _isLoging = false;
+                });
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                    QRReaderPage.routeName, (Route<dynamic> route) => false);
               }
             }
           } else {

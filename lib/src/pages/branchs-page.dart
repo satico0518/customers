@@ -2,7 +2,7 @@ import 'dart:ui';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:customers/src/bloc/provider.dart';
-import 'package:customers/src/bloc/user.bloc.dart';
+import 'package:customers/src/bloc/shop.bloc.dart';
 import 'package:customers/src/models/shop-branch.model.dart';
 import 'package:customers/src/pages/branch-detail-page.dart';
 import 'package:customers/src/providers/auth.shared-preferences.dart';
@@ -19,7 +19,7 @@ class BranchPage extends StatefulWidget {
 
 class _BranchPageState extends State<BranchPage> {
   final _formKey = GlobalKey<FormState>();
-  UserBloc _bloc;
+  ShopBloc _shopBloc;
   String _branchName = '';
   String _branchAddress = '';
   int _branchMaxcapacity = 0;
@@ -27,7 +27,7 @@ class _BranchPageState extends State<BranchPage> {
 
   @override
   Widget build(BuildContext context) {
-    _bloc = Provider.of(context);
+    _shopBloc = Provider.shopBloc(context);
     final _prefs = PreferenceAuth();
     _prefs.initPrefs();
 
@@ -45,7 +45,7 @@ class _BranchPageState extends State<BranchPage> {
                 _branchName = '';
                 _branchAddress = '';
                 _branchMaxcapacity = 0;
-                _addBranch(context, _bloc, false);
+                _addBranch(context, _shopBloc, false);
               })
         ],
       ),
@@ -63,7 +63,7 @@ class _BranchPageState extends State<BranchPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     StreamBuilder<ShopBranchModel>(
-                      stream: _bloc.shopCurrBranchStream,
+                      stream: _shopBloc.shopCurrBranchStream,
                       builder: (context, snapshot) {
                         return RichText(
                           text: TextSpan(
@@ -105,7 +105,7 @@ class _BranchPageState extends State<BranchPage> {
                 child: StreamBuilder<QuerySnapshot>(
                   stream: Firestore.instance
                       .collection('Branches')
-                      .where('shopDocumentId', isEqualTo: _bloc.shopDocumentId)
+                      .where('shopDocumentId', isEqualTo: _shopBloc.shopDocumentId)
                       .snapshots(),
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
@@ -126,10 +126,10 @@ class _BranchPageState extends State<BranchPage> {
                               onLongPress: () =>
                                   _resetCounter(items[index].data),
                               onTap: () {
-                                _bloc.changeShopCurrBranch(
+                                _shopBloc.changeShopCurrBranch(
                                     ShopBranchModel.fromJson(
                                         items[index].data));
-                                _bloc.changeShopBranchName(
+                                _shopBloc.changeShopBranchName(
                                     items[index].data['branchName']);
                                 _prefs.currentBranch =
                                     ShopBranchModel.fromJson(items[index].data);
@@ -174,10 +174,10 @@ class _BranchPageState extends State<BranchPage> {
                                       size: 30,
                                     ),
                                     onTap: () {
-                                      _bloc.changeShopCurrBranch(
+                                      _shopBloc.changeShopCurrBranch(
                                           ShopBranchModel.fromJson(
                                               items[index].data));
-                                      _bloc.changeShopBranchName(
+                                      _shopBloc.changeShopBranchName(
                                           items[index].data['branchName']);
                                       _prefs.currentBranch =
                                           ShopBranchModel.fromJson(
@@ -203,7 +203,7 @@ class _BranchPageState extends State<BranchPage> {
                                         _currentBranch =
                                             ShopBranchModel.fromJson(
                                                 items[index].data);
-                                        _addBranch(context, _bloc, true);
+                                        _addBranch(context, _shopBloc, true);
                                       });
                                     },
                                     child: Icon(
@@ -249,7 +249,7 @@ class _BranchPageState extends State<BranchPage> {
     );
   }
 
-  _addBranch(BuildContext context, UserBloc bloc, bool isUpdate) {
+  _addBranch(BuildContext context, ShopBloc bloc, bool isUpdate) {
     showDialog(
       context: context,
       builder: (context) {
@@ -344,9 +344,9 @@ class _BranchPageState extends State<BranchPage> {
                             if (_formKey.currentState.validate()) {
                               _formKey.currentState.save();
                               if (isUpdate)
-                                _updateBranch(bloc);
+                                _updateBranch(_shopBloc);
                               else
-                                _saveNewBranch(bloc);
+                                _saveNewBranch(_shopBloc);
                             }
                           },
                         ),
@@ -362,7 +362,7 @@ class _BranchPageState extends State<BranchPage> {
     );
   }
 
-  void _saveNewBranch(UserBloc bloc) async {
+  void _saveNewBranch(ShopBloc bloc) async {
     final branch = ShopBranchModel(
       branchName: _branchName,
       branchAddress: _branchAddress,
@@ -377,7 +377,7 @@ class _BranchPageState extends State<BranchPage> {
     Navigator.of(context).pop();
   }
 
-  void _updateBranch(UserBloc bloc) async {
+  void _updateBranch(ShopBloc bloc) async {
     _currentBranch.branchName = _branchName;
     _currentBranch.branchAddress = _branchAddress;
     _currentBranch.maxCapacity = _branchMaxcapacity;

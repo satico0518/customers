@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:customers/src/bloc/provider.dart';
-import 'package:customers/src/bloc/user.bloc.dart';
+import 'package:customers/src/bloc/shop.bloc.dart';
 import 'package:customers/src/models/shop-branch.model.dart';
 import 'package:customers/src/models/shop.model.dart';
 import 'package:customers/src/pages/login-page.dart';
@@ -21,6 +21,7 @@ class ShopForm extends StatefulWidget {
 }
 
 class _ShopFormState extends State<ShopForm> {
+  ShopBloc _shopBloc;
   final _formKey = GlobalKey<FormState>();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   bool _aceptTerms = false;
@@ -30,8 +31,8 @@ class _ShopFormState extends State<ShopForm> {
 
   @override
   Widget build(BuildContext context) {
-    final bloc = Provider.of(context);
-    _currentPassword = bloc.shopPassword ?? '';
+    _shopBloc = Provider.shopBloc(context);
+    _currentPassword = _shopBloc.shopPassword ?? '';
     return SafeArea(
       child: Scaffold(
         key: _scaffoldKey,
@@ -39,7 +40,7 @@ class _ShopFormState extends State<ShopForm> {
           title: Text('Registro'),
           actions: <Widget>[
             StreamBuilder<bool>(
-                stream: bloc.shopIsEditingStream,
+                stream: _shopBloc.shopIsEditingStream,
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     return Visibility(
@@ -58,7 +59,7 @@ class _ShopFormState extends State<ShopForm> {
                                     _aceptTerms = true;
                                     _saveShopData(
                                         _scaffoldKey.currentState.showSnackBar,
-                                        bloc);
+                                        _shopBloc);
                                   },
                                 ),
                         ],
@@ -84,60 +85,60 @@ class _ShopFormState extends State<ShopForm> {
                     height: 10,
                   ),
                   StreamBuilder<bool>(
-                      stream: bloc.shopIsEditingStream,
+                      stream: _shopBloc.shopIsEditingStream,
                       builder: (context, snapshot) {
                         if (!snapshot.hasData) return Text('');
                         return Visibility(
-                            visible: !snapshot.data, child: _getNitField(bloc));
+                            visible: !snapshot.data, child: _getNitField(_shopBloc));
                       }),
                   SizedBox(
                     height: 10,
                   ),
-                  _getShopNameField(bloc),
+                  _getShopNameField(_shopBloc),
                   SizedBox(
                     height: 10,
                   ),
                   StreamBuilder<bool>(
-                    stream: bloc.shopIsEditingStream,
+                    stream: _shopBloc.shopIsEditingStream,
                     builder: (context, snapshot) {
                       if (!snapshot.hasData) return Text('');
                       return Visibility(
                           visible: !snapshot.data,
-                          child: _getShopBranchNameField(bloc));
+                          child: _getShopBranchNameField(_shopBloc));
                     },
                   ),
                   SizedBox(
                     height: 10,
                   ),
-                  _getShopCityField(bloc),
+                  _getShopCityField(_shopBloc),
                   SizedBox(
                     height: 10,
                   ),
-                  _getShopAddressField(bloc),
+                  _getShopAddressField(_shopBloc),
                   SizedBox(
                     height: 10,
                   ),
-                  _getShopContactNameField(bloc),
+                  _getShopContactNameField(_shopBloc),
                   SizedBox(
                     height: 10,
                   ),
-                  _getShopPhoneField(bloc),
+                  _getShopPhoneField(_shopBloc),
                   SizedBox(
                     height: 10,
                   ),
-                  _getPasswordField(bloc),
+                  _getPasswordField(_shopBloc),
                   SizedBox(
                     height: 10,
                   ),
                   StreamBuilder<bool>(
-                    stream: bloc.shopIsEditingStream,
+                    stream: _shopBloc.shopIsEditingStream,
                     builder: (context, snapshot) {
                       if (!snapshot.hasData) return Text('');
                       return Visibility(
                         visible: !snapshot.data,
                         child: Column(
                           children: [
-                            _getShopEmailField(bloc),
+                            _getShopEmailField(_shopBloc),
                             SizedBox(
                               height: 10,
                             ),
@@ -156,7 +157,7 @@ class _ShopFormState extends State<ShopForm> {
                                     ? null
                                     : _saveShopData(
                                         _scaffoldKey.currentState.showSnackBar,
-                                        bloc),
+                                        _shopBloc),
                                 child: _isRegistering
                                     ? CircularProgressIndicator(
                                         valueColor:
@@ -187,7 +188,7 @@ class _ShopFormState extends State<ShopForm> {
     );
   }
 
-  Widget _getNitField(UserBloc bloc) {
+  Widget _getNitField(ShopBloc bloc) {
     return StreamBuilder<String>(
       stream: bloc.shopNitStream,
       builder: (context, snapshot) {
@@ -216,7 +217,7 @@ class _ShopFormState extends State<ShopForm> {
     );
   }
 
-  Widget _getShopNameField(UserBloc bloc) {
+  Widget _getShopNameField(ShopBloc bloc) {
     return StreamBuilder<String>(
       stream: bloc.shopNameStream,
       builder: (context, snapshot) {
@@ -241,7 +242,7 @@ class _ShopFormState extends State<ShopForm> {
     );
   }
 
-  Widget _getShopCityField(UserBloc bloc) {
+  Widget _getShopCityField(ShopBloc bloc) {
     return StreamBuilder<String>(
       stream: bloc.shopCityStream,
       builder: (context, snapshot) {
@@ -266,7 +267,7 @@ class _ShopFormState extends State<ShopForm> {
     );
   }
 
-  Widget _getShopAddressField(UserBloc bloc) {
+  Widget _getShopAddressField(ShopBloc bloc) {
     return StreamBuilder<String>(
       stream: bloc.shopAddressStream,
       builder: (context, snapshot) {
@@ -289,7 +290,7 @@ class _ShopFormState extends State<ShopForm> {
     );
   }
 
-  Widget _getShopBranchNameField(UserBloc bloc) {
+  Widget _getShopBranchNameField(ShopBloc bloc) {
     return StreamBuilder<String>(
       stream: bloc.shopBranchNameStream,
       builder: (context, snapshot) {
@@ -313,7 +314,7 @@ class _ShopFormState extends State<ShopForm> {
     );
   }
 
-  Widget _getShopContactNameField(UserBloc bloc) {
+  Widget _getShopContactNameField(ShopBloc bloc) {
     return StreamBuilder<String>(
       stream: bloc.shopContactNameStream,
       builder: (context, snapshot) {
@@ -336,7 +337,7 @@ class _ShopFormState extends State<ShopForm> {
     );
   }
 
-  Widget _getShopPhoneField(UserBloc bloc) {
+  Widget _getShopPhoneField(ShopBloc bloc) {
     return StreamBuilder<String>(
       stream: bloc.shopPhoneStream,
       builder: (context, snapshot) {
@@ -359,7 +360,7 @@ class _ShopFormState extends State<ShopForm> {
     );
   }
 
-  Widget _getShopEmailField(UserBloc bloc) {
+  Widget _getShopEmailField(ShopBloc bloc) {
     return StreamBuilder<String>(
       stream: bloc.shopEmailStream,
       builder: (context, snapshot) {
@@ -404,7 +405,7 @@ class _ShopFormState extends State<ShopForm> {
     );
   }
 
-  Widget _getPasswordField(UserBloc bloc) {
+  Widget _getPasswordField(ShopBloc bloc) {
     return StreamBuilder<String>(
       stream: bloc.shopPasswordStream,
       builder: (context, snapshot) {
@@ -477,7 +478,7 @@ class _ShopFormState extends State<ShopForm> {
     return true;
   }
 
-  _saveShopData(showSnackBar, UserBloc bloc) async {
+  _saveShopData(showSnackBar, ShopBloc bloc) async {
     if (_formKey.currentState.validate() && _areTermsAccepted()) {
       _formKey.currentState.save();
       setState(() => _isRegistering = true);

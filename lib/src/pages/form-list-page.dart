@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:customers/src/bloc/form.bloc.dart';
 import 'package:customers/src/bloc/provider.dart';
+import 'package:customers/src/bloc/shop.bloc.dart';
 import 'package:customers/src/bloc/user.bloc.dart';
 import 'package:customers/src/pages/form-detail-page.dart';
 import 'package:customers/src/providers/shopFirebase.provider.dart';
@@ -37,6 +38,7 @@ class _FormListState extends State<FormList> {
   Widget build(BuildContext context) {
     final UserBloc _userBloc = Provider.of(context);
     final FormBloc _formBloc = Provider.formBloc(context);
+    final ShopBloc _shopBloc = Provider.shopBloc(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -50,7 +52,7 @@ class _FormListState extends State<FormList> {
               Text('CSV'),
               IconButton(
                 icon: Icon(Icons.file_download),
-                onPressed: () => _downloadCsv(_userBloc),
+                onPressed: () => _downloadCsv(_userBloc, _shopBloc),
               ),
             ],
           )
@@ -73,7 +75,7 @@ class _FormListState extends State<FormList> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        '${capitalizeWord(_userBloc.shopCurrBranch.branchName)}',
+                        '${capitalizeWord(_shopBloc.shopCurrBranch.branchName)}',
                         style: TextStyle(
                             fontSize: 18,
                             color: Theme.of(context).primaryColor,
@@ -259,7 +261,7 @@ class _FormListState extends State<FormList> {
     Navigator.of(context).pushNamed(FormDetail.routeName, arguments: data);
   }
 
-  _downloadCsv(UserBloc bloc) async {
+  _downloadCsv(UserBloc bloc, ShopBloc shopBloc) async {
     if (_listData.length == 0) return;
     List<List<dynamic>> dataToExport = [
       [
@@ -296,8 +298,8 @@ class _FormListState extends State<FormList> {
         data['gettingIn'] != null
             ? (data['gettingIn'] == true ? 'Ingreso' : 'Salida')
             : 'N/A',
-        bloc.shopName,
-        bloc.shopCurrBranch.branchName,
+        shopBloc.shopName,
+        shopBloc.shopCurrBranch.branchName,
         data['temperature'],
         data['identificationType'],
         data['identification'],
@@ -326,7 +328,7 @@ class _FormListState extends State<FormList> {
     final File txtfile = await writeFileContent(csv);
     final fileUrl = await uploadFile(txtfile,
         'encuestas_${DateTime.now().millisecondsSinceEpoch.toString()}.txt');
-    final response = await sendFormListEmail(fileUrl, bloc);
+    final response = await sendFormListEmail(fileUrl, shopBloc);
     Fluttertoast.showToast(
       msg: response,
       toastLength: Toast.LENGTH_SHORT,

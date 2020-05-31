@@ -19,14 +19,14 @@ class _BranchDetailState extends State<BranchDetail> {
 
   @override
   Widget build(BuildContext context) {
-    final bloc = Provider.of(context);
+    final _shopBloc = Provider.shopBloc(context);
     return Scaffold(
       backgroundColor: _backColor,
       body: Center(
         child: StreamBuilder<DocumentSnapshot>(
             stream: Firestore.instance
                 .collection('Branches')
-                .document(bloc.shopCurrBranch.branchDocumentId)
+                .document(_shopBloc.shopCurrBranch.branchDocumentId)
                 .snapshots(),
             builder: (context, snapshot) {
               if (snapshot.hasData) {

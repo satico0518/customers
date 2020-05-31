@@ -3,7 +3,7 @@ import 'dart:ui';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:customers/src/bloc/provider.dart';
-import 'package:customers/src/bloc/user.bloc.dart';
+import 'package:customers/src/bloc/shop.bloc.dart';
 import 'package:customers/src/models/form.model.dart';
 import 'package:customers/src/models/user.model.dart';
 import 'package:customers/src/pages/qr-reader-page.dart';
@@ -269,7 +269,7 @@ class _FormResumePageState extends State<FormResumePage> {
   }
 
   _saveDataToFirebase(formDataMap, bool isGettingIn) async {
-    final UserBloc bloc = Provider.of(context);
+    final ShopBloc bloc = Provider.shopBloc(context);
     if (_temperature.isEmpty) {
       Fluttertoast.showToast(
         msg: "Debe registrar la temperatura del visitante!",
@@ -344,7 +344,7 @@ class _FormResumePageState extends State<FormResumePage> {
     }
   }
 
-  void _updateCapacity(UserBloc bloc, bool isGettingIn) async {
+  void _updateCapacity(ShopBloc bloc, bool isGettingIn) async {
       var currCapacity = (await ShopFirebaseProvider.fb.getBranchCapacity(bloc.shopCurrBranch.branchDocumentId)) ?? 0;
       isGettingIn ? ++currCapacity : --currCapacity;
       var currentBranch = bloc.shopCurrBranch;

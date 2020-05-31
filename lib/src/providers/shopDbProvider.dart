@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:customers/src/bloc/provider.dart';
+import 'package:customers/src/bloc/shop.bloc.dart';
+import 'package:customers/src/bloc/user.bloc.dart';
 import 'package:customers/src/models/shop-branch.model.dart';
 import 'package:customers/src/models/shop.model.dart';
 import 'package:customers/src/providers/shopFirebase.provider.dart';
@@ -75,37 +77,38 @@ class ShopDBProvider {
   }
 
   saveShopIfNotExists(BuildContext context, String email) async {
-    final bloc = Provider.of(context);
-    if (bloc.shopEmail == null || bloc.shopEmail.isEmpty || bloc.shopEmail != email) {
+    final ShopBloc shopBloc = Provider.shopBloc(context);
+    final UserBloc userBloc = Provider.of(context);
+    if (shopBloc.shopEmail == null || shopBloc.shopEmail.isEmpty || shopBloc.shopEmail != email) {
       // update Shop
       final shopSnapshot =
           await ShopFirebaseProvider.fb.getShopFbByEmail(email);
       final docId = shopSnapshot.documents[0].documentID;
       final shopData = shopSnapshot.documents[0].data;
-      bloc.changeShopAddress(shopData['address']);
-      bloc.changeShopBranchName(shopData['branchName']);
-      bloc.changeShopCity(shopData['city']);
-      bloc.changeShopContactName(shopData['contactName']);
-      bloc.changeShopDocumentId(docId);
-      bloc.changeShopEmail(shopData['email']);
-      bloc.changeShopFirebaseId(shopData['firebaseId']);
-      bloc.changeShopName(shopData['name']);
-      bloc.changeShopNit(shopData['nit']);
-      bloc.changeShopPhone(shopData['phone']);
-      bloc.changeShopPassword(shopData['password']);
-      bloc.changeUserMaxDate(shopData['maxDate'] ?? Timestamp.fromDate(DateTime.now().add(Duration(days: 7))));
+      shopBloc.changeShopAddress(shopData['address']);
+      shopBloc.changeShopBranchName(shopData['branchName']);
+      shopBloc.changeShopCity(shopData['city']);
+      shopBloc.changeShopContactName(shopData['contactName']);
+      shopBloc.changeShopDocumentId(docId);
+      shopBloc.changeShopEmail(shopData['email']);
+      shopBloc.changeShopFirebaseId(shopData['firebaseId']);
+      shopBloc.changeShopName(shopData['name']);
+      shopBloc.changeShopNit(shopData['nit']);
+      shopBloc.changeShopPhone(shopData['phone']);
+      shopBloc.changeShopPassword(shopData['password']);
+      userBloc.changeUserMaxDate(shopData['maxDate'] ?? Timestamp.fromDate(DateTime.now().add(Duration(days: 7))));
       final shop = new ShopModel(
-        firebaseId: bloc.shopFirebaseId.trim(),
-        documentId: bloc.shopDocumentId,
-        nit: bloc.shopNit.trim(),
-        name: bloc.shopName.trim(),
-        address: bloc.shopAddress.trim(),
-        city: bloc.shopCity.trim(),
-        branchName: bloc.shopBranchName.trim(),
-        contactName: bloc.contactName.trim(),
-        phone: bloc.phone.trim(),
-        email: bloc.shopEmail.trim(),
-        password: bloc.shopPassword.trim()
+        firebaseId: shopBloc.shopFirebaseId.trim(),
+        documentId: shopBloc.shopDocumentId,
+        nit: shopBloc.shopNit.trim(),
+        name: shopBloc.shopName.trim(),
+        address: shopBloc.shopAddress.trim(),
+        city: shopBloc.shopCity.trim(),
+        branchName: shopBloc.shopBranchName.trim(),
+        contactName: shopBloc.contactName.trim(),
+        phone: shopBloc.phone.trim(),
+        email: shopBloc.shopEmail.trim(),
+        password: shopBloc.shopPassword.trim()
       );
       await deleteShop();
       await addShop(shop);
@@ -119,7 +122,7 @@ class ShopDBProvider {
       for (var i = 0; i < branchList.length; i++) {
         branchList[i].branchDocumentId = branchSnapshot.documents[i].documentID;
       }
-      bloc.changeShopCurrBranch(branchList[0]);
+      shopBloc.changeShopCurrBranch(branchList[0]);
     }
   }
 }

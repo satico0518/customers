@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:barcode_scan/barcode_scan.dart';
 import 'package:customers/src/bloc/provider.dart';
-import 'package:customers/src/bloc/user.bloc.dart';
+import 'package:customers/src/bloc/shop.bloc.dart';
 import 'package:customers/src/models/shop-branch.model.dart';
 import 'package:customers/src/pages/branchs-page.dart';
 import 'package:customers/src/pages/form-list-page.dart';
@@ -23,6 +23,7 @@ class QRReaderPage extends StatefulWidget {
 }
 
 class _QRReaderPageState extends State<QRReaderPage> {
+  ShopBloc _shopBloc;
   final LoginService logSrvc = new LoginService();
   int _cIndex = 0;
 
@@ -30,7 +31,7 @@ class _QRReaderPageState extends State<QRReaderPage> {
   Widget build(BuildContext context) {
     final _prefs = PreferenceAuth();
     _prefs.initPrefs();
-    final bloc = Provider.of(context);
+    _shopBloc = Provider.shopBloc(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -69,7 +70,7 @@ class _QRReaderPageState extends State<QRReaderPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 StreamBuilder<String>(
-                    stream: bloc.shopNameStream,
+                    stream: _shopBloc.shopNameStream,
                     builder: (context, snapshot) {
                       if (!snapshot.hasData) return Text('');
                       return Text(
@@ -85,12 +86,12 @@ class _QRReaderPageState extends State<QRReaderPage> {
                   thickness: 3,
                 ),
                 StreamBuilder<ShopBranchModel>(
-                    stream: bloc.shopCurrBranchStream,
+                    stream: _shopBloc.shopCurrBranchStream,
                     builder: (context, snapshot) {
                       if (!snapshot.hasData) {
                         if (!snapshot.hasData) {
                           if (_prefs.currentBranch.branchDocumentId != null) {
-                            bloc.changeShopCurrBranch(_prefs.currentBranch);
+                            _shopBloc.changeShopCurrBranch(_prefs.currentBranch);
                           }
                           return Text('Sucursal: Seleccione sucursal',
                               style:
@@ -120,7 +121,7 @@ class _QRReaderPageState extends State<QRReaderPage> {
                     padding: EdgeInsets.all(20),
                     color: Theme.of(context).secondaryHeaderColor,
                     textColor: Colors.white,
-                    onPressed: () => _getQRinfo(context, bloc),
+                    onPressed: () => _getQRinfo(context, _shopBloc),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
@@ -141,7 +142,7 @@ class _QRReaderPageState extends State<QRReaderPage> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _cIndex,
-        onTap: (index) => goTo(index, bloc),
+        onTap: (index) => goTo(index, _shopBloc),
         items: [
           BottomNavigationBarItem(
               title: Text('Editar Comercio'),
@@ -169,7 +170,7 @@ class _QRReaderPageState extends State<QRReaderPage> {
     );
   }
 
-  _getQRinfo(BuildContext context, UserBloc bloc) async {
+  _getQRinfo(BuildContext context, ShopBloc bloc) async {
     if (bloc.shopCurrBranch == null) {
       Fluttertoast.showToast(
         msg: 'Debe seleccionar una sucursal!',
@@ -225,7 +226,7 @@ class _QRReaderPageState extends State<QRReaderPage> {
     }
   }
 
-  void goTo(int index, UserBloc bloc) {
+  void goTo(int index, ShopBloc bloc) {
     if (index == 1 && bloc.shopCurrBranch == null) {
       Fluttertoast.showToast(
         msg: 'Debe seleccionar una sucursal',
@@ -257,8 +258,7 @@ class _QRReaderPageState extends State<QRReaderPage> {
     final _prefs = PreferenceAuth();
     _prefs.initPrefs();
     _prefs.isShopLoggedIn = false;
-    final bloc = Provider.of(context);
-    bloc.changeShopIsLogged(false);
+    _shopBloc.changeShopIsLogged(false);
     Navigator.of(context)
         .pushNamedAndRemoveUntil(LoginPage.routeName, (route) => false);
   }

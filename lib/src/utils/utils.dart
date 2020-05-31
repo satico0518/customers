@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:customers/src/bloc/user.bloc.dart';
+import 'package:customers/src/bloc/shop.bloc.dart';
 import 'package:customers/src/pages/home-page.dart';
 import 'package:customers/src/pages/login-page.dart';
 import 'package:customers/src/pages/qr-reader-page.dart';
@@ -52,7 +52,7 @@ String returnIdTypeCode(String text) {
   return code;
 }
 
-Future<String> sendFormListEmail(String fileUrl, UserBloc bloc) async {
+Future<String> sendFormListEmail(String fileUrl, ShopBloc bloc) async {
   String platformResponse;
   final Email email = Email(
     body: '''
@@ -75,7 +75,7 @@ Future<String> sendFormListEmail(String fileUrl, UserBloc bloc) async {
   return platformResponse;
 }
 
-Future<String> sendSingleFormEmail(Map<String, dynamic> form, UserBloc bloc) async {
+Future<String> sendSingleFormEmail(Map<String, dynamic> form, ShopBloc bloc) async {
   String platformResponse;
   String employeeSection = '''
     <div>

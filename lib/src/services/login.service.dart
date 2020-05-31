@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:customers/src/bloc/provider.dart';
+import 'package:customers/src/bloc/shop.bloc.dart';
 import 'package:customers/src/bloc/user.bloc.dart';
 import 'package:customers/src/providers/shopFirebase.provider.dart';
 import 'package:flutter/cupertino.dart';
@@ -24,10 +25,11 @@ class LoginService {
   }
 
   Future<bool> isStateOkByBloc(BuildContext context) async {
-    final UserBloc bloc = Provider.of(context);
-    if (bloc.userMaxDate == null) {
+    final ShopBloc shopBloc = Provider.shopBloc(context);
+    final UserBloc userBloc = Provider.of(context);
+    if (userBloc.userMaxDate == null) {
       final QuerySnapshot shopQuerySnapshot =
-          await ShopFirebaseProvider.fb.getShopFbByEmail(bloc.shopEmail);
+          await ShopFirebaseProvider.fb.getShopFbByEmail(shopBloc.shopEmail);
       final Map<String, dynamic> shop = shopQuerySnapshot.documents.first.data;
       if (shop.keys.any((element) => element == 'maxDate')) {
         final DateTime maxDate = (shop['maxDate'] as Timestamp).toDate();
@@ -35,6 +37,6 @@ class LoginService {
         return isBefore;
       }
       return true;
-    } else return bloc.userMaxDate.toDate().isAfter(DateTime.now());
+    } else return userBloc.userMaxDate.toDate().isAfter(DateTime.now());
   }
 }

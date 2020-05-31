@@ -1,10 +1,12 @@
 import 'package:customers/src/bloc/form.bloc.dart';
+import 'package:customers/src/bloc/shop.bloc.dart';
 import 'package:customers/src/bloc/user.bloc.dart';
 import 'package:flutter/material.dart';
 
 class Provider extends InheritedWidget {
   final userBloc = new UserBloc();
   final _formBloc = new FormBloc();
+  final _shopBloc = new ShopBloc();
 
   static Provider _instance;
 
@@ -28,5 +30,9 @@ class Provider extends InheritedWidget {
 
   static FormBloc formBloc(BuildContext context) {
     return context.dependOnInheritedWidgetOfExactType<Provider>()._formBloc;
+  }
+
+  static ShopBloc shopBloc(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<Provider>()._shopBloc;
   }
 }

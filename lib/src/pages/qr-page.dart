@@ -16,7 +16,7 @@ class QRCodePage extends StatefulWidget {
 class _QRCodePageState extends State<QRCodePage> {
   @override
   Widget build(BuildContext context) {
-    final bloc = Provider.of(context);
+    final _formBloc = Provider.formBloc(context);
     return Scaffold(
       appBar: AppBar(
         title: Text('Tu Código QR'),
@@ -80,10 +80,10 @@ class _QRCodePageState extends State<QRCodePage> {
                   ),
                 ),
                 StreamBuilder<String>(
-                    stream: bloc.lastDateStream,
+                    stream: _formBloc.lastDateStream,
                     builder: (context, snapshot) {
                       return Text(
-                          'Última fecha de actualización: ${bloc.lastDate}.');
+                          'Última fecha de actualización: ${_formBloc.lastDate}.');
                     })
               ],
             )),

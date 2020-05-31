@@ -1,7 +1,10 @@
+import 'package:customers/src/bloc/form.bloc.dart';
 import 'package:customers/src/bloc/user.bloc.dart';
 import 'package:flutter/material.dart';
 
 class Provider extends InheritedWidget {
+  final userBloc = new UserBloc();
+  final _formBloc = new FormBloc();
 
   static Provider _instance;
 
@@ -15,7 +18,6 @@ class Provider extends InheritedWidget {
   Provider._internal({Key key, Widget child})
     : super(key: key, child: child);
 
-  final userBloc = new UserBloc();
 
   @override
   bool updateShouldNotify(InheritedWidget oldWidget) => true;
@@ -24,4 +26,7 @@ class Provider extends InheritedWidget {
     return context.dependOnInheritedWidgetOfExactType<Provider>().userBloc;
   }
 
+  static FormBloc formBloc(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<Provider>()._formBloc;
+  }
 }

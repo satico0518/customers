@@ -1,5 +1,5 @@
+import 'package:customers/src/bloc/form.bloc.dart';
 import 'package:customers/src/bloc/provider.dart';
-import 'package:customers/src/bloc/user.bloc.dart';
 import 'package:customers/src/pages/signature.dart';
 import 'package:customers/src/providers/form-questions.provider.dart';
 import 'package:flutter/material.dart';
@@ -15,7 +15,7 @@ class FormPage extends StatefulWidget {
 class _FormPageState extends State<FormPage> {
   @override
   Widget build(BuildContext context) {
-    final bloc = Provider.of(context);
+    final _formBloc = Provider.formBloc(context);
     return Scaffold(
       appBar: AppBar(
         title: Text('Encuesta'),
@@ -31,23 +31,23 @@ class _FormPageState extends State<FormPage> {
                     SizedBox(
                       height: 25,
                     ),
-                    _createYourSymptoms(bloc),
+                    _createYourSymptoms(_formBloc),
                     SizedBox(
                       height: 25,
                     ),
-                    _createYourHomeSymptoms(bloc),
+                    _createYourHomeSymptoms(_formBloc),
                     SizedBox(
                       height: 25,
                     ),
-                    _createIsolate(bloc),
+                    _createIsolate(_formBloc),
                     SizedBox(
                       height: 25,
                     ),
-                    _createVisits(bloc),
+                    _createVisits(_formBloc),
                     SizedBox(
                       height: 25,
                     ),
-                    _createWithPeople(bloc),
+                    _createWithPeople(_formBloc),
                     SizedBox(
                       height: 25,
                     ),
@@ -60,7 +60,7 @@ class _FormPageState extends State<FormPage> {
                   FloatingActionButton(
                       backgroundColor: Theme.of(context).primaryColor,
                       child: Icon(Icons.arrow_forward),
-                      onPressed: () => onSubmitForm(bloc)),
+                      onPressed: () => onSubmitForm(_formBloc)),
                 ],
               )
             ],
@@ -70,7 +70,7 @@ class _FormPageState extends State<FormPage> {
     );
   }
 
-  Widget _createYourSymptoms(UserBloc bloc) {
+  Widget _createYourSymptoms(FormBloc bloc) {
     return StreamBuilder<int>(
       stream: bloc.yourSymptomsStream,
       builder: (context, snapshot) {
@@ -150,7 +150,7 @@ class _FormPageState extends State<FormPage> {
     );
   }
 
-  Widget _createYourHomeSymptoms(UserBloc bloc) {
+  Widget _createYourHomeSymptoms(FormBloc bloc) {
     return StreamBuilder<int>(
         stream: bloc.yourHomeSymptomsStream,
         builder: (context, snapshot) {
@@ -200,7 +200,7 @@ class _FormPageState extends State<FormPage> {
         });
   }
 
-  Widget _createIsolate(UserBloc bloc) {
+  Widget _createIsolate(FormBloc bloc) {
     return StreamBuilder<int>(
       stream: bloc.haveBeenIsolatedStream,
       builder: (context, snapshot) {
@@ -280,7 +280,7 @@ class _FormPageState extends State<FormPage> {
     );
   }
 
-  Widget _createVisits(UserBloc bloc) {
+  Widget _createVisits(FormBloc bloc) {
     return StreamBuilder<int>(
       stream: bloc.haveBeenVisitedStream,
       builder: (context, snapshot) {
@@ -359,7 +359,7 @@ class _FormPageState extends State<FormPage> {
     );
   }
 
-  Widget _createWithPeople(UserBloc bloc) {
+  Widget _createWithPeople(FormBloc bloc) {
     return StreamBuilder<int>(
       stream: bloc.haveBeenWithPeopleStream,
       builder: (context, snapshot) {
@@ -410,7 +410,7 @@ class _FormPageState extends State<FormPage> {
     );
   }
 
-  onSubmitForm(UserBloc bloc) {
+  onSubmitForm(FormBloc bloc) {
     final errorMessage = _isValidForm(bloc);
     if (errorMessage.isNotEmpty) {
       Fluttertoast.showToast(
@@ -427,7 +427,7 @@ class _FormPageState extends State<FormPage> {
     Navigator.pushNamed(context, SignaturePage.routeName);
   }
 
-  String _isValidForm(UserBloc bloc) {
+  String _isValidForm(FormBloc bloc) {
     if (bloc.yourSymptoms == 1 && bloc.yourSymptomsDesc.isEmpty) {
       return 'Indique sus síntomas';
     } else if (bloc.haveBeenIsolated == 0 &&

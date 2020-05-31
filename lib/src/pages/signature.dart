@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:customers/src/bloc/form.bloc.dart';
 import 'package:customers/src/bloc/provider.dart';
 import 'package:customers/src/bloc/user.bloc.dart';
 import 'package:customers/src/models/form.model.dart';
@@ -21,7 +22,8 @@ class SignaturePage extends StatefulWidget {
 class _SignaturePageState extends State<SignaturePage> {
   @override
   Widget build(BuildContext context) {
-    final bloc = Provider.of(context);
+    final _userBloc = Provider.of(context);
+    final _formBloc = Provider.formBloc(context);
     return Scaffold(
       appBar: AppBar(
         title: Text('Aceptación de Información'),
@@ -31,17 +33,17 @@ class _SignaturePageState extends State<SignaturePage> {
           padding: EdgeInsets.symmetric(vertical: 30, horizontal: 20),
           child: Column(
             children: <Widget>[
-              _createIsVisitor(bloc),
+              _createIsVisitor(_formBloc),
               SizedBox(
                 height: 30,
               ),
-              _createVisitor(bloc),
+              _createVisitor(_formBloc),
               StreamBuilder<int>(
-                  stream: bloc.isEmployeeStream,
+                  stream: _formBloc.isEmployeeStream,
                   builder: (context, snapshot) {
                     return Visibility(
-                      visible: bloc.isEmployee == 1 ? true : false,
-                      child: _createEmployee(bloc),
+                      visible: _formBloc.isEmployee == 1 ? true : false,
+                      child: _createEmployee(_formBloc),
                     );
                   }),
               Row(
@@ -50,7 +52,7 @@ class _SignaturePageState extends State<SignaturePage> {
                   FloatingActionButton(
                       backgroundColor: Theme.of(context).primaryColor,
                       child: Icon(Icons.arrow_forward),
-                      onPressed: () => onFormSubmit(bloc)),
+                      onPressed: () => onFormSubmit(_formBloc, _userBloc)),
                 ],
               )
             ],
@@ -60,7 +62,7 @@ class _SignaturePageState extends State<SignaturePage> {
     );
   }
 
-  Widget _createIsVisitor(UserBloc bloc) {
+  Widget _createIsVisitor(FormBloc bloc) {
     return StreamBuilder<int>(
       stream: bloc.isEmployeeStream,
       builder: (context, snapshot) {
@@ -111,7 +113,7 @@ class _SignaturePageState extends State<SignaturePage> {
     );
   }
 
-  Widget _createVisitor(UserBloc bloc) {
+  Widget _createVisitor(FormBloc bloc) {
     return Column(
       children: <Widget>[
         Wrap(
@@ -136,7 +138,7 @@ class _SignaturePageState extends State<SignaturePage> {
     );
   }
 
-  Widget _createEmployee(UserBloc bloc) {
+  Widget _createEmployee(FormBloc bloc) {
     return Column(
       children: <Widget>[
         Wrap(
@@ -196,7 +198,7 @@ class _SignaturePageState extends State<SignaturePage> {
     );
   }
 
-  onFormSubmit(UserBloc bloc) async {
+  onFormSubmit(FormBloc bloc, UserBloc _userBloc) async {
     try {
       final String errorMessage = validateForm(bloc);
       if (errorMessage.isNotEmpty) {
@@ -227,16 +229,16 @@ class _SignaturePageState extends State<SignaturePage> {
         employeeAcceptHomeSymptoms: bloc.employeeAcceptHomeSymptoms,
         employeeAcceptVacationSymptoms: bloc.employeeAcceptVacationSymptoms,
         lastDate: bloc.lastDate,
-        userDocumentId: bloc.userDocumentId,
+        userDocumentId: _userBloc.userDocumentId,
       );
       final user = new UserModel(
-        name: bloc.userName,
-        lastName: bloc.lastName,
-        identificationType: bloc.identificationType,
-        identification: bloc.identification,
-        contact: bloc.contact,
-        email: bloc.email,
-        birthDate: bloc.userBirthDate ?? DateTime(DateTime.now().year - 10),
+        name: _userBloc.userName,
+        lastName: _userBloc.lastName,
+        identificationType: _userBloc.identificationType,
+        identification: _userBloc.identification,
+        contact: _userBloc.contact,
+        email: _userBloc.email,
+        birthDate: _userBloc.userBirthDate ?? DateTime(DateTime.now().year - 10),
       );      
       final formJson = form.toJson();
       formJson.addAll(user.toJson());
@@ -251,7 +253,7 @@ class _SignaturePageState extends State<SignaturePage> {
     }
   }
 
-  String validateForm(UserBloc bloc) {
+  String validateForm(FormBloc bloc) {
     if (bloc.isEmployee == 1 &&
         (bloc.employeeAcceptYourSymptoms == 0 ||
             bloc.employeeAcceptHomeSymptoms == 0 ||

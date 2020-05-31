@@ -10,7 +10,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:471936252808:android:339f93107d60bb4759d83d",
         "android_client_info": {
-          "package_name": "com.cutomers2020.App.customers2020"
+          "package_name": "com.customers2020.App.customers2020"
         }
       },
       "oauth_client": [
@@ -39,7 +39,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:471936252808:android:9e7dd9a86ffbca6e59d83d",
         "android_client_info": {
-          "package_name": "com.cutomers2020.App.customers2020"
+          "package_name": "com.customers2020.App.customers2020"
         }
       },
       "oauth_client": [

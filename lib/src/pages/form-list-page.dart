@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:customers/src/bloc/form.bloc.dart';
 import 'package:customers/src/bloc/provider.dart';
 import 'package:customers/src/bloc/user.bloc.dart';
 import 'package:customers/src/pages/form-detail-page.dart';
@@ -34,7 +35,8 @@ class _FormListState extends State<FormList> {
 
   @override
   Widget build(BuildContext context) {
-    final _bloc = Provider.of(context);
+    final UserBloc _userBloc = Provider.of(context);
+    final FormBloc _formBloc = Provider.formBloc(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -48,7 +50,7 @@ class _FormListState extends State<FormList> {
               Text('CSV'),
               IconButton(
                 icon: Icon(Icons.file_download),
-                onPressed: () => _downloadCsv(_bloc),
+                onPressed: () => _downloadCsv(_userBloc),
               ),
             ],
           )
@@ -71,14 +73,14 @@ class _FormListState extends State<FormList> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        '${capitalizeWord(_bloc.shopCurrBranch.branchName)}',
+                        '${capitalizeWord(_userBloc.shopCurrBranch.branchName)}',
                         style: TextStyle(
                             fontSize: 18,
                             color: Theme.of(context).primaryColor,
                             fontWeight: FontWeight.bold),
                       ),
                       StreamBuilder<int>(
-                        stream: _bloc.formListCountStream,
+                        stream: _formBloc.formListCountStream,
                         builder: (context, snapshot) {
                           return Text(' - Total: ${snapshot.data ?? 0}',
                               style: TextStyle(
@@ -97,7 +99,7 @@ class _FormListState extends State<FormList> {
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     _listData = snapshot.data.documents;
-                    _bloc.changeFormListCount(_listData.length); 
+                    _formBloc.changeFormListCount(_listData.length); 
                     if (snapshot.data.documents.length == 0)
                       return Container(
                           height: MediaQuery.of(context).size.height * .70,

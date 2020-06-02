@@ -72,7 +72,7 @@ class _SignaturePageState extends State<SignaturePage> {
             Column(
               children: <Widget>[
                 Text(
-                  'Es usted empleado del sitio q visita?',
+                  'Es usted empleado del sitio que visita?',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 18.0,

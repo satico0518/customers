@@ -43,6 +43,9 @@ String returnIdTypeCode(String text) {
     case 'Registro Civil':
       code = 'RC';
       break;
+    case 'Tarjeta de Identidad':
+      code = 'TI';
+      break;
     case 'Otro':
       code = 'Otro';
       break;

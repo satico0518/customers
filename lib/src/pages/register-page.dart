@@ -32,6 +32,7 @@ class _RegisterPageState extends State<RegisterPage> {
     'NIT',
     'Cedula Extrangería',
     'Registro Civil',
+    'Tarjeta de Identidad',
     'Otro'
   ];
   String currentPassword;

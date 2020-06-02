@@ -187,7 +187,7 @@ class _LoginPageState extends State<LoginPage> {
                                             _isLoging ? null : _handleLogin(),
                                       ),
                                       Text(
-                                        'V. 1.0.0',
+                                        'V. 1.0.1',
                                         style: TextStyle(
                                             color: Colors.white, fontSize: 12),
                                       )

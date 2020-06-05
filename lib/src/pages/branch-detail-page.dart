@@ -20,111 +20,123 @@ class _BranchDetailState extends State<BranchDetail> {
   @override
   Widget build(BuildContext context) {
     final _shopBloc = Provider.shopBloc(context);
-    return Scaffold(
-      backgroundColor: _backColor,
-      body: Center(
-        child: StreamBuilder<DocumentSnapshot>(
-            stream: Firestore.instance
-                .collection('Branches')
-                .document(_shopBloc.shopCurrBranch.branchDocumentId)
-                .snapshots(),
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                _setBackColor(context, snapshot.data.data);
-                return Stack(
-                  children: [
-                    Center(
-                      child: Opacity(
-                          child: Image(
-                            image: AssetImage(
-                              'assets/img/icon.png',
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: _backColor,
+        body: Center(
+          child: StreamBuilder<DocumentSnapshot>(
+              stream: Firestore.instance
+                  .collection('Branches')
+                  .document(_shopBloc.shopCurrBranch.branchDocumentId)
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  _setBackColor(context, snapshot.data.data);
+                  return Stack(
+                    children: [
+                      Center(
+                        child: Opacity(
+                            child: Image(
+                              image: AssetImage(
+                                'assets/img/icon.png',
+                              ),
+                              height: MediaQuery.of(context).size.height * 0.4,
                             ),
-                            height: MediaQuery.of(context).size.height * 0.4,
+                            opacity: 0.3),
+                      ),
+                      Positioned(
+                        top: 20,
+                        left: 10,
+                        child: GestureDetector(
+                          onTap: () => Navigator.of(context).pop(),
+                          child: CircleAvatar(
+                            backgroundColor: Theme.of(context).primaryColor,
+                            child: Icon(Icons.arrow_back_ios),
                           ),
-                          opacity: 0.3),
-                    ),
-                    Positioned(
-                      top: 20,
-                      left: 10,
-                      child: CircleAvatar(
-                        backgroundColor: Theme.of(context).primaryColor,
-                        child: IconButton(
-                          icon: Icon(Icons.arrow_back_ios),
-                          onPressed: () => Navigator.of(context).pop(),
                         ),
                       ),
-                    ),
-                    Container(
-                      width: double.infinity,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.max,
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            snapshot.data['branchName'],
-                            style: TextStyle(fontSize: 50, color: Colors.white),
-                            textAlign: TextAlign.center,
-                          ),
-                          Column(
-                            children: [
-                              Text(
-                                'Aforo Máximo',
-                                style: TextStyle(
-                                    fontSize: 40, color: Colors.white),
-                              ),
-                              Text(
-                                snapshot.data['maxCapacity'] != null
-                                    ? snapshot.data['maxCapacity'].toString()
-                                    : '0',
-                                style: TextStyle(
-                                    fontSize: 40, color: Colors.white),
-                              )
-                            ],
-                          ),
-                          Column(
-                            children: [
-                              Text(
-                                'Aforo Actual',
-                                style: TextStyle(
-                                    fontSize: 40, color: Colors.white),
-                              ),
-                              Text(
-                                snapshot.data['capacity'] != null
-                                    ? snapshot.data['capacity'].toString()
-                                    : '0',
-                                style: TextStyle(
-                                    fontSize: 40, color: Colors.white),
-                              ),
-                            ],
-                          ),
-                          Column(
-                            children: [
-                              Text(
-                                getFormatedDate(DateTime.now()),
-                                style: TextStyle(
-                                    fontSize: 40, color: Colors.white),
-                              ),
-                              Text(
-                                'PaseYa',
-                                style: GoogleFonts.acme(
-                                    color: Theme.of(context).primaryColor,
-                                    fontSize: 30,
-                                    fontWeight: FontWeight.bold),
-                              )
-                            ],
-                          ),
-                        ],
-                      ),
-                    )
-                  ],
-                );
-              } else if (snapshot.hasError) {
-                return Text("Error: ${snapshot.error.toString()}");
-              } else {
-                return CircularProgressIndicator();
-              }
-            }),
+                      Container(
+                        width: double.infinity,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              snapshot.data['branchName'],
+                              style: TextStyle(
+                                  fontSize: 50,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold),
+                              textAlign: TextAlign.center,
+                            ),
+                            Column(
+                              children: [
+                                Text(
+                                  'Aforo Máximo',
+                                  style: TextStyle(
+                                      fontSize: 40,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                Text(
+                                    snapshot.data['maxCapacity'] != null
+                                        ? snapshot.data['maxCapacity']
+                                            .toString()
+                                        : '0',
+                                    style: TextStyle(
+                                        fontSize: 90,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold))
+                              ],
+                            ),
+                            Column(
+                              children: [
+                                Text(
+                                  'Aforo Actual',
+                                  style: TextStyle(
+                                      fontSize: 40,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                Text(
+                                    snapshot.data['capacity'] != null
+                                        ? snapshot.data['capacity'].toString()
+                                        : '0',
+                                    style: TextStyle(
+                                        fontSize: 120,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold)),
+                              ],
+                            ),
+                            Column(
+                              children: [
+                                Text(
+                                  getFormatedDate(DateTime.now()),
+                                  style: TextStyle(
+                                      fontSize: 40, color: Colors.white),
+                                ),
+                                Text(
+                                  'PaseYa',
+                                  style: GoogleFonts.acme(
+                                      color: Theme.of(context).primaryColor,
+                                      fontSize: 30,
+                                      fontWeight: FontWeight.bold),
+                                )
+                              ],
+                            ),
+                          ],
+                        ),
+                      )
+                    ],
+                  );
+                } else if (snapshot.hasError) {
+                  return Text("Error: ${snapshot.error.toString()}");
+                } else {
+                  return CircularProgressIndicator();
+                }
+              }),
+        ),
       ),
     );
   }

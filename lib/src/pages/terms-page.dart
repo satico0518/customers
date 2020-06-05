@@ -10,19 +10,17 @@ class TermsPage extends StatelessWidget {
       child: Scaffold(
         backgroundColor: Theme.of(context).primaryColor,
         appBar: AppBar(
-          title: Text('Términos y condiciones'),
+          title: Text('Términos y Condiciones'),
           centerTitle: true,
         ),
         body: Container(
           height: MediaQuery.of(context).size.height * .9,
           padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
           child: SingleChildScrollView(
-            child: Flexible(
-              child: Text(
-                getTermsAndConditionsText(),
-                textAlign: TextAlign.justify,
-                style: TextStyle(color: Colors.white, fontSize: 16),
-              ),
+            child: Text(
+              getTermsAndConditionsText(),
+              textAlign: TextAlign.justify,
+              style: TextStyle(color: Colors.white, fontSize: 16),
             ),
           ),
         ),

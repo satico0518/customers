@@ -98,7 +98,7 @@ Future<String> sendSingleFormEmail(Map<String, dynamic> form, ShopBloc bloc) asy
     body: '''
       <h2>Encuesta Individual</h2>
       <div>
-          Registro de ${form['gettingIn'] != null ? (form['gettingIn'] ? 'Ingreso' : 'Salida') : 'NA'}<br>
+          Registro de ${form['gettingIn'] != null ? (form['gettingIn'] ? 'Ingreso' : 'Salida') : 'Control'}<br>
           <hr>
           Temperatura Registrada: ${form['temperature']}<br>
           Fecha: ${getStringDateFromtimestamp(form['insertDate'])}<br>
@@ -106,6 +106,7 @@ Future<String> sendSingleFormEmail(Map<String, dynamic> form, ShopBloc bloc) asy
           Nombre: ${form['name']} ${form['lastName']}<br>
           Telefono: ${form['contact']}<br>
           Email: ${form['email']}<br>
+          Fecha: ${(form['insertDate'] as Timestamp).toDate()}<br>
       </div>
       <h3>Formulario Salud y Distanciamiento Social</h3>
       <div>

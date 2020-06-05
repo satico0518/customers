@@ -34,7 +34,8 @@ class UserFirebaseProvider {
         .setData(firebaseUser, merge: true);
   }
 
-  Future<void> updateUserMaxDateToFirebase(BuildContext context, String docId) async {
+  Future<void> updateUserMaxDateToFirebase(
+      BuildContext context, String docId) async {
     final UserBloc bloc = Provider.of(context);
     Firestore fb = Firestore.instance;
     return fb
@@ -48,7 +49,8 @@ class UserFirebaseProvider {
     return (await _auth.signInWithEmailAndPassword(
       email: email,
       password: password,
-    )).user;
+    ))
+        .user;
   }
 
   Future<void> sendEmailForVerification() async {
@@ -108,6 +110,17 @@ class UserFirebaseProvider {
             ),
           ),
           Visibility(
+            visible: user['gettingIn'] == null,
+            child: Column(
+              children: [
+                Text('Registro de Control', style: textStyle),
+                Divider(
+                  color: Colors.white,
+                ),
+              ],
+            ),
+          ),
+          Visibility(
             visible: user['temperature'] != null,
             child: Text(
               'Temperatura registrada: ${user['temperature']}',
@@ -129,6 +142,13 @@ class UserFirebaseProvider {
           Text(
             'Email: ${user['email']}',
             style: textStyle,
+          ),
+          Visibility(
+            visible: user['insertDate'] != null,
+            child: Text(
+              'Fecha: ${(user['insertDate'] as Timestamp)?.toDate()}',
+              style: textStyle,
+            ),
           ),
         ],
       ),

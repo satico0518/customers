@@ -145,9 +145,9 @@ class _FormListState extends State<FormList> {
                                   );
                               } else
                                 gettingInIcon = Icon(
-                                  Icons.block,
-                                  color: Colors.white,
-                                  size: 1,
+                                  Icons.fiber_manual_record,
+                                  color: Colors.orangeAccent,
+                                  size: 15,
                                 );
                               return DataRow(
                                 cells: <DataCell>[
@@ -297,7 +297,7 @@ class _FormListState extends State<FormList> {
         getStringDateFromtimestamp(data['insertDate']),
         data['gettingIn'] != null
             ? (data['gettingIn'] == true ? 'Ingreso' : 'Salida')
-            : 'N/A',
+            : 'Control',
         shopBloc.shopName,
         shopBloc.shopCurrBranch.branchName,
         data['temperature'],

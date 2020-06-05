@@ -112,7 +112,7 @@ class _FormResumePageState extends State<FormResumePage> {
                         padding: EdgeInsets.all(15),
                         textColor: Colors.white,
                         child: Text(
-                          'Registrar Ingreso',
+                          'Ingreso',
                           style: TextStyle(fontSize: 15),
                         ),
                         color: Theme.of(context).secondaryHeaderColor,
@@ -123,7 +123,18 @@ class _FormResumePageState extends State<FormResumePage> {
                         padding: EdgeInsets.all(15),
                         textColor: Colors.white,
                         child: Text(
-                          'Registrar Salida',
+                          'Control',
+                          style: TextStyle(fontSize: 15),
+                        ),
+                        color: Colors.orangeAccent,
+                        onPressed: () =>
+                            _saveDataToFirebase(_formDataMap, null),
+                      ),
+                      RaisedButton(
+                        padding: EdgeInsets.all(15),
+                        textColor: Colors.white,
+                        child: Text(
+                          'Salida',
                           style: TextStyle(fontSize: 15),
                         ),
                         color: Theme.of(context).primaryColor,
@@ -310,7 +321,9 @@ class _FormResumePageState extends State<FormResumePage> {
       formJson["temperature"] = _temperature;
       formJson["insertDate"] = DateTime.now();
       formJson["gettingIn"] = isGettingIn;
-      _updateCapacity(bloc, isGettingIn);
+      
+      if (isGettingIn != null )
+        _updateCapacity(bloc, isGettingIn);
       final user = UserModel(
           identificationType: formDataMap['identificationType'],
           identification: formDataMap['identification'],

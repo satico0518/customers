@@ -57,8 +57,7 @@ class ShopFirebaseProvider {
       _prefs.initPrefs();
       final branchID = _prefs.currentBranch.branchDocumentId;
       return Firestore.instance
-          .collection('Forms')
-          .where('shopBranchDocumentId', isEqualTo: branchID)
+          .collection('Forms_$branchID')
           .where('insertDate', isGreaterThan: startDate)
           .where('insertDate', isLessThan: endDate)
           .getDocuments();
@@ -91,6 +90,22 @@ class ShopFirebaseProvider {
         .collection('Branches')
         .where('shopDocumentId', isEqualTo: shopDocId)
         .getDocuments();
+  }
+
+  Future<bool> checkIfBranchCanBeRemoved(String branchDocId) async {
+    var documents = await fbi.collection('Forms_$branchDocId').getDocuments();
+    return documents.documents.length < 1;
+  }
+
+  Future<bool> deleteBranch(String branchDocId) async {
+    try {
+      await fbi.collection('Branches').document(branchDocId).delete();
+      return true;
+    } catch (e) {
+      print("error deleting branch");
+      print(e);
+      return false;
+    }
   }
 
   updateBranchCapacity(bool isGettingIn, ShopBranchModel branch) {

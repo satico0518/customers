@@ -332,7 +332,7 @@ class _FormResumePageState extends State<FormResumePage> {
           contact: formDataMap['contact'],
           email: formDataMap['email']);
       formJson.addAll(user.toJson());
-      await Firestore.instance.collection('Forms').add(formJson);
+      await Firestore.instance.collection('Forms_${bloc.shopCurrBranch.branchDocumentId}').add(formJson);
 
       Fluttertoast.showToast(
         msg: "Encuesta registrada!",
@@ -364,6 +364,5 @@ class _FormResumePageState extends State<FormResumePage> {
       currentBranch.capacity = currCapacity;
       bloc.changeShopCurrBranch(currentBranch);      
       ShopFirebaseProvider.fb.updateBranchCapacity(isGettingIn, currentBranch);
-      // ShopDBProvider.db.updateShopBranch(currBranch);
   }
 }

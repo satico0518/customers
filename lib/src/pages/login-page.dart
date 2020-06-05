@@ -46,7 +46,7 @@ class _LoginPageState extends State<LoginPage> {
       child: Scaffold(
         key: _scaffoldKey,
         body: Container(
-          height: MediaQuery.of(context).size.height,
+          height: screenSize.height,
           width: screenSize.width,
           child: SingleChildScrollView(
             child: Stack(
@@ -65,7 +65,7 @@ class _LoginPageState extends State<LoginPage> {
                   opacity: .8,
                   child: Container(
                     width: double.infinity,
-                    height: MediaQuery.of(context).size.height,
+                    height: screenSize.height,
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.topLeft,
@@ -80,162 +80,164 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                 ),
-                Column(
-                  children: <Widget>[
-                    SizedBox(
-                      height: MediaQuery.of(context).size.height * .15,
-                    ),
-                    Text(
-                      'PaseYa',
-                      style: GoogleFonts.righteous(
-                          letterSpacing: 5, fontSize: 55, color: Colors.white),
-                    ),
-                    SizedBox(
-                      height: 50,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                      child: Container(
-                        padding: EdgeInsets.all(30),
-                        child: Form(
-                          key: _formKey,
-                          child: Column(
-                            children: [
-                              TextFormField(
-                                initialValue: _userName,
-                                style: TextStyle(
-                                    color:
-                                        Theme.of(context).secondaryHeaderColor,
-                                    fontWeight: FontWeight.bold),
-                                keyboardType: TextInputType.emailAddress,
-                                decoration: InputDecoration(
-                                  labelText: 'Correo',
-                                  icon: Icon(
-                                    Icons.mail_outline,
-                                    color: Colors.white,
-                                  ),
-                                  labelStyle: TextStyle(color: Colors.white),
-                                ),
-                                validator: (value) {
-                                  if (value.isEmpty)
-                                    return 'Correo es obligatorio';
-                                  return null;
-                                },
-                                onChanged: (value) =>
-                                    setState(() => _userName = value),
-                              ),
-                              SizedBox(
-                                height: 10,
-                              ),
-                              TextFormField(
-                                initialValue: _password,
-                                style: TextStyle(
-                                    color:
-                                        Theme.of(context).secondaryHeaderColor,
-                                    fontWeight: FontWeight.bold),
-                                obscureText: !_showPass,
-                                decoration: InputDecoration(
-                                    labelText: 'Contraseña',
+                Container(
+                  height: screenSize.height,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Text(
+                        'PaseYa',
+                        style: GoogleFonts.righteous(
+                            letterSpacing: 5, fontSize: 55, color: Colors.white),
+                      ),
+                      SizedBox(
+                        height: 50,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                        child: Container(
+                          padding: EdgeInsets.all(30),
+                          child: Form(
+                            key: _formKey,
+                            child: Column(
+                              children: [
+                                TextFormField(
+                                  initialValue: _userName,
+                                  style: TextStyle(
+                                      color:
+                                          Theme.of(context).secondaryHeaderColor,
+                                      fontWeight: FontWeight.bold),
+                                  keyboardType: TextInputType.emailAddress,
+                                  decoration: InputDecoration(
+                                    labelText: 'Correo',
                                     icon: Icon(
-                                      Icons.vpn_key,
+                                      Icons.mail_outline,
                                       color: Colors.white,
                                     ),
                                     labelStyle: TextStyle(color: Colors.white),
-                                    suffixIcon: IconButton(
-                                        onPressed: () => setState(
-                                            () => _showPass = !_showPass),
-                                        icon: Icon(
-                                          Icons.remove_red_eye,
+                                  ),
+                                  validator: (value) {
+                                    if (value.isEmpty)
+                                      return 'Correo es obligatorio';
+                                    return null;
+                                  },
+                                  onChanged: (value) =>
+                                      setState(() => _userName = value),
+                                ),
+                                SizedBox(
+                                  height: 10,
+                                ),
+                                TextFormField(
+                                  initialValue: _password,
+                                  style: TextStyle(
+                                      color:
+                                          Theme.of(context).secondaryHeaderColor,
+                                      fontWeight: FontWeight.bold),
+                                  obscureText: !_showPass,
+                                  decoration: InputDecoration(
+                                      labelText: 'Contraseña',
+                                      icon: Icon(
+                                        Icons.vpn_key,
+                                        color: Colors.white,
+                                      ),
+                                      labelStyle: TextStyle(color: Colors.white),
+                                      suffixIcon: IconButton(
+                                          onPressed: () => setState(
+                                              () => _showPass = !_showPass),
+                                          icon: Icon(
+                                            Icons.remove_red_eye,
+                                            color: Theme.of(context)
+                                                .secondaryHeaderColor,
+                                          ))),
+                                  validator: (value) {
+                                    if (value.isEmpty)
+                                      return 'Contraseña es obligatorio';
+                                    return null;
+                                  },
+                                  onChanged: (value) =>
+                                      setState(() => _password = value),
+                                ),
+                                SizedBox(
+                                  height: 40,
+                                ),
+                                ButtonTheme(
+                                  child: Container(
+                                    height: 90,
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        RaisedButton(
+                                          elevation: 10,
+                                          padding: EdgeInsets.symmetric(
+                                              vertical: 15, horizontal: 100),
+                                          textColor: Colors.white,
                                           color: Theme.of(context)
                                               .secondaryHeaderColor,
-                                        ))),
-                                validator: (value) {
-                                  if (value.isEmpty)
-                                    return 'Contraseña es obligatorio';
-                                  return null;
-                                },
-                                onChanged: (value) =>
-                                    setState(() => _password = value),
-                              ),
-                              SizedBox(
-                                height: 40,
-                              ),
-                              ButtonTheme(
-                                child: Container(
-                                  height: 90,
-                                  child: Column(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      RaisedButton(
-                                        elevation: 10,
-                                        padding: EdgeInsets.symmetric(
-                                            vertical: 15, horizontal: 100),
-                                        textColor: Colors.white,
-                                        color: Theme.of(context)
-                                            .secondaryHeaderColor,
-                                        child: _isLoging
-                                            ? CircularProgressIndicator(
-                                                valueColor:
-                                                    AlwaysStoppedAnimation<
-                                                        Color>(Colors.white))
-                                            : Icon(Icons.input, size: 25),
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(50)),
-                                        onPressed: () =>
-                                            _isLoging ? null : _handleLogin(),
-                                      ),
-                                      Text(
-                                        'V. 1.0.1',
-                                        style: TextStyle(
-                                            color: Colors.white, fontSize: 12),
-                                      )
-                                    ],
+                                          child: _isLoging
+                                              ? CircularProgressIndicator(
+                                                  valueColor:
+                                                      AlwaysStoppedAnimation<
+                                                          Color>(Colors.white))
+                                              : Icon(Icons.input, size: 25),
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(50)),
+                                          onPressed: () =>
+                                              _isLoging ? null : _handleLogin(),
+                                        ),
+                                        Text(
+                                          'V. 1.0.1',
+                                          style: TextStyle(
+                                              color: Colors.white, fontSize: 12),
+                                        )
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              )
-                            ],
+                                )
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    SizedBox(
-                      height: 30,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            if (_shopBloc.shopNit == null)
-                              _shopBloc.changeShopIsEditing(false);
-                            else
-                              _shopBloc.changeShopIsEditing(true);
-                            Navigator.of(context).pushNamed(ShopForm.routeName);
-                          },
-                          child: Text(
-                            'Registrar Comercio',
-                            style: TextStyle(color: Colors.white, fontSize: 15),
+                      SizedBox(
+                        height: 30,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              if (_shopBloc.shopNit == null)
+                                _shopBloc.changeShopIsEditing(false);
+                              else
+                                _shopBloc.changeShopIsEditing(true);
+                              Navigator.of(context).pushNamed(ShopForm.routeName);
+                            },
+                            child: Text(
+                              'Registrar Comercio',
+                              style: TextStyle(color: Colors.white, fontSize: 15),
+                            ),
                           ),
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            if (_userBloc.userDocumentId != null)
-                              _userBloc.changeUserIsEditing(true);
-                            else
-                              _userBloc.changeUserIsEditing(false);
-                            Navigator.of(context)
-                                .pushNamed(RegisterPage.routeName);
-                          },
-                          child: Text(
-                            'Registrar Persona',
-                            style: TextStyle(color: Colors.white, fontSize: 15),
+                          GestureDetector(
+                            onTap: () {
+                              if (_userBloc.userDocumentId != null)
+                                _userBloc.changeUserIsEditing(true);
+                              else
+                                _userBloc.changeUserIsEditing(false);
+                              Navigator.of(context)
+                                  .pushNamed(RegisterPage.routeName);
+                            },
+                            child: Text(
+                              'Registrar Persona',
+                              style: TextStyle(color: Colors.white, fontSize: 15),
+                            ),
                           ),
-                        ),
-                      ],
-                    )
-                  ],
+                        ],
+                      )
+                    ],
+                  ),
                 ),
               ],
             ),

@@ -38,7 +38,7 @@ class _BranchPageState extends State<BranchPage> {
           IconButton(
               icon: Icon(
                 Icons.add_circle,
-                color: Theme.of(context).secondaryHeaderColor,
+                color: Colors.white,
                 size: 30,
               ),
               onPressed: () {
@@ -51,14 +51,14 @@ class _BranchPageState extends State<BranchPage> {
       ),
       body: SingleChildScrollView(
         scrollDirection: Axis.vertical,
-        child: Column(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Padding(
-              padding: EdgeInsets.all(20).copyWith(bottom: 0),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.vertical,
+        child: Container(
+          height: MediaQuery.of(context).size.height - 100,
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Padding(
+                padding: EdgeInsets.all(20),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -83,7 +83,7 @@ class _BranchPageState extends State<BranchPage> {
                               ),
                               TextSpan(
                                 text:
-                                    ', si desea cambiar de Sucursal seleccione alguna de la lista inferior.',
+                                    ' , si desea cambiar de Sucursal seleccione alguna de la lista inferior haciendo click en el círculo verde.',
                                 style: TextStyle(
                                     color: Colors.black, fontSize: 18),
                               )
@@ -95,155 +95,160 @@ class _BranchPageState extends State<BranchPage> {
                   ],
                 ),
               ),
-            ),
-            SingleChildScrollView(
-              scrollDirection: Axis.vertical,
-              child: Container(
-                height: MediaQuery.of(context).size.height * .65,
-                color: Colors.grey[200],
-                width: double.infinity,
-                child: StreamBuilder<QuerySnapshot>(
-                  stream: Firestore.instance
-                      .collection('Branches')
-                      .where('shopDocumentId', isEqualTo: _shopBloc.shopDocumentId)
-                      .snapshots(),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      final items = snapshot.data.documents;
-                      return ListView.separated(
-                        separatorBuilder: (context, index) {
-                          return Divider(
-                            color: Theme.of(context).primaryColor,
-                            thickness: 3,
-                          );
-                        },
-                        itemCount: items.length,
-                        itemBuilder: (context, index) {
-                          return ListTile(
-                            contentPadding: EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 0),
-                            leading: GestureDetector(
-                              onLongPress: () =>
-                                  _resetCounter(items[index].data),
-                              onTap: () {
-                                _shopBloc.changeShopCurrBranch(
-                                    ShopBranchModel.fromJson(
-                                        items[index].data));
-                                _shopBloc.changeShopBranchName(
-                                    items[index].data['branchName']);
-                                _prefs.currentBranch =
-                                    ShopBranchModel.fromJson(items[index].data);
-                              },
-                              child: CircleAvatar(
-                                backgroundColor:
-                                    _setBackColor(context, items[index].data),
-                                child: Text(
-                                  items[index].data['capacity'] != null
-                                      ? items[index].data['capacity'].toString()
-                                      : '0',
-                                  style: TextStyle(
-                                      fontSize: 17,
-                                      fontWeight: FontWeight.bold),
+              Expanded(
+                child: Container(
+                  color: Colors.grey[200],
+                  width: double.infinity,
+                  child: StreamBuilder<QuerySnapshot>(
+                    stream: Firestore.instance
+                        .collection('Branches')
+                        .where('shopDocumentId',
+                            isEqualTo: _shopBloc.shopDocumentId)
+                        .snapshots(),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        final items = snapshot.data.documents;
+                        return ListView.separated(
+                          separatorBuilder: (context, index) {
+                            return Divider(
+                              color: Theme.of(context).primaryColor,
+                              thickness: 3,
+                            );
+                          },
+                          itemCount: items.length,
+                          itemBuilder: (context, index) {
+                            return ListTile(
+                              contentPadding: EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 0),
+                              leading: GestureDetector(
+                                onLongPress: () =>
+                                    _resetCounter(items[index].data),
+                                onTap: () {
+                                  _shopBloc.changeShopCurrBranch(
+                                      ShopBranchModel.fromJson(
+                                          items[index].data));
+                                  _shopBloc.changeShopBranchName(
+                                      items[index].data['branchName']);
+                                  _prefs.currentBranch =
+                                      ShopBranchModel.fromJson(
+                                          items[index].data);
+                                },
+                                child: CircleAvatar(
+                                  backgroundColor: _setBackColor(
+                                      context, items[index].data),
+                                  child: Text(
+                                    items[index].data['capacity'] != null
+                                        ? items[index]
+                                            .data['capacity']
+                                            .toString()
+                                        : '0',
+                                    style: TextStyle(
+                                        fontSize: 17,
+                                        fontWeight: FontWeight.bold),
+                                  ),
                                 ),
                               ),
-                            ),
-                            title: RichText(
-                              text: TextSpan(
-                                  text: items[index]['branchName'],
-                                  style: TextStyle(
-                                      color: Theme.of(context).primaryColor,
-                                      fontSize: 15),
+                              title: RichText(
+                                text: TextSpan(
+                                    text: items[index]['branchName'],
+                                    style: TextStyle(
+                                        color: Theme.of(context).primaryColor,
+                                        fontSize: 15),
+                                    children: [
+                                      TextSpan(
+                                          text:
+                                              ' - Max (${items[index].data['maxCapacity'] != null ? items[index].data['maxCapacity'].toString() : '0'})',
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                          ))
+                                    ]),
+                              ),
+                              subtitle: Text(items[index]['branchAddress']),
+                              trailing: SizedBox(
+                                width: 70,
+                                child: Row(
                                   children: [
-                                    TextSpan(
-                                        text:
-                                            ' - Max (${items[index].data['maxCapacity'] != null ? items[index].data['maxCapacity'].toString() : '0'})',
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                        ))
-                                  ]),
-                            ),
-                            subtitle: Text(items[index]['branchAddress']),
-                            trailing: SizedBox(
-                              width: 70,
-                              child: Row(
-                                children: [
-                                  GestureDetector(
-                                    child: Icon(
-                                      Icons.open_with,
-                                      color: Theme.of(context).primaryColor,
-                                      size: 30,
-                                    ),
-                                    onTap: () {
-                                      _shopBloc.changeShopCurrBranch(
-                                          ShopBranchModel.fromJson(
-                                              items[index].data));
-                                      _shopBloc.changeShopBranchName(
-                                          items[index].data['branchName']);
-                                      _prefs.currentBranch =
-                                          ShopBranchModel.fromJson(
-                                              items[index].data);
-                                      Navigator.of(context)
-                                          .pushNamed(BranchDetail.routeName);
-                                    },
-                                  ),
-                                  SizedBox(
-                                    width: 10,
-                                  ),
-                                  GestureDetector(
-                                    onTap: () {
-                                      setState(() {
-                                        _branchName = capitalizeWord(
-                                            items[index].data['branchName'] ??
-                                                '');
-                                        _branchAddress =
-                                            items[index].data['branchAddress'];
-                                        _branchMaxcapacity =
-                                            items[index].data['maxCapacity'] ??
-                                                0;
-                                        _currentBranch =
+                                    GestureDetector(
+                                      child: Icon(
+                                        Icons.open_with,
+                                        color: Theme.of(context).primaryColor,
+                                        size: 30,
+                                      ),
+                                      onTap: () {
+                                        _shopBloc.changeShopCurrBranch(
+                                            ShopBranchModel.fromJson(
+                                                items[index].data));
+                                        _shopBloc.changeShopBranchName(
+                                            items[index].data['branchName']);
+                                        _prefs.currentBranch =
                                             ShopBranchModel.fromJson(
                                                 items[index].data);
-                                        _addBranch(context, _shopBloc, true);
-                                      });
-                                    },
-                                    child: Icon(
-                                      Icons.edit,
-                                      color: Theme.of(context)
-                                          .secondaryHeaderColor,
+                                        Navigator.of(context).pushNamed(
+                                            BranchDetail.routeName);
+                                      },
                                     ),
-                                  ),
-                                ],
+                                    SizedBox(
+                                      width: 10,
+                                    ),
+                                    GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          _branchName = capitalizeWord(
+                                              items[index]
+                                                      .data['branchName'] ??
+                                                  '');
+                                          _branchAddress = items[index]
+                                              .data['branchAddress'];
+                                          _branchMaxcapacity = items[index]
+                                                  .data['maxCapacity'] ??
+                                              0;
+                                          _currentBranch =
+                                              ShopBranchModel.fromJson(
+                                                  items[index].data);
+                                          _addBranch(
+                                              context, _shopBloc, true);
+                                        });
+                                      },
+                                      child: Icon(
+                                        Icons.edit,
+                                        color: Theme.of(context)
+                                            .secondaryHeaderColor,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                          );
-                        },
-                      );
-                    } else {
-                      return Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: MediaQuery.of(context).size.width / 4),
-                        child: Column(
-                          children: [
-                            SizedBox(
-                              height: 100,
-                            ),
-                            CircularProgressIndicator(),
-                            SizedBox(
-                              height: 30,
-                            ),
-                            Text(
-                              'cargando encuestas...',
-                              style: TextStyle(fontSize: 16),
-                            )
-                          ],
-                        ),
-                      );
-                    }
-                  },
+                            );
+                          },
+                        );
+                      } else {
+                        return Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal:
+                                  MediaQuery.of(context).size.width / 4),
+                          child: Column(
+                            children: [
+                              SizedBox(
+                                height: 100,
+                              ),
+                              CircularProgressIndicator(),
+                              SizedBox(
+                                height: 30,
+                              ),
+                              Text(
+                                'cargando encuestas...',
+                                style: TextStyle(fontSize: 16),
+                              )
+                            ],
+                          ),
+                        );
+                      }
+                    },
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -334,21 +339,35 @@ class _BranchPageState extends State<BranchPage> {
                       ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: RaisedButton(
-                          color: Theme.of(context).secondaryHeaderColor,
-                          child: Text(
-                            "Guardar",
-                            style: TextStyle(color: Colors.white),
-                          ),
-                          onPressed: () {
-                            if (_formKey.currentState.validate()) {
-                              _formKey.currentState.save();
-                              if (isUpdate)
-                                _updateBranch(_shopBloc);
-                              else
-                                _saveNewBranch(_shopBloc);
-                            }
-                          },
+                        child: Row(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            IconButton(
+                              onPressed: () => deleteBranch(_currentBranch),
+                              icon: Icon(
+                                Icons.delete_forever,
+                                color: Colors.redAccent,
+                                size: 30,
+                              ),
+                            ),
+                            RaisedButton(
+                              color: Theme.of(context).secondaryHeaderColor,
+                              child: Text(
+                                "Guardar",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              onPressed: () {
+                                if (_formKey.currentState.validate()) {
+                                  _formKey.currentState.save();
+                                  if (isUpdate)
+                                    _updateBranch(_shopBloc);
+                                  else
+                                    _saveNewBranch(_shopBloc);
+                                }
+                              },
+                            ),
+                          ],
                         ),
                       )
                     ],
@@ -403,6 +422,54 @@ class _BranchPageState extends State<BranchPage> {
   }
 
   _resetCounter(Map<String, dynamic> branch) {
+    _showAppAlert(
+      text:
+          'Esta a punto de reiniciar el conteo del aforo actual para la sucursal ${branch['branchName']}. Está seguro de reiniciar el contador?',
+      actionButton: FlatButton(
+        color: Colors.white,
+        child: Text(
+          "Reiniciar",
+          style: TextStyle(color: Colors.redAccent),
+        ),
+        onPressed: () {
+          Navigator.of(context).pop();
+          ShopFirebaseProvider.fb
+              .resetBranchCapacity(branch['branchDocumentId']);
+          return;
+        },
+      ),
+    );
+  }
+
+  deleteBranch(ShopBranchModel currentBranch) async {
+    if (!(await ShopFirebaseProvider.fb
+        .checkIfBranchCanBeRemoved(currentBranch.branchDocumentId))) {
+      _showAppAlert(
+          text:
+              'No es posible eliminar esta sucursal ya que tiene códigos registrados en la base de datos!');
+      return;
+    }
+
+    _showAppAlert(
+      text:
+          'Esta a punto de eliminar la sucursal ${currentBranch.branchName}. Está seguro de eliminar esta sucursal?',
+      actionButton: FlatButton(
+        color: Colors.white,
+        child: Text(
+          "Eliminar",
+          style: TextStyle(color: Colors.redAccent),
+        ),
+        onPressed: () {
+          ShopFirebaseProvider.fb.deleteBranch(currentBranch.branchDocumentId);
+          Navigator.of(context).pop();
+          Navigator.of(context).pop();
+          return;
+        },
+      ),
+    );
+  }
+
+  _showAppAlert({String text, FlatButton actionButton}) {
     showDialog(
       context: context,
       builder: (context) {
@@ -415,22 +482,11 @@ class _BranchPageState extends State<BranchPage> {
             style: TextStyle(fontSize: 30),
           ),
           content: Text(
-            'Esta a punto de reiniciar el conteo del aforo actual para la sucursal ${branch['branchName']}. Está seguro de reiniciar el contador?',
+            text,
             style: TextStyle(fontSize: 20),
           ),
           actions: <Widget>[
-            FlatButton(
-              color: Colors.white,
-              child: Text(
-                "Reiniciar",
-                style: TextStyle(color: Colors.redAccent),
-              ),
-              onPressed: () {
-                Navigator.of(context).pop();
-                ShopFirebaseProvider.fb.resetBranchCapacity(branch['branchDocumentId']);
-                return;
-              },
-            ),
+            actionButton,
             SizedBox(
               width: 20,
             ),

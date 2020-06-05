@@ -194,7 +194,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           ),
                         ) :
                         Visibility(child: RaisedButton(
-                          color: Colors.redAccent,
+                          color: Theme.of(context).primaryColor,
                           child: Text('Eliminar Usuario', style: TextStyle(color: Colors.white),),
                           onPressed: () {
                             UserDBProvider.db.deleteUser();

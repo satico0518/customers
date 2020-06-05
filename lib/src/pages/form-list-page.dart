@@ -61,13 +61,14 @@ class _FormListState extends State<FormList> {
       body: SingleChildScrollView(
         scrollDirection: Axis.vertical,
         child: Container(
+          height: MediaQuery.of(context).size.height - 100,
           child: Column(
             mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: const EdgeInsets.all(15.0),
+                padding: const EdgeInsets.all(15.0).copyWith(bottom: 10),
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
@@ -82,127 +83,129 @@ class _FormListState extends State<FormList> {
                             fontWeight: FontWeight.bold),
                       ),
                       StreamBuilder<int>(
-                        stream: _formBloc.formListCountStream,
-                        builder: (context, snapshot) {
-                          return Text(' - Total: ${snapshot.data ?? 0}',
-                              style: TextStyle(
-                                  fontSize: 18,
-                                  color: Theme.of(context).primaryColor,
-                                  fontWeight: FontWeight.bold));
-                        }
-                      ),
+                          stream: _formBloc.formListCountStream,
+                          builder: (context, snapshot) {
+                            return Text(' - Total: ${snapshot.data ?? 0}',
+                                style: TextStyle(
+                                    fontSize: 18,
+                                    color: Theme.of(context).primaryColor,
+                                    fontWeight: FontWeight.bold));
+                          }),
                     ],
                   ),
                 ),
               ),
-              FutureBuilder<QuerySnapshot>(
-                future: ShopFirebaseProvider.fb
-                    .getBranchForms(_startDate, _endDate),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    _listData = snapshot.data.documents;
-                    _formBloc.changeFormListCount(_listData.length); 
-                    if (snapshot.data.documents.length == 0)
-                      return Container(
-                          height: MediaQuery.of(context).size.height * .70,
-                          padding: EdgeInsets.all(20),
-                          child: Text(
-                              'No hay encuestas registradas para este día!'));
+              Expanded(
+                child: FutureBuilder<QuerySnapshot>(
+                  future: ShopFirebaseProvider.fb
+                      .getBranchForms(_startDate, _endDate),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      _listData = snapshot.data.documents;
+                      _formBloc.changeFormListCount(_listData.length);
+                      if (snapshot.data.documents.length == 0)
+                        return Container(
+                            height: MediaQuery.of(context).size.height * .70,
+                            padding: EdgeInsets.all(20),
+                            child: Text(
+                                'No hay encuestas registradas para este día!'));
 
-                    _listData.sort((item1, item2) =>
-                        item2["insertDate"].compareTo(item1["insertDate"]));
-                    return Container(
-                      height: MediaQuery.of(context).size.height * .70,
-                      color: Colors.grey[200],
-                      width: double.infinity,
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.vertical,
+                      _listData.sort((item1, item2) =>
+                          item2["insertDate"].compareTo(item1["insertDate"]));
+                      return Container(
+                        height: MediaQuery.of(context).size.height * .70,
+                        color: Colors.grey[200],
+                        width: double.infinity,
                         child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: DataTable(
-                            dataRowHeight: 25,
-                            columns: [
-                              DataColumn(
-                                label: Text('Fecha'),
-                              ),
-                              DataColumn(label: Text('Temp.')),
-                              DataColumn(label: Text('Ver')),
-                            ],
-                            rows: _listData.map((item) {
-                              Icon gettingInIcon;
-                              if (item.data['gettingIn'] != null) {
-                                if (item.data['gettingIn'])
+                          scrollDirection: Axis.vertical,
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: DataTable(
+                              dataRowHeight: 30,
+                              columns: [
+                                DataColumn(
+                                  label: Text('Fecha'),
+                                ),
+                                DataColumn(label: Text('Temp.')),
+                                DataColumn(label: Text('Ver')),
+                              ],
+                              rows: _listData.map((item) {
+                                Icon gettingInIcon;
+                                if (item.data['gettingIn'] != null) {
+                                  if (item.data['gettingIn'])
+                                    gettingInIcon = Icon(
+                                      Icons.arrow_downward,
+                                      color: Colors.green,
+                                      size: 20,
+                                    );
+                                  else
+                                    gettingInIcon = Icon(
+                                      Icons.arrow_upward,
+                                      color: Colors.red,
+                                      size: 20,
+                                    );
+                                } else
                                   gettingInIcon = Icon(
-                                    Icons.arrow_downward,
-                                    color: Colors.green,
-                                    size: 15,
+                                    Icons.fiber_manual_record,
+                                    color: Colors.orangeAccent,
+                                    size: 20,
                                   );
-                                else
-                                  gettingInIcon = Icon(
-                                    Icons.arrow_upward,
-                                    color: Colors.red,
-                                    size: 15,
-                                  );
-                              } else
-                                gettingInIcon = Icon(
-                                  Icons.fiber_manual_record,
-                                  color: Colors.orangeAccent,
-                                  size: 15,
-                                );
-                              return DataRow(
-                                cells: <DataCell>[
-                                  DataCell(Row(
-                                    children: [
-                                      gettingInIcon,
-                                      Text(getStringDateFromtimestamp(
-                                          item.data['insertDate'])),
-                                    ],
-                                  )),
-                                  DataCell(
-                                      Text(item.data['temperature'] ?? '')),
-                                  DataCell(
-                                    GestureDetector(
-                                      onTap: () => _details(context, item.data),
-                                      child: Container(
-                                        width: 20,
-                                        child: Icon(
-                                          Icons.search,
-                                          size: 20,
-                                          color: Theme.of(context)
-                                              .secondaryHeaderColor,
+                                return DataRow(
+                                  cells: <DataCell>[
+                                    DataCell(Row(
+                                      children: [
+                                        gettingInIcon,
+                                        Text(getStringDateFromtimestamp(
+                                            item.data['insertDate']), style: TextStyle(fontSize: 13)),
+                                      ],
+                                    )),
+                                    DataCell(
+                                        Text(item.data['temperature'] ?? '', style: TextStyle(fontSize: 15))),
+                                    DataCell(
+                                      GestureDetector(
+                                        onTap: () =>
+                                            _details(context, item.data),
+                                        child: Container(
+                                          width: 20,
+                                          child: Icon(
+                                            Icons.search,
+                                            size: 20,
+                                            color: Theme.of(context)
+                                                .secondaryHeaderColor,
+                                          ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                ],
-                              );
-                            }).toList(),
+                                  ],
+                                );
+                              }).toList(),
+                            ),
                           ),
                         ),
-                      ),
-                    );
-                  } else {
-                    return Padding(
-                      padding: EdgeInsets.symmetric(
-                          horizontal: MediaQuery.of(context).size.width / 4),
-                      child: Column(
-                        children: [
-                          SizedBox(
-                            height: 100,
-                          ),
-                          CircularProgressIndicator(),
-                          SizedBox(
-                            height: 30,
-                          ),
-                          Text(
-                            'cargando encuestas...',
-                            style: TextStyle(fontSize: 16),
-                          )
-                        ],
-                      ),
-                    );
-                  }
-                },
+                      );
+                    } else {
+                      return Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: MediaQuery.of(context).size.width / 4),
+                        child: Column(
+                          children: [
+                            SizedBox(
+                              height: 100,
+                            ),
+                            CircularProgressIndicator(),
+                            SizedBox(
+                              height: 30,
+                            ),
+                            Text(
+                              'cargando encuestas...',
+                              style: TextStyle(fontSize: 16),
+                            )
+                          ],
+                        ),
+                      );
+                    }
+                  },
+                ),
               ),
               Row(
                 mainAxisSize: MainAxisSize.max,

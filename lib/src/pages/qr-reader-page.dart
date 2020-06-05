@@ -75,7 +75,7 @@ class _QRReaderPageState extends State<QRReaderPage> {
                       if (!snapshot.hasData) return Text('');
                       return Text(
                         'Bienvenido ${capitalizeWord(snapshot.data)}',
-                        style: TextStyle(fontSize: 25, color: Colors.white),
+                        style: TextStyle(fontSize: 30, color: Colors.white),
                       );
                     }),
                 Divider(
@@ -91,16 +91,31 @@ class _QRReaderPageState extends State<QRReaderPage> {
                       if (!snapshot.hasData) {
                         if (!snapshot.hasData) {
                           if (_prefs.currentBranch.branchDocumentId != null) {
-                            _shopBloc.changeShopCurrBranch(_prefs.currentBranch);
+                            _shopBloc
+                                .changeShopCurrBranch(_prefs.currentBranch);
                           }
                           return Text('Sucursal: Seleccione sucursal',
                               style:
                                   TextStyle(fontSize: 15, color: Colors.white));
                         }
                       }
-                      return Text(
-                        'Sucursal: ${capitalizeWord(snapshot.data.branchName)}',
-                        style: TextStyle(fontSize: 15, color: Colors.white),
+                      return Column(
+                        children: [
+                          Text('Sucursal:',
+                              style:
+                                  TextStyle(fontSize: 20, color: Colors.white)),
+                          SizedBox(
+                            height: 5,
+                          ),
+                          Text(
+                            '  ${capitalizeWord(snapshot.data.branchName)}  ',
+                            style: TextStyle(
+                                fontSize: 25,
+                                color: Colors.white,
+                                backgroundColor:
+                                    Theme.of(context).secondaryHeaderColor),
+                          ),
+                        ],
                       );
                     }),
                 SizedBox(

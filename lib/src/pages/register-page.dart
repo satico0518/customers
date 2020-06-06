@@ -35,7 +35,7 @@ class _RegisterPageState extends State<RegisterPage> {
     'Tarjeta de Identidad',
     'Otro'
   ];
-  String currentPassword;
+  bool passwordHasChange = false;
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +43,6 @@ class _RegisterPageState extends State<RegisterPage> {
     _prefs.initPrefs();
     final bloc = Provider.of(context);
     final _scaffoldKey = GlobalKey<ScaffoldState>();
-    currentPassword = bloc.password ?? '';
 
     return SafeArea(
       child: Scaffold(
@@ -543,7 +542,11 @@ class _RegisterPageState extends State<RegisterPage> {
             if (value.length < 6) return 'Mínimo 6 caracteres';
             return null;
           },
-          onChanged: bloc.changeUserPassword,
+          onChanged: (value ) {
+            if (bloc.password != null)
+              passwordHasChange = true;
+            bloc.changeUserPassword(value);
+          }
         );
       },
     );
@@ -636,7 +639,7 @@ class _RegisterPageState extends State<RegisterPage> {
           fontSize: 18.0,
         );
 
-        if (currentPassword != bloc.password) {
+        if (passwordHasChange) {
           UserFirebaseProvider.fb.changePassword(bloc.password);
           bloc.changeUserIsLogged(false);
           Navigator.pushNamed(context, LoginPage.routeName);

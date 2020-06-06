@@ -27,12 +27,11 @@ class _ShopFormState extends State<ShopForm> {
   bool _aceptTerms = false;
   bool _showPass = false;
   bool _isRegistering = false;
-  String _currentPassword;
+  bool passwordHasChange = false;
 
   @override
   Widget build(BuildContext context) {
     _shopBloc = Provider.shopBloc(context);
-    _currentPassword = _shopBloc.shopPassword ?? '';
     return SafeArea(
       child: Scaffold(
         key: _scaffoldKey,
@@ -89,7 +88,8 @@ class _ShopFormState extends State<ShopForm> {
                       builder: (context, snapshot) {
                         if (!snapshot.hasData) return Text('');
                         return Visibility(
-                            visible: !snapshot.data, child: _getNitField(_shopBloc));
+                            visible: !snapshot.data,
+                            child: _getNitField(_shopBloc));
                       }),
                   SizedBox(
                     height: 10,
@@ -429,7 +429,11 @@ class _ShopFormState extends State<ShopForm> {
             if (value.length < 6) return 'Mínimo 6 caracteres';
             return null;
           },
-          onChanged: bloc.changeShopPassword,
+          onChanged: (value) {
+            if (bloc.shopPassword != null)
+              passwordHasChange = true;
+            bloc.changeShopPassword;
+          },
         );
       },
     );
@@ -536,7 +540,7 @@ class _ShopFormState extends State<ShopForm> {
           fontSize: 18.0,
         );
 
-        if (_currentPassword != bloc.shopPassword) {
+        if (passwordHasChange) {
           UserFirebaseProvider.fb.changePassword(bloc.shopPassword);
           bloc.changeShopIsLogged(false);
           Navigator.pushNamed(context, LoginPage.routeName);
